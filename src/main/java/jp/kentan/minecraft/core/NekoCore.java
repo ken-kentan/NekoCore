@@ -32,12 +32,33 @@ public class NekoCore extends JavaPlugin {
 			try {
 				openURL("http://www27.atwiki.jp/dekitateserver_neko/");
 			} catch (Exception e) {
-				sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-				getLogger().info(e.toString());
+				doError(sender,e);
 				return false;
 			}
 			break;
 		case "map":
+			try {
+				openURL("http://minecraft.kentan.jp:8123/");
+			} catch (Exception e) {
+				doError(sender,e);
+				return false;
+			}
+			break;
+		case "blog":
+			try {
+				openURL("http://minecraft.kentan.jp:8123/");
+			} catch (Exception e) {
+				doError(sender,e);
+				return false;
+			}
+			break;
+		case "hp":
+			try {
+				openURL("http://minecraft.kentan.jp/");
+			} catch (Exception e) {
+				doError(sender,e);
+				return false;
+			}
 			break;
 		}
 		return true;
@@ -51,5 +72,10 @@ public class NekoCore extends JavaPlugin {
 		// Use default browser to connect to the following URL
 		d.browse(new URI("[url]" + _url + "[/url]"));
 
+	}
+	
+	public void doError(CommandSender _sender,Exception _e) {
+		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+		getLogger().info(_e.toString());
 	}
 }

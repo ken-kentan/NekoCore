@@ -1,9 +1,11 @@
 package jp.kentan.minecraft.core;
 
+import java.awt.Desktop;
+import java.net.URI;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NekoCore extends JavaPlugin {
@@ -19,22 +21,35 @@ public class NekoCore extends JavaPlugin {
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("basic")) {
-			// プレイヤーが /basic を実行すると、この部分の処理が実行されます...
-			return true;
-		} else if (cmd.getName().equalsIgnoreCase("basic2")) {
-			// プレイヤーが /basic2 を実行すると、この部分の処理が実行されます...
-			if (!(sender instanceof Player)) {
-				sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
-			} else {
-				Player player = (Player) sender;
-				
-				getLogger().info(player + "が/basic2を実行しました。");
-				// コマンドの実行処理...
+	public boolean onCommand(CommandSender sender, Command cmd,
+			String commandLabel, String[] args) {
+
+		switch (cmd.getName()) {
+		case "neko":
+			sender.sendMessage("にゃーん");
+			break;
+		case "wiki":
+			try {
+				openURL("http://www27.atwiki.jp/dekitateserver_neko/");
+			} catch (Exception e) {
+				sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+				getLogger().info(e.toString());
+				return false;
 			}
-			return true;
+			break;
+		case "map":
+			break;
 		}
-		return false;
+		return true;
+	}
+
+	public static void openURL(String _url) throws Exception {
+
+		// Get client's desktop
+		Desktop d = Desktop.getDesktop();
+
+		// Use default browser to connect to the following URL
+		d.browse(new URI("[url]" + _url + "[/url]"));
+
 	}
 }

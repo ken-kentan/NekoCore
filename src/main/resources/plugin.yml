@@ -1,10 +1,37 @@
 name: NekoCore
-main: jp.kentan.minecraft.core
+main: jp.kentan.minecraft.core.NekoCore
 version: 0.0.1
+author: ken_kentan
+website: http://ken.kentan.jp
 
 commands:
- basic:
-  description: This is a demo command.
-  usage: /<command> [player]
-  permission: tutorialplugin.basic
-  permission-message: You don't have <permission>
+    neko:
+        description: にゃーん
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    wiki:
+        description: wikiのURLを表示します
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    map:
+        description: DynmapのURLを表示します
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    blog:
+        description: BlogのURLを表示します
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    hp:
+        description: ホームページのURLを表示します
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    twitter:
+        description: ServerAdminのTwitterURLを表示します
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>

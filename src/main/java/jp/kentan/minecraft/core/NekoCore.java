@@ -1,12 +1,10 @@
 package jp.kentan.minecraft.core;
 
-import java.awt.Desktop;
-import java.net.URI;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+
 
 public class NekoCore extends JavaPlugin {
 
@@ -26,55 +24,60 @@ public class NekoCore extends JavaPlugin {
 
 		switch (cmd.getName()) {
 		case "neko":
-			sender.sendMessage("にゃーん");
+			sender.sendMessage(ChatColor.GOLD + "にゃーん");
+			getLogger().info(ChatColor.GOLD + "にゃーん");
 			break;
 		case "wiki":
 			try {
-				openURL("http://www27.atwiki.jp/dekitateserver_neko/");
+				openURL(sender, "http://www27.atwiki.jp/dekitateserver_neko/");
 			} catch (Exception e) {
-				doError(sender,e);
+				doError(sender, e);
 				return false;
 			}
 			break;
 		case "map":
 			try {
-				openURL("http://minecraft.kentan.jp:8123/");
+				openURL(sender, "http://minecraft.kentan.jp:8123/");
 			} catch (Exception e) {
-				doError(sender,e);
+				doError(sender, e);
 				return false;
 			}
 			break;
 		case "blog":
 			try {
-				openURL("http://minecraft.kentan.jp:8123/");
+				openURL(sender, "http://blog.kentan.jp/category/minecraft/");
 			} catch (Exception e) {
-				doError(sender,e);
+				doError(sender, e);
 				return false;
 			}
 			break;
 		case "hp":
 			try {
-				openURL("http://minecraft.kentan.jp/");
+				openURL(sender, "http://minecraft.kentan.jp/");
 			} catch (Exception e) {
-				doError(sender,e);
+				doError(sender, e);
+				return false;
+			}
+			break;
+		case "twitter":
+			try {
+				openURL(sender, "https://twitter.com/ken_kentan/");
+			} catch (Exception e) {
+				doError(sender, e);
 				return false;
 			}
 			break;
 		}
+
 		return true;
 	}
 
-	public static void openURL(String _url) throws Exception {
-
-		// Get client's desktop
-		Desktop d = Desktop.getDesktop();
-
-		// Use default browser to connect to the following URL
-		d.browse(new URI("[url]" + _url + "[/url]"));
-
+	public static void openURL(CommandSender _sender, String _url){
+		_sender.sendMessage(ChatColor.AQUA + _url);
+		_sender.sendMessage(ChatColor.GRAY + "↑のアドレスをクリックして下さい");
 	}
-	
-	public void doError(CommandSender _sender,Exception _e) {
+
+	public void doError(CommandSender _sender, Exception _e) {
 		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
 		getLogger().info(_e.toString());
 	}

@@ -1,10 +1,11 @@
 package jp.kentan.minecraft.core;
 
+import java.util.Random;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-
 
 public class NekoCore extends JavaPlugin {
 
@@ -24,8 +25,30 @@ public class NekoCore extends JavaPlugin {
 
 		switch (cmd.getName()) {
 		case "neko":
-			sender.sendMessage(ChatColor.GOLD + "にゃーん");
-			getLogger().info(ChatColor.GOLD + "にゃーん");
+			Random rnd = new Random();
+			int rand = rnd.nextInt(5);
+			switch (rand) {
+			case 0:
+				sender.sendMessage(ChatColor.GOLD + "にゃーん (^・ω・^ )");
+				getLogger().info("にゃーん 0");
+				break;
+			case 1:
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(●´ω｀●)ฅ");
+				getLogger().info("にゃーん 1");
+				break;
+			case 2:
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ⊱*•ω•*⊰ฅ");
+				getLogger().info("にゃーん 2");
+				break;
+			case 3:
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(^ω^ฅ)");
+				getLogger().info("にゃーん 3");
+				break;
+			case 4:
+				sender.sendMessage(ChatColor.GOLD + "(ฅ`･ω･´)っ= にゃんぱーんち！");
+				getLogger().info("にゃーん 4");
+				break;
+			}
 			break;
 		case "wiki":
 			try {
@@ -72,9 +95,10 @@ public class NekoCore extends JavaPlugin {
 		return true;
 	}
 
-	public static void openURL(CommandSender _sender, String _url){
-		_sender.sendMessage(ChatColor.AQUA + _url);
-		_sender.sendMessage(ChatColor.GRAY + "↑のアドレスをクリックして下さい");
+	public static void openURL(CommandSender _sender, String _url) {
+		_sender.sendMessage(" " + ChatColor.AQUA + "" + ChatColor.UNDERLINE
+				+ _url);
+		_sender.sendMessage(" " + ChatColor.GRAY + "↑のアドレスをクリックして下さい");
 	}
 
 	public void doError(CommandSender _sender, Exception _e) {

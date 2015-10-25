@@ -1,9 +1,8 @@
 package jp.kentan.minecraft.core;
 
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Random;
 
@@ -100,34 +99,42 @@ public class NekoCore extends JavaPlugin {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください");
 			} else {
-				if(args.length > 1){
+				if (args.length > 1) {
 					sender.sendMessage(ChatColor.RED + "文にスペースを挟まないでください");
 					sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-			        return false;
-				}else if(args[0] == null){
+					return false;
+				} else if (args.length == 0) {
 					sender.sendMessage(ChatColor.RED + "報告内容を記入してください");
 					sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-			        return false;
-				}
-				
-				Player player = (Player) sender;
-		        try {
-		            FileWriter fw = new FileWriter("G:¥¥Minecraft_Server¥¥plugins¥¥NekoCore¥¥report.txt", true);
-		            PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
-		            
-		            Calendar calendar = Calendar.getInstance();
-
-		            pw.println("[" + calendar.getTime().toString() + "]" + player.toString() + ":" + args[0]);
-
-		            pw.close();
-
-		            sender.sendMessage(ChatColor.AQUA + "報告が正常に受け付けられました！");
-		            getLogger().info(player.toString() + " からレポートが送信されました");
-
-		        } catch (IOException e) {
-		        	doError(sender, e);
 					return false;
-		        }
+				}
+
+				Player player = (Player) sender;
+				try {
+					File file = new File("plugins/NekoCore/report.txt");
+
+					if (checkBeforeWritefile(file)) {
+						FileWriter filewriter = new FileWriter(file, true);
+						
+						Calendar calendar = Calendar.getInstance();
+
+						filewriter.write("[" + calendar.getTime().toString() + "]"+ player.toString() + ":" + args[0] + "\r\n");
+
+						filewriter.close();
+						
+						sender.sendMessage(ChatColor.AQUA + "報告を正常に受け付けました！");
+						getLogger().info(player.toString() + " からレポートが送信されました");
+					} else {
+						sender.sendMessage(ChatColor.RED + "報告内容を記録できませんでした");
+						sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+						getLogger().info("レポートをファイルに書き込めませんでした");
+						
+						return false;
+					}
+				} catch (IOException e) {
+					doError(sender, e);
+					return false;
+				}
 			}
 			break;
 		}
@@ -144,5 +151,15 @@ public class NekoCore extends JavaPlugin {
 	public void doError(CommandSender _sender, Exception _e) {
 		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
 		getLogger().info(_e.toString());
+	}
+
+	private static boolean checkBeforeWritefile(File file) {
+		if (file.exists()) {
+			if (file.isFile() && file.canWrite()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

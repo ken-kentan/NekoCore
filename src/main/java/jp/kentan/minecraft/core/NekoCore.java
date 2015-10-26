@@ -17,12 +17,12 @@ public class NekoCore extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		new TpsMeter().runTaskTimer(this, 0, 1);
-		getLogger().info(ChatColor.GREEN + "NekoCoreが有効化されました");
+		getLogger().info("NekoCoreが有効化されました");
 	}
 
 	@Override
 	public void onDisable() {
-		getLogger().info(ChatColor.YELLOW + "NekoCoreが無効化されました");
+		getLogger().info("NekoCoreが無効化されました");
 	}
 
 	@Override
@@ -140,11 +140,11 @@ public class NekoCore extends JavaPlugin {
 			break;
 		case "server":
 			double tps = TpsMeter.tps;
-			int per = 0;
+			double per = 0;
 			
-			per = (int) (100 - (tps * 5));//Conver to 0~100%
+			per = 100 - (tps * 5);//Conver to 0~100%
 			
-			sender.sendMessage("現在のサーバー負荷率は " + ChatColor.GREEN + Integer.toString(per) + ChatColor.GREEN + "%" + ChatColor.WHITE + " です");
+			showLoad(sender,per);
 			break;
 		}
 
@@ -155,6 +155,21 @@ public class NekoCore extends JavaPlugin {
 		_sender.sendMessage(" " + ChatColor.AQUA + "" + ChatColor.UNDERLINE
 				+ _url);
 		_sender.sendMessage(" " + ChatColor.GRAY + "↑のアドレスをクリックして下さい");
+	}
+	
+	public  void showLoad(CommandSender _sender,double _per) {		
+		String str_per = String.format("%.2f%%", _per);
+		
+		if(_per <= 5)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です");
+		else if(_per <= 10)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です");
+		else if(_per <= 20)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です");
+		else{
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.RED + str_per + ChatColor.WHITE + " です");
+			_sender.sendMessage("サーバーに負荷がかかる行為を中止してください。");
+		}
 	}
 
 	public void doError(CommandSender _sender, Exception _e) {

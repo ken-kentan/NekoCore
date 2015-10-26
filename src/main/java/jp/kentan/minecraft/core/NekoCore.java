@@ -16,6 +16,7 @@ public class NekoCore extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		new TpsMeter().runTaskTimer(this, 0, 1);
 		getLogger().info(ChatColor.GREEN + "NekoCoreが有効化されました");
 	}
 
@@ -136,6 +137,14 @@ public class NekoCore extends JavaPlugin {
 					return false;
 				}
 			}
+			break;
+		case "server":
+			double tps = TpsMeter.tps;
+			int per = 0;
+			
+			per = (int) (100 - (tps * 5));//Conver to 0~100%
+			
+			sender.sendMessage("現在のサーバー負荷率は " + ChatColor.GREEN + Integer.toString(per) + ChatColor.GREEN + "%" + ChatColor.WHITE + " です");
 			break;
 		}
 

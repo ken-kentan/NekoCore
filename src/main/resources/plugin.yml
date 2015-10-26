@@ -1,6 +1,6 @@
 name: NekoCore
 main: jp.kentan.minecraft.core.NekoCore
-version: 0.0.2
+version: 0.0.3
 author: ken_kentan
 website: http://ken.kentan.jp
 
@@ -38,5 +38,10 @@ commands:
     report:
         description: 運営に報告文を送信します
         usage: /<command> [報告文]
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+    server:
+        description: 現在の猫鯖の負荷率を表示します
+        usage: /<command>
         permission: jp.kentan.minecraft.core
         permission-message: You don't have <permission>

@@ -6,13 +6,17 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NekoCore extends JavaPlugin {
+	private int online_player = 0, voted_player = 0, rain_minute = -1;
+	private String v_player[] = new String[20];
 
 	@Override
 	public void onEnable() {
@@ -99,52 +103,134 @@ public class NekoCore extends JavaPlugin {
 		case "report":
 			if (!(sender instanceof Player)) {
 				sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください");
-			} else {
-				if (args.length > 1) {
-					sender.sendMessage(ChatColor.RED + "文にスペースを挟まないでください");
+				return false;
+			}
+
+			if (args.length > 1) {
+				sender.sendMessage(ChatColor.RED + "文にスペースを挟まないでください");
+				sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+				return false;
+			} else if (args.length == 0) {
+				sender.sendMessage(ChatColor.RED + "報告内容を記入してください");
+				sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+				return false;
+			}
+
+			Player player = (Player) sender;
+			try {
+				File file = new File("plugins/NekoCore/report.txt");
+
+				if (checkBeforeWritefile(file)) {
+					FileWriter filewriter = new FileWriter(file, true);
+
+					Calendar calendar = Calendar.getInstance();
+
+					filewriter.write("[" + calendar.getTime().toString() + "]"
+							+ player.toString() + ":" + args[0] + "\r\n");
+
+					filewriter.close();
+
+					sender.sendMessage(ChatColor.AQUA + "報告を正常に受け付けました！");
+					getLogger().info(player.toString() + " からレポートが送信されました");
+				} else {
+					sender.sendMessage(ChatColor.RED + "報告内容を記録できませんでした");
 					sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-					return false;
-				} else if (args.length == 0) {
-					sender.sendMessage(ChatColor.RED + "報告内容を記入してください");
-					sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
+					getLogger().info("レポートをファイルに書き込めませんでした");
+
 					return false;
 				}
+			} catch (IOException e) {
+				doError(sender, e);
+				return false;
 
-				Player player = (Player) sender;
-				try {
-					File file = new File("plugins/NekoCore/report.txt");
-
-					if (checkBeforeWritefile(file)) {
-						FileWriter filewriter = new FileWriter(file, true);
-						
-						Calendar calendar = Calendar.getInstance();
-
-						filewriter.write("[" + calendar.getTime().toString() + "]"+ player.toString() + ":" + args[0] + "\r\n");
-
-						filewriter.close();
-						
-						sender.sendMessage(ChatColor.AQUA + "報告を正常に受け付けました！");
-						getLogger().info(player.toString() + " からレポートが送信されました");
-					} else {
-						sender.sendMessage(ChatColor.RED + "報告内容を記録できませんでした");
-						sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-						getLogger().info("レポートをファイルに書き込めませんでした");
-						
-						return false;
-					}
-				} catch (IOException e) {
-					doError(sender, e);
-					return false;
-				}
 			}
 			break;
 		case "server":
 			double tps = TpsMeter.tps;
 			double per = 0;
+
+			per = 100 - (tps * 5);// Conver to 0~100%
+
+			showLoad(sender, per);
+			break;
+		case "stoprain":
+			int last_minute = 5;
 			
-			per = 100 - (tps * 5);//Conver to 0~100%
-			
-			showLoad(sender,per);
+			Calendar now = Calendar.getInstance();
+
+			// show only stats
+			if (args.length == 0) {
+				
+				try{
+					for(int i = 0;v_player[i] != null ;i++){
+						if(v_player[i].equals(((Player)sender).toString())){
+							sender.sendMessage(ChatColor.RED + "多重投票です！");
+							return true;
+						}
+					}
+				}catch(Exception e){
+					getLogger().info(e.toString());
+				}
+				
+				v_player[voted_player] = ((Player)sender).toString();
+				
+
+				online_player = Bukkit.getServer().getOnlinePlayers().size();
+				voted_player++;
+
+				if (rain_minute == -1)
+					rain_minute = now.get(now.MINUTE);
+
+				// Reset 5 minutes
+				if (now.get(now.MINUTE) - rain_minute >= 5 || (now.get(now.MINUTE) + (60 - rain_minute) >= 5) && (rain_minute > 55)) {
+					
+					voteReset();
+
+					sender.sendMessage(ChatColor.RED + "投票開始から5分経過しました。");
+					sender.sendMessage(ChatColor.RED + "投票をリセットします。");
+
+					return true;
+				}
+
+				if (voted_player >= online_player / 2) {
+					voteReset();
+					
+					((Entity) sender).getWorld().setStorm(false); // 雨を止める
+					((Entity) sender).getWorld().setThundering(false); // 落雷を止める
+					sender.sendMessage(ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+
+					getLogger().info("投票の結果、天候を晴れにしました。");
+
+					return true;
+				}
+				
+				if(rain_minute > 55) last_minute = 5 - (now.get(now.MINUTE) + (60 - rain_minute));
+				else                 last_minute = 5 - (now.get(now.MINUTE) - rain_minute);
+
+				// display stats
+				sender.sendMessage("天候投票に成功しました！");
+				sender.sendMessage("現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
+				sender.sendMessage("残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
+				sender.sendMessage("ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
+			} else {
+				if (args[0].equals("stats")) {
+					
+					if(rain_minute == -1){
+						sender.sendMessage(ChatColor.YELLOW + "投票が開始されていないためステータスを表示できません。");
+						return true;
+					}
+					
+					if(rain_minute > 55) last_minute = 5 - (now.get(now.MINUTE) + (60 - rain_minute));
+					else                 last_minute = 5 - (now.get(now.MINUTE) - rain_minute);
+					
+					sender.sendMessage("現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
+					sender.sendMessage("残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
+					sender.sendMessage("ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
+
+					return true;
+				}
+			}
+
 			break;
 		}
 
@@ -156,18 +242,22 @@ public class NekoCore extends JavaPlugin {
 				+ _url);
 		_sender.sendMessage(" " + ChatColor.GRAY + "↑のアドレスをクリックして下さい");
 	}
-	
-	public  void showLoad(CommandSender _sender,double _per) {		
+
+	public void showLoad(CommandSender _sender, double _per) {
 		String str_per = String.format("%.2f%%", _per);
-		
-		if(_per <= 5)
-			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です");
-		else if(_per <= 10)
-			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です");
-		else if(_per <= 20)
-			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です");
-		else{
-			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.RED + str_per + ChatColor.WHITE + " です");
+
+		if (_per <= 5)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.AQUA + str_per
+					+ ChatColor.WHITE + " です");
+		else if (_per <= 10)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.GREEN + str_per
+					+ ChatColor.WHITE + " です");
+		else if (_per <= 20)
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.YELLOW + str_per
+					+ ChatColor.WHITE + " です");
+		else {
+			_sender.sendMessage("現在のサーバー負荷率は " + ChatColor.RED + str_per
+					+ ChatColor.WHITE + " です");
 			_sender.sendMessage("サーバーに負荷がかかる行為を中止してください。");
 		}
 	}
@@ -175,6 +265,17 @@ public class NekoCore extends JavaPlugin {
 	public void doError(CommandSender _sender, Exception _e) {
 		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
 		getLogger().info(_e.toString());
+	}
+	
+	public void voteReset(){
+		voted_player = 0;
+		rain_minute = -1;
+		
+		for(int i = 0;i < 20;i++){
+			v_player[i] = null;
+		}
+
+		getLogger().info("stoprainの投票がリセットされました");
 	}
 
 	private static boolean checkBeforeWritefile(File file) {

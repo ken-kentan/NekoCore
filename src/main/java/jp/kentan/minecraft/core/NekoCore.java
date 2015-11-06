@@ -44,19 +44,19 @@ public class NekoCore extends JavaPlugin {
 				getLogger().info("にゃーん 0");
 				break;
 			case 1:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ?(●´ω｀●)?");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(●´ω｀●)ฅ");
 				getLogger().info("にゃーん 1");
 				break;
 			case 2:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ??*?ω?*??");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ⊱*•ω•*⊰ฅ");
 				getLogger().info("にゃーん 2");
 				break;
 			case 3:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ?(^ω^?)");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(^ω^ฅ)");
 				getLogger().info("にゃーん 3");
 				break;
 			case 4:
-				sender.sendMessage(ChatColor.GOLD + "(?`･ω･´)っ= にゃんぱーんち！");
+				sender.sendMessage(ChatColor.GOLD + "(ฅ`･ω･´)っ= にゃんぱーんち！");
 				getLogger().info("にゃーん 4");
 				break;
 			}

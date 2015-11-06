@@ -1,52 +1,17 @@
 name: NekoCore
 main: jp.kentan.minecraft.core.NekoCore
-version: 0.0.4
+version: 1.0.0-SNAPSHOT
 author: ken_kentan
 website: http://ken.kentan.jp
 
 commands:
     neko:
-        description: にゃーん
+        description: NekoCoreのヘルプを表示します。
         usage: /<command>
         permission: jp.kentan.minecraft.core
         permission-message: You don't have <permission>
-    wiki:
-        description: wikiのURLを表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    map:
-        description: DynmapのURLを表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    blog:
-        description: BlogのURLを表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    hp:
-        description: ホームページのURLを表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    twitter:
-        description: ServerAdminのTwitterURLを表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    report:
-        description: 運営に報告文を送信します
-        usage: /<command> [報告文]
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    server:
-        description: 現在の猫鯖の負荷率を表示します
-        usage: /<command>
-        permission: jp.kentan.minecraft.core
-        permission-message: You don't have <permission>
-    stoprain:
-        description: 猫鯖の天気投票を行います
+    nk:
+        description: NekoCoreのヘルプを表示します。
         usage: /<command>
         permission: jp.kentan.minecraft.core
         permission-message: You don't have <permission>

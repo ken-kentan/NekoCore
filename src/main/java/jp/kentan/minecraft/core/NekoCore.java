@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class NekoCore extends JavaPlugin {
 	private int online_player = 0, voted_player = 0, rain_minute = -1;
-	private String v_player[] = new String[20];
+	private CommandSender cs_player[] =new CommandSender[20];
 
 	@Override
 	public void onEnable() {
@@ -162,8 +162,8 @@ public class NekoCore extends JavaPlugin {
 			if (args.length == 0) {
 				
 				try{
-					for(int i = 0;v_player[i] != null ;i++){
-						if(v_player[i].equals(((Player)sender).toString())){
+					for(int i = 0;cs_player[i] != null ;i++){
+						if(cs_player[i] == sender){
 							sender.sendMessage(ChatColor.RED + "多重投票です！");
 							return true;
 						}
@@ -171,10 +171,8 @@ public class NekoCore extends JavaPlugin {
 				}catch(Exception e){
 					getLogger().info(e.toString());
 				}
-				
-				v_player[voted_player] = ((Player)sender).toString();
-				
 
+				cs_player[voted_player] = sender;
 				online_player = Bukkit.getServer().getOnlinePlayers().size();
 				voted_player++;
 
@@ -197,7 +195,10 @@ public class NekoCore extends JavaPlugin {
 					
 					((Entity) sender).getWorld().setStorm(false); // 雨を止める
 					((Entity) sender).getWorld().setThundering(false); // 落雷を止める
-					sender.sendMessage(ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+					
+					for(int i = 0;cs_player[i] != null ;i++){
+						cs_player[i].sendMessage(ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+					}
 
 					getLogger().info("投票の結果、天候を晴れにしました。");
 
@@ -223,6 +224,15 @@ public class NekoCore extends JavaPlugin {
 					if(rain_minute > 55) last_minute = 5 - (now.get(now.MINUTE) + (60 - rain_minute));
 					else                 last_minute = 5 - (now.get(now.MINUTE) - rain_minute);
 					
+					if(last_minute >= 5){
+						voteReset();
+
+						sender.sendMessage(ChatColor.RED + "投票開始から5分経過しました。");
+						sender.sendMessage(ChatColor.RED + "投票をリセットします。");
+
+						return true;						
+					}
+					
 					sender.sendMessage("現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
 					sender.sendMessage("残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
 					sender.sendMessage("ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
@@ -230,7 +240,6 @@ public class NekoCore extends JavaPlugin {
 					return true;
 				}
 			}
-
 			break;
 		}
 
@@ -272,7 +281,7 @@ public class NekoCore extends JavaPlugin {
 		rain_minute = -1;
 		
 		for(int i = 0;i < 20;i++){
-			v_player[i] = null;
+			cs_player[i] = null;
 		}
 
 		getLogger().info("stoprainの投票がリセットされました");

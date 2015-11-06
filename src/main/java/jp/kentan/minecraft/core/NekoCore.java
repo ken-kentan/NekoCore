@@ -20,6 +20,7 @@ public class NekoCore extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		voteReset();
 		new TpsMeter().runTaskTimer(this, 0, 1);
 		getLogger().info("NekoCoreが有効化されました");
 	}
@@ -43,19 +44,19 @@ public class NekoCore extends JavaPlugin {
 				getLogger().info("にゃーん 0");
 				break;
 			case 1:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(●´ω｀●)ฅ");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ?(●´ω｀●)?");
 				getLogger().info("にゃーん 1");
 				break;
 			case 2:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ⊱*•ω•*⊰ฅ");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ??*?ω?*??");
 				getLogger().info("にゃーん 2");
 				break;
 			case 3:
-				sender.sendMessage(ChatColor.GOLD + "にゃーん ฅ(^ω^ฅ)");
+				sender.sendMessage(ChatColor.GOLD + "にゃーん ?(^ω^?)");
 				getLogger().info("にゃーん 3");
 				break;
 			case 4:
-				sender.sendMessage(ChatColor.GOLD + "(ฅ`･ω･´)っ= にゃんぱーんち！");
+				sender.sendMessage(ChatColor.GOLD + "(?`･ω･´)っ= にゃんぱーんち！");
 				getLogger().info("にゃーん 4");
 				break;
 			}
@@ -161,15 +162,11 @@ public class NekoCore extends JavaPlugin {
 			// show only stats
 			if (args.length == 0) {
 				
-				try{
-					for(int i = 0;cs_player[i] != null ;i++){
-						if(cs_player[i] == sender){
-							sender.sendMessage(ChatColor.RED + "多重投票です！");
-							return true;
-						}
+				for(int i = 0;cs_player[i] != null ;i++){
+					if(cs_player[i] == sender){
+						sender.sendMessage(ChatColor.RED + "多重投票です！");
+						return true;
 					}
-				}catch(Exception e){
-					getLogger().info(e.toString());
 				}
 
 				cs_player[voted_player] = sender;
@@ -181,24 +178,25 @@ public class NekoCore extends JavaPlugin {
 
 				// Reset 5 minutes
 				if (now.get(now.MINUTE) - rain_minute >= 5 || (now.get(now.MINUTE) + (60 - rain_minute) >= 5) && (rain_minute > 55)) {
+					for(int i = 0;cs_player[i] != null ;i++){
+						cs_player[i].sendMessage(ChatColor.RED + "投票開始から5分以上経過しました。");
+						cs_player[i].sendMessage(ChatColor.RED + "投票をリセットします。");
+					}
 					
 					voteReset();
-
-					sender.sendMessage(ChatColor.RED + "投票開始から5分経過しました。");
-					sender.sendMessage(ChatColor.RED + "投票をリセットします。");
 
 					return true;
 				}
 
 				if (voted_player >= online_player / 2) {
-					voteReset();
-					
-					((Entity) sender).getWorld().setStorm(false); // 雨を止める
-					((Entity) sender).getWorld().setThundering(false); // 落雷を止める
-					
 					for(int i = 0;cs_player[i] != null ;i++){
+						((Entity) cs_player[i]).getWorld().setStorm(false); // 雨を止める
+						((Entity) cs_player[i]).getWorld().setThundering(false); // 落雷を止める
+						
 						cs_player[i].sendMessage(ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 					}
+					
+					voteReset();
 
 					getLogger().info("投票の結果、天候を晴れにしました。");
 
@@ -209,10 +207,10 @@ public class NekoCore extends JavaPlugin {
 				else                 last_minute = 5 - (now.get(now.MINUTE) - rain_minute);
 
 				// display stats
-				sender.sendMessage("天候投票に成功しました！");
+				sender.sendMessage(ChatColor.YELLOW + "天候投票に成功しました！");
 				sender.sendMessage("現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
 				sender.sendMessage("残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
-				sender.sendMessage("ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
+				sender.sendMessage(ChatColor.GRAY + "ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
 			} else {
 				if (args[0].equals("stats")) {
 					
@@ -224,18 +222,20 @@ public class NekoCore extends JavaPlugin {
 					if(rain_minute > 55) last_minute = 5 - (now.get(now.MINUTE) + (60 - rain_minute));
 					else                 last_minute = 5 - (now.get(now.MINUTE) - rain_minute);
 					
-					if(last_minute >= 5){
+					if(last_minute > 5 || last_minute < 0){
+						for(int i = 0;cs_player[i] != null ;i++){
+							cs_player[i].sendMessage(ChatColor.RED + "投票開始から5分以上経過しました。");
+							cs_player[i].sendMessage(ChatColor.RED + "投票をリセットします。");
+						}
+						
 						voteReset();
-
-						sender.sendMessage(ChatColor.RED + "投票開始から5分経過しました。");
-						sender.sendMessage(ChatColor.RED + "投票をリセットします。");
 
 						return true;						
 					}
 					
 					sender.sendMessage("現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
 					sender.sendMessage("残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
-					sender.sendMessage("ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
+					sender.sendMessage(ChatColor.GRAY + "ログインプレイヤーの50%が投票(/stoprain)することで天候が晴れになります。");
 
 					return true;
 				}

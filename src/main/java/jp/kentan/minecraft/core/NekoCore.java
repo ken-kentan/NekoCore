@@ -221,6 +221,7 @@ public class NekoCore extends JavaPlugin {
 	
 	private void showVoteStats(CommandSender _sender, Calendar _calendar){
 		int last_minute = 0;
+		boolean find_player = false;
 	
 		if(first_vote == -1){
 			_sender.sendMessage("| " + ChatColor.YELLOW + "投票が開始されていないためステータスを表示できません。");
@@ -232,11 +233,15 @@ public class NekoCore extends JavaPlugin {
 		else                                                          last_minute = 5 - (_calendar.get(_calendar.MINUTE) - first_vote);
 		
 		if(last_minute > 5 || last_minute < 0){
+			
 			for(int i = 0;cs_player[i] != null ;i++){
-				cs_player[i].sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
-				cs_player[i].sendMessage("| " + ChatColor.RED + "投票をリセットします。");
-				cs_player[i].sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+				
+				if(cs_player[i] == _sender) find_player = true;
+				
+				voteResetMessage(cs_player[i]);
 			}
+			
+			if(find_player == false) voteResetMessage(_sender);
 			
 			voteReset();
 
@@ -269,9 +274,7 @@ public class NekoCore extends JavaPlugin {
 		// Reset 5 minutes
 		if (_calendar.get(_calendar.MINUTE) - first_vote >= 5 || (_calendar.get(_calendar.MINUTE) + (60 - first_vote) >= 5) && (first_vote > 55 && _calendar.get(_calendar.MINUTE) <= 10)) {
 			for(int i = 0;cs_player[i] != null ;i++){
-				cs_player[i].sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
-				cs_player[i].sendMessage("| " + ChatColor.RED + "投票をリセットします。");
-				cs_player[i].sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+				voteResetMessage(cs_player[i]);
 			}
 			
 			voteReset();
@@ -304,7 +307,7 @@ public class NekoCore extends JavaPlugin {
 		_sender.sendMessage("| " + ChatColor.GRAY + "投票状況は /neko vote stats で確認できます。");
 	}
 	
-	public void voteReset(){
+	private void voteReset(){
 		voted_player = 0;
 		first_vote = -1;
 		
@@ -313,6 +316,12 @@ public class NekoCore extends JavaPlugin {
 		}
 
 		getLogger().info("天候投票がリセットされました");
+	}
+	
+	private void voteResetMessage(CommandSender _sender){
+		_sender.sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
+		_sender.sendMessage("| " + ChatColor.RED + "投票をリセットします。");
+		_sender.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
 	}
 
 	private static boolean checkBeforeWritefile(File file) {

@@ -13,15 +13,35 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class NekoCore extends JavaPlugin {
-	private int online_player = 0, voted_player = 0, first_vote = -1;
+	BukkitTask task;
+	
+	private int online_player = 0, voted_player = 0, sec_time = 0;
 	private CommandSender cs_player[] =new CommandSender[20];
 
 	@Override
 	public void onEnable() {
 		voteReset();
 		new TpsMeter().runTaskTimer(this, 0, 1);
+		
+		new BukkitRunnable()
+		{
+		    @Override
+		    public void run()
+		    {
+		    	//run
+		    	if(voted_player > 0) sec_time++;
+				if(sec_time > 300){ //5m
+					voteResetMessage();
+					voteReset();
+					sec_time = 0;
+				}
+		    }
+		}.runTaskTimer(this, 20, 20);//20 1s
+		
 		getLogger().info("NekoCoreを有効にしました");
 	}
 
@@ -76,10 +96,9 @@ public class NekoCore extends JavaPlugin {
 				showLoad(sender, 100 - (TpsMeter.tps * (double)5));
 				break;
 			case "vote":
-				Calendar calendar = Calendar.getInstance();
 				
 				if(args.length > 1 && args[1].equals("stats")){
-					showVoteStats(sender, calendar);
+					showVoteStats(sender);
 					return true;
 				}
 				
@@ -88,7 +107,7 @@ public class NekoCore extends JavaPlugin {
 					return false;
 				}
 				
-				voteProcess(sender, calendar);
+				voteProcess(sender);
 				
 				break;
 			}
@@ -219,42 +238,20 @@ public class NekoCore extends JavaPlugin {
 		}
 	}
 	
-	private void showVoteStats(CommandSender _sender, Calendar _calendar){
-		int last_minute = 0;
-		boolean find_player = false;
+	private void showVoteStats(CommandSender _sender){
 	
-		if(first_vote == -1){
+		if(voted_player == 0){
 			_sender.sendMessage("| " + ChatColor.YELLOW + "投票が開始されていないためステータスを表示できません。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は /neko vote を実行してください。");
 			return;
 		}
 		
-		if(first_vote > 55 && _calendar.get(_calendar.MINUTE) <= 10) last_minute = 5 - (_calendar.get(_calendar.MINUTE) + (60 - first_vote));
-		else                                                          last_minute = 5 - (_calendar.get(_calendar.MINUTE) - first_vote);
-		
-		if(last_minute > 5 || last_minute < 0){
-			
-			for(int i = 0;cs_player[i] != null ;i++){
-				
-				if(cs_player[i] == _sender) find_player = true;
-				
-				voteResetMessage(cs_player[i]);
-			}
-			
-			if(find_player == false) voteResetMessage(_sender);
-			
-			voteReset();
-
-			return;						
-		}
-		
 		_sender.sendMessage("| " + "現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
-		_sender.sendMessage("| " + "残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
+		_sender.sendMessage("| " + "残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time) + "秒");
 		_sender.sendMessage("| " + ChatColor.GRAY + "ログインプレイヤーの50%が投票(/neko vote)することで天候が晴れになります。");
 	}
 	
-	private void voteProcess(CommandSender _sender, Calendar _calendar){
-		int last_minute = 0;
+	private void voteProcess(CommandSender _sender){
 		
 		for(int i = 0;cs_player[i] != null ;i++){
 			if(cs_player[i] == _sender){
@@ -268,27 +265,24 @@ public class NekoCore extends JavaPlugin {
 		online_player = Bukkit.getServer().getOnlinePlayers().size();
 		voted_player++;
 
-		if (first_vote == -1)
-			first_vote = _calendar.get(_calendar.MINUTE);
-
-		// Reset 5 minutes
-		if (_calendar.get(_calendar.MINUTE) - first_vote >= 5 || (_calendar.get(_calendar.MINUTE) + (60 - first_vote) >= 5) && (first_vote > 55 && _calendar.get(_calendar.MINUTE) <= 10)) {
-			for(int i = 0;cs_player[i] != null ;i++){
-				voteResetMessage(cs_player[i]);
-			}
+		if (voted_player == 1){
+			for(Player player : Bukkit.getServer().getOnlinePlayers())
+	        {
+				player.sendMessage("| " + _sender.getName() + "さんが天候投票を開始しました。");
+	        }
 			
-			voteReset();
-
-			return;
 		}
 
 		if (voted_player >= online_player / 2) {
 			for(int i = 0;cs_player[i] != null ;i++){
 				((Entity) cs_player[i]).getWorld().setStorm(false); // 雨を止める
 				((Entity) cs_player[i]).getWorld().setThundering(false); // 落雷を止める
-				
-				cs_player[i].sendMessage("| " + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 			}
+			
+			for(Player player : Bukkit.getServer().getOnlinePlayers())
+	        {
+				player.sendMessage("| " + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+	        }
 			
 			voteReset();
 
@@ -296,20 +290,16 @@ public class NekoCore extends JavaPlugin {
 
 			return;
 		}
-		
-		if(first_vote > 55) last_minute = 5 - (_calendar.get(_calendar.MINUTE) + (60 - first_vote));
-		else                 last_minute = 5 - (_calendar.get(_calendar.MINUTE) - first_vote);
 
 		_sender.sendMessage("| " + ChatColor.AQUA + "天候投票に成功しました！");
 		_sender.sendMessage("| 現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
-		_sender.sendMessage("| 残り投票時間：" + ChatColor.GREEN + " " + last_minute + "分");
+		_sender.sendMessage("| 残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time)  + "秒");
 		_sender.sendMessage("| " + ChatColor.GRAY + "ログインプレイヤーの50%が投票(/neko vote)することで天候が晴れになります。");
 		_sender.sendMessage("| " + ChatColor.GRAY + "投票状況は /neko vote stats で確認できます。");
 	}
 	
 	private void voteReset(){
 		voted_player = 0;
-		first_vote = -1;
 		
 		for(int i = 0;i < 20;i++){
 			cs_player[i] = null;
@@ -318,10 +308,13 @@ public class NekoCore extends JavaPlugin {
 		getLogger().info("天候投票がリセットされました");
 	}
 	
-	private void voteResetMessage(CommandSender _sender){
-		_sender.sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
-		_sender.sendMessage("| " + ChatColor.RED + "投票をリセットします。");
-		_sender.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+	private void voteResetMessage(){
+		for(Player player : Bukkit.getServer().getOnlinePlayers())
+        {
+			player.sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
+			player.sendMessage("| " + ChatColor.RED + "投票をリセットします。");
+			player.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+        }
 	}
 
 	private static boolean checkBeforeWritefile(File file) {
@@ -334,3 +327,4 @@ public class NekoCore extends JavaPlugin {
 		return false;
 	}
 }
+

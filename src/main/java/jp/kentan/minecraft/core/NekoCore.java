@@ -268,7 +268,7 @@ public class NekoCore extends JavaPlugin {
 		if (voted_player == 1){
 			for(Player player : Bukkit.getServer().getOnlinePlayers())
 	        {
-				player.sendMessage("| " + _sender.getName() + "さんが天候投票を開始しました。");
+				player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + _sender.getName() + "さんが天候投票を開始しました。");
 	        }
 			
 		}
@@ -281,7 +281,7 @@ public class NekoCore extends JavaPlugin {
 			
 			for(Player player : Bukkit.getServer().getOnlinePlayers())
 	        {
-				player.sendMessage("| " + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+				player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 	        }
 			
 			voteReset();
@@ -311,9 +311,9 @@ public class NekoCore extends JavaPlugin {
 	private void voteResetMessage(){
 		for(Player player : Bukkit.getServer().getOnlinePlayers())
         {
-			player.sendMessage("| " + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
-			player.sendMessage("| " + ChatColor.RED + "投票をリセットします。");
-			player.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
+			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.RED + "投票をリセットします。");
+			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
         }
 	}
 

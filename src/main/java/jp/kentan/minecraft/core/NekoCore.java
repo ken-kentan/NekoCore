@@ -225,15 +225,15 @@ public class NekoCore extends JavaPlugin {
 		if(_tps < 0) _tps = 0.0D;
 		String str_per = String.format("%.2f%%", (100.0D - _tps * 5.0D));
 
-		if (_tps <= 5){
+		if (_tps >= 19.0D){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは快適に動作しています。");
 		}
-		else if (_tps <= 10){
+		else if (_tps >= 18.0D){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは正常に動作しています。");
 		}
-		else if (_tps <= 20){
+		else if (_tps >= 17.0D){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーに少し負荷がかかっています。");
 		}

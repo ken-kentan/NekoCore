@@ -1,5 +1,6 @@
 package jp.kentan.minecraft.core;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class NekoCore extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		voteReset();
-		new TpsMeter().runTaskTimer(this, 0, 1);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		
 		new BukkitRunnable()
 		{
@@ -93,7 +94,9 @@ public class NekoCore extends JavaPlugin {
 				
 				break;
 			case "server":
-				showLoad(sender, 100 - (TpsMeter.tps * (double)5));
+				double tps = Lag.getTPS();
+				double percentage =  Double.valueOf(String.format("%.2f", (100 - tps * 5)));
+				showLoad(sender, Lag.getTPS());
 				break;
 			case "vote":
 				
@@ -217,18 +220,20 @@ public class NekoCore extends JavaPlugin {
 		}
 	}
 	
-	private void showLoad(CommandSender _sender, double _per) {
-		String str_per = String.format("%.2f%%", _per);
+	private void showLoad(CommandSender _sender, double _tps) {
+		
+		if(_tps < 0) _tps = 0.0D;
+		String str_per = String.format("%.2f%%", (100.0D - _tps * 5.0D));
 
-		if (_per <= 5){
+		if (_tps <= 5){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは快適に動作しています。");
 		}
-		else if (_per <= 10){
+		else if (_tps <= 10){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは正常に動作しています。");
 		}
-		else if (_per <= 20){
+		else if (_tps <= 20){
 			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です。");
 			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーに少し負荷がかかっています。");
 		}

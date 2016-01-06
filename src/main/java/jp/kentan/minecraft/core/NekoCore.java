@@ -1,6 +1,5 @@
 package jp.kentan.minecraft.core;
 
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,13 +14,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
-public class NekoCore extends JavaPlugin {
-	BukkitTask task;
-	
+public class NekoCore extends JavaPlugin {	
 	private int online_player = 0, voted_player = 0, sec_time = 0;
-	private CommandSender cs_player[] =new CommandSender[20];
+	private CommandSender cs_player[] = new CommandSender[100];
+	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
 	@Override
 	public void onEnable() {
@@ -94,14 +91,12 @@ public class NekoCore extends JavaPlugin {
 				
 				break;
 			case "server":
-				double tps = Lag.getTPS();
-				double percentage =  Double.valueOf(String.format("%.2f", (100 - tps * 5)));
 				showLoad(sender, Lag.getTPS());
 				break;
 			case "vote":
 				
-				if(args.length > 1 && args[1].equals("stats")){
-					showVoteStats(sender);
+				if(args.length > 1 && args[1].equals("status")){
+					showVoteStatus(sender);
 					return true;
 				}
 				
@@ -117,12 +112,6 @@ public class NekoCore extends JavaPlugin {
 		}
 			
 		return true;
-	}
-
-	public static void openURL(CommandSender _sender, String _url) {
-		_sender.sendMessage(" " + ChatColor.AQUA + "" + ChatColor.UNDERLINE
-				+ _url);
-		_sender.sendMessage(" " + ChatColor.GRAY + "↑のアドレスをクリックして下さい");
 	}
 
 	public void doError(CommandSender _sender, Exception _e) {
@@ -146,7 +135,7 @@ public class NekoCore extends JavaPlugin {
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.WHITE + " 運営に<報告文>を送信します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko server" + ChatColor.WHITE + " 現在の猫鯖の負荷率を表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います。");
-		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote stats" + ChatColor.WHITE + " 天気投票のステータスを表示します。");
+		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote status" + ChatColor.WHITE + " 天気投票のステータスを表示します。");
 		_sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です。");
 		_sender.sendMessage("---------------------------------------");
 	}
@@ -178,18 +167,18 @@ public class NekoCore extends JavaPlugin {
 	}
 	
 	private static void showURL(CommandSender _sender, String _url) {
-		_sender.sendMessage("| " + ChatColor.AQUA + "" + ChatColor.UNDERLINE + _url);
-		_sender.sendMessage("| " + ChatColor.GRAY + "↑のアドレスをクリックして下さい。");
+		_sender.sendMessage(nc_tag + ChatColor.AQUA + "" + ChatColor.UNDERLINE + _url);
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "↑のアドレスをクリックして下さい。");
 	}
 	
 	private boolean checkReportFormat(CommandSender _sender, int args_length){
 		
 		if(args_length == 2) return true;
 		
-		if (args_length > 2)       _sender.sendMessage("| " + ChatColor.RED + "文にスペースを挟まないでください。");
-		else if (args_length == 1) _sender.sendMessage("| " + ChatColor.RED + "報告文を記入してください。");
+		if (args_length > 2)       _sender.sendMessage(nc_tag + ChatColor.RED + "文にスペースを挟まないでください。");
+		else if (args_length == 1) _sender.sendMessage(nc_tag + ChatColor.RED + "報告文を記入してください。");
 		
-		_sender.sendMessage("| " + ChatColor.GRAY + "上記を修正して再度送信してください。");
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "上記を修正して再度送信してください。");
 		
 		return false;
 		
@@ -208,11 +197,11 @@ public class NekoCore extends JavaPlugin {
 
 				filewriter.close();
 
-				_sender.sendMessage("| " + ChatColor.AQUA + "報告を正常に受け付けました！");
+				_sender.sendMessage(nc_tag + ChatColor.AQUA + "報告を正常に受け付けました！");
 				getLogger().info(_sender.getName() + " からレポートが送信されました");
 			} else {
-				_sender.sendMessage("| " + ChatColor.RED + "報告内容を記録できませんでした。");
-				_sender.sendMessage("| " + ChatColor.GRAY + "再度、送信するか/mailをご利用ください。");
+				_sender.sendMessage(nc_tag + ChatColor.RED + "報告内容を記録できませんでした。");
+				_sender.sendMessage(nc_tag + ChatColor.GRAY + "再度、送信するか/mail write をご利用ください。");
 				getLogger().info("レポートをファイルに書き込めませんでした");
 			}
 		} catch (IOException e) {
@@ -225,43 +214,43 @@ public class NekoCore extends JavaPlugin {
 		if(_tps < 0) _tps = 0.0D;
 		String str_per = String.format("%.2f%%", (100.0D - _tps * 5.0D));
 
-		if (_tps >= 19.0D){
-			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です。");
-			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは快適に動作しています。");
+		if (_tps >= 19.5D){
+			_sender.sendMessage(nc_tag + "現在のサーバー負荷率は " + ChatColor.AQUA + str_per + ChatColor.WHITE + " です。");
+			_sender.sendMessage(nc_tag + ChatColor.GRAY + "サーバーは快適に動作しています。");
+		}
+		else if (_tps >= 19.0D){
+			_sender.sendMessage(nc_tag + "現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です。");
+			_sender.sendMessage(nc_tag + ChatColor.GRAY + "サーバーは正常に動作しています。");
 		}
 		else if (_tps >= 18.0D){
-			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.GREEN + str_per + ChatColor.WHITE + " です。");
-			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーは正常に動作しています。");
-		}
-		else if (_tps >= 17.0D){
-			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です。");
-			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーに少し負荷がかかっています。");
+			_sender.sendMessage(nc_tag + "現在のサーバー負荷率は " + ChatColor.YELLOW + str_per + ChatColor.WHITE + " です。");
+			_sender.sendMessage(nc_tag + ChatColor.GRAY + "サーバーに少し負荷がかかっています。");
 		}
 		else {
-			_sender.sendMessage("| 現在のサーバー負荷率は " + ChatColor.RED + str_per + ChatColor.WHITE + " です。");
-			_sender.sendMessage("| " + ChatColor.GRAY + "サーバーに負荷がかかる行為を中止してください。");
+			_sender.sendMessage(nc_tag + "現在のサーバー負荷率は " + ChatColor.RED + str_per + ChatColor.WHITE + " です。");
+			_sender.sendMessage(nc_tag + ChatColor.GRAY + "サーバーに負荷がかかる行為を中止してください。");
 		}
 	}
 	
-	private void showVoteStats(CommandSender _sender){
+	private void showVoteStatus(CommandSender _sender){
 	
 		if(voted_player == 0){
-			_sender.sendMessage("| " + ChatColor.YELLOW + "投票が開始されていないためステータスを表示できません。");
-			_sender.sendMessage("| " + ChatColor.GRAY + "天候を晴れにしたい場合は /neko vote を実行してください。");
+			_sender.sendMessage(nc_tag + ChatColor.YELLOW + "投票が開始されていないためステータスを表示できません。");
+			_sender.sendMessage(nc_tag + ChatColor.GRAY + "天候を晴れにしたい場合は /neko vote を実行してください。");
 			return;
 		}
 		
-		_sender.sendMessage("| " + "現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
-		_sender.sendMessage("| " + "残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time) + "秒");
-		_sender.sendMessage("| " + ChatColor.GRAY + "ログインプレイヤーの50%が投票(/neko vote)することで天候が晴れになります。");
+		_sender.sendMessage(nc_tag + "現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
+		_sender.sendMessage(nc_tag + "残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time) + "秒");
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "ログインプレイヤーの50%が投票すると天候が晴れになります。");
 	}
 	
 	private void voteProcess(CommandSender _sender){
 		
 		for(int i = 0;cs_player[i] != null ;i++){
 			if(cs_player[i] == _sender){
-				_sender.sendMessage("| " + ChatColor.RED + "多重投票です！");
-				_sender.sendMessage("| " + ChatColor.GRAY + "投票状況は /neko vote stats で確認できます。");
+				_sender.sendMessage(nc_tag + ChatColor.RED + "多重投票です！");
+				_sender.sendMessage(nc_tag + ChatColor.GRAY + "投票状況は /neko vote status で確認できます。");
 				return;
 			}
 		}
@@ -273,7 +262,7 @@ public class NekoCore extends JavaPlugin {
 		if (voted_player == 1){
 			for(Player player : Bukkit.getServer().getOnlinePlayers())
 	        {
-				player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + _sender.getName() + "さんが天候投票を開始しました。");
+				player.sendMessage(nc_tag + _sender.getName() + "さんが天候投票を開始しました。");
 	        }
 			
 		}
@@ -286,7 +275,7 @@ public class NekoCore extends JavaPlugin {
 			
 			for(Player player : Bukkit.getServer().getOnlinePlayers())
 	        {
-				player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+				player.sendMessage(nc_tag + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 	        }
 			
 			voteReset();
@@ -296,11 +285,11 @@ public class NekoCore extends JavaPlugin {
 			return;
 		}
 
-		_sender.sendMessage("| " + ChatColor.AQUA + "天候投票に成功しました！");
-		_sender.sendMessage("| 現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
-		_sender.sendMessage("| 残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time)  + "秒");
-		_sender.sendMessage("| " + ChatColor.GRAY + "ログインプレイヤーの50%が投票(/neko vote)することで天候が晴れになります。");
-		_sender.sendMessage("| " + ChatColor.GRAY + "投票状況は /neko vote stats で確認できます。");
+		_sender.sendMessage(nc_tag + ChatColor.AQUA + "天候投票に成功しました！");
+		_sender.sendMessage(nc_tag + "現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
+		_sender.sendMessage(nc_tag + "残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time)  + "秒");
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "ログインプレイヤーの50%が投票すると天候が晴れになります。");
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "投票状況は /neko vote status で確認できます。");
 	}
 	
 	private void voteReset(){
@@ -316,9 +305,8 @@ public class NekoCore extends JavaPlugin {
 	private void voteResetMessage(){
 		for(Player player : Bukkit.getServer().getOnlinePlayers())
         {
-			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
-			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.RED + "投票をリセットします。");
-			player.sendMessage("[" + ChatColor.GOLD + "NekoCore" + ChatColor.WHITE + "]" + ChatColor.GRAY + "天候を晴れにしたい場合は再度 /neko vote を実行してください。");
+			player.sendMessage(nc_tag + ChatColor.YELLOW + "投票開始から5分以上経過しました。");
+			player.sendMessage(nc_tag + ChatColor.RED + "投票がリセットされました。");
         }
 	}
 

@@ -12,6 +12,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -44,11 +47,16 @@ public class NekoCore extends JavaPlugin {
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
+		TwitterBot.init(this);
+		TwitterBot.tweet("猫鯖が起動したよ.");
+		
 		getLogger().info("NekoCoreを有効にしました");
 	}
 
 	@Override
 	public void onDisable() {
+		TwitterBot.tweet("猫鯖が落ちたよ.");
+		
 		getLogger().info("NekoCoreを無効にしました");
 	}
 
@@ -120,11 +128,14 @@ public class NekoCore extends JavaPlugin {
 				case "reboot":
 					if(sec_reboot < 0) sec_reboot = 300;
 					sender.sendMessage(nc_tag + "Run, Server reboot sequence.");
+					TwitterBot.tweet("5分後に再起動します.");
 					break;
 				case "cancel":
 					sec_reboot = -1;
 					for(Player player : Bukkit.getServer().getOnlinePlayers()) player.sendMessage(nc_tag + ChatColor.RED  + "サーバーの再起動がキャンセルされました。");
 					break;
+				case "tweet":
+					TwitterBot.switchMode();
 				default:
 					break;
 				}
@@ -148,6 +159,22 @@ public class NekoCore extends JavaPlugin {
 			break;
 		}
 	}
+	
+	@EventHandler
+    public void TweetLogin(PlayerJoinEvent event) {
+     
+        Player player = event.getPlayer();
+     
+        TwitterBot.tweet(player.getName() + "がログインしました.");
+    }
+	
+	@EventHandler
+    public void TweetLogout(PlayerQuitEvent event) {
+     
+        Player player = event.getPlayer();
+     
+        TwitterBot.tweet(player.getName() + "がログアウトしました.");
+    }
 
 	public void doError(CommandSender _sender, Exception _e) {
 		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");

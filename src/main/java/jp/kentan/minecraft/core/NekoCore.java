@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class NekoCore extends JavaPlugin {	
-	private int online_player = 0, voted_player = 0, sec_time = 0;
+	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
 	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
@@ -32,6 +32,10 @@ public class NekoCore extends JavaPlugin {
 		    {
 		    	//run
 		    	if(voted_player > 0) sec_time++;
+		    	if(sec_reboot >= 0){
+		    		reboot();
+		    		sec_reboot--;
+		    	}
 				if(sec_time > 300){ //5m
 					voteResetMessage();
 					voteReset();
@@ -106,12 +110,43 @@ public class NekoCore extends JavaPlugin {
 				}
 				
 				voteProcess(sender);
-				
 				break;
 			}
-		}
 			
+			if(args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !checkInGame(sender))){
+				if(args[1] == null) args[1] = "null";
+				
+				switch (args[1]) {
+				case "reboot":
+					if(sec_reboot < 0) sec_reboot = 300;
+					sender.sendMessage(nc_tag + "Run, Server reboot sequence.");
+					break;
+				case "cancel":
+					sec_reboot = -1;
+					for(Player player : Bukkit.getServer().getOnlinePlayers()) player.sendMessage(nc_tag + ChatColor.RED  + "サーバーの再起動がキャンセルされました。");
+					break;
+				default:
+					break;
+				}
+			}
+		}			
 		return true;
+	}
+	
+	void reboot(){
+		switch(sec_reboot){
+		case 0:
+			getServer().dispatchCommand(getServer().getConsoleSender(), "stop");
+			break;
+		case 5:
+			getServer().dispatchCommand(getServer().getConsoleSender(), "save-all");
+			break;
+		default:
+			if(sec_reboot % 60 == 0 || (sec_reboot < 60 && sec_reboot % 5 == 0) || (sec_reboot <= 5)){
+				for(Player player : Bukkit.getServer().getOnlinePlayers()) player.sendMessage(nc_tag + ChatColor.RED + sec_reboot + "秒後にサーバーを再起動します。");
+			}
+			break;
+		}
 	}
 
 	public void doError(CommandSender _sender, Exception _e) {
@@ -211,7 +246,7 @@ public class NekoCore extends JavaPlugin {
 	
 	private void showLoad(CommandSender _sender, double _tps) {
 		
-		if(_tps < 0) _tps = 0.0D;
+		if(_tps > 20.0D) _tps = 20.0D;
 		String str_per = String.format("%.2f%%", (100.0D - _tps * 5.0D));
 
 		if (_tps >= 19.5D){

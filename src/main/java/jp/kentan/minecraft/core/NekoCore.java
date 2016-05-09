@@ -19,7 +19,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class NekoCore extends JavaPlugin implements Listener{	
+public class NekoCore extends JavaPlugin implements Listener{
+	private static Random random = new Random();
+	
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
 	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
@@ -49,7 +51,9 @@ public class NekoCore extends JavaPlugin implements Listener{
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
-		TwitterBot.init(this);
+		ConfigManager.init(this);
+		
+		//TwitterBot.init(this);
 		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.3.0");
 		
 		getLogger().info("NekoCoreを有効にしました");
@@ -137,6 +141,12 @@ public class NekoCore extends JavaPlugin implements Listener{
 					break;
 				case "tweet":
 					TwitterBot.switchMode();
+				case "reload":
+					ConfigManager.init(this);
+					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
+				case "test":
+					if(hasStorm()) getLogger().info("雨");
+					else           getLogger().info("晴れ");
 				default:
 					break;
 				}
@@ -168,18 +178,26 @@ public class NekoCore extends JavaPlugin implements Listener{
 	
 	@EventHandler
     public void TweetLogin(PlayerJoinEvent event) {
-     
         Player player = event.getPlayer();
+        String tweet = TwitterBot.getActionMsg();
+        
+        tweet = tweet.replace("{player}", player.getName());
+        tweet = tweet.replace("{status}", "ログイン");
+        tweet = tweet.replace("{face}", TwitterBot.getNekoFace());
      
-        TwitterBot.tweet(player.getName() + "がログイン" + TwitterBot.getNekoFace());
+        TwitterBot.tweet(tweet);
     }
 	
 	@EventHandler
     public void TweetLogout(PlayerQuitEvent event) {
-     
         Player player = event.getPlayer();
+        String tweet = TwitterBot.getActionMsg();
+        
+        tweet = tweet.replace("{player}", player.getName());
+        tweet = tweet.replace("{status}", "ログアウト");
+        tweet = tweet.replace("{face}", TwitterBot.getNekoFace());
      
-        TwitterBot.tweet(player.getName() + "がログアウト" + TwitterBot.getNekoFace());
+        TwitterBot.tweet(tweet);
     }
 
 	public void doError(CommandSender _sender, Exception _e) {
@@ -386,6 +404,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 		}
 
 		return false;
+	}
+	
+	public boolean hasStorm(){
+		return Bukkit.getWorlds().get(0).hasStorm();
 	}
 }
 

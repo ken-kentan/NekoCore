@@ -1,5 +1,7 @@
 package jp.kentan.minecraft.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -18,28 +20,31 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterBot {
-	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks}
+	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan}
 	
 	private static NekoCore nekoCore;
 	private static Twitter twitter;
 	private static TwitterStream twitterStream;
 	
-	private static final String consumerKey       = "";
-	private static final String consumerSecret    = "";
-	private static final String accessToken       = "";
-	private static final String accessTokenSecret = "";
+	public static String consumerKey       = "";
+	public static String consumerSecret    = "";
+	public static String accessToken       = "";
+	public static String accessTokenSecret = "";
+	
+	public static List<String> nekoFaceList         = new ArrayList<String>();
+	public static List<String> msgPlayerActionList  = new ArrayList<String>();
+	public static List<String> msgUnkownCommandList = new ArrayList<String>();
+	public static List<String> msgRejectCommandList = new ArrayList<String>();
+	public static List<String> msgThanksList        = new ArrayList<String>();
+	public static List<String> msgLuckyList         = new ArrayList<String>();
+	public static List<String> msgMorningList       = new ArrayList<String>();
+	public static List<String> msgWeatherList       = new ArrayList<String>();
+	public static List<String> msgNyanList          = new ArrayList<String>();
 	
 	private static Random random = new Random();
 	
 	private static boolean isTweenEnable = true,
 						   isReadyReboot = false;
-	
-	private static final String neko_face[] = {"しました(^・ω・^ )", "したよฅ(●´ω｀●)ฅ", "したにゃฅ⊱*•ω•*⊰ฅ", "したみたいฅ(^ω^ฅ)", "したﾆｬｰﾝ^ↀᴥↀ^", "したよっ(｡･ω･｡)", "しましたฅ•ω•ฅ", "したっちゃ]*ΦωΦ)ノ", "にゃん(=^･ω･^=)", "したべ(ﾉ*ФωФ)ﾉ", "したって♡￫ω￩♡"};
-	
-	private static final String unknown_command_msg[] = {"なに(^・ω・^ )?", "わからんฅ(●´ω｀●)ฅ", "にゃーんฅ⊱*•ω•*⊰ฅ", "おいでおいでฅ(^ω^ฅ)", "ほぅほぅ^ↀᴥↀ^"};
-	private static final String reject_command_msg[] = {"(ฅ`･ω･´)っ それはできないっ！", "ヤダ(Ф∀Ф)", "だめ(⁎˃ᆺ˂)"};
-	private static final String lucky_msg[] = {"ネコ吉(●ↀωↀ●)✧", "大吉ฅ(●´ω｀●)ฅ", "中吉ฅ⊱*•ω•*⊰ฅ", "小吉ฅ(´-ω-`)ฅ", "凶(ノω<。)", "大凶(´; ω ;｀) "};
-	private static final String thanks_msg[] = {"('-'*)ｱﾘｶﾞﾄ♪", "てへぺろ(/ω＼)", "いぇいぇ～ゞ(￣ー￣ )", "(///ω///)", "どういたしましてっฅ(●´ω｀●)ฅ", "せやろฅ(^ω^ฅ)"};
 	
 	public static void init(NekoCore _neko){
 		nekoCore = _neko;
@@ -73,7 +78,7 @@ public class TwitterBot {
     			
     			switch(typeCommand(status.getText())){
     			case PlayerNum:
-    				replyTweet(user, "現在のプレイヤー数は" + Bukkit.getOnlinePlayers().size() + "人です.", status.getId());
+    				replyTweet(user, "現在のプレイヤー数は" + Bukkit.getOnlinePlayers().size() + "人だよ" + getNekoFace(), status.getId());
     				break;
     			case ServerLoad:
     				Double tps = Lag.getTPS();
@@ -81,21 +86,21 @@ public class TwitterBot {
     				if(tps > 20.0D) tps = 20.0D;
     				String str_per = String.format("%.2f%%", (100.0D - tps * 5.0D));
     				
-    				replyTweet(user, "現在のサーバー負荷率は" + str_per + "です.", status.getId());
+    				replyTweet(user, "現在のサーバー負荷率は" + str_per + "だよ" + getNekoFace(), status.getId());
     				break;
     			case findStaff:
     				int cntOP = 0;
     				for(Player p : nekoCore.getServer().getOnlinePlayers()){
     					if(p.isOp()) cntOP++;
     				}
-    				replyTweet(user, "現在、ログインしている運営は" + cntOP + "人です.", status.getId());
+    				replyTweet(user, "現在、ログインしている運営は" + cntOP + "人だよ" + getNekoFace(), status.getId());
     				break;
     			case Reboot:
     				if(isOwner(status)){
 						isReadyReboot = true;
-						replyTweet(user, "サーバーを再起動しますか？", status.getId());
+						replyTweet(user, "ほんとにサーバー再起動するの" + getNekoFace() + "？", status.getId());
     				}else{
-    					replyTweet(user, reject_command_msg[random.nextInt(3)], status.getId());
+    					replyTweet(user, getRejectCommandMsg().replace("{face}", getNekoFace()), status.getId());
     				}
     				break;
     			case Trigger:
@@ -115,22 +120,31 @@ public class TwitterBot {
     				}
     				break;
     			case Lucky:
-					int luck_num = random.nextInt(20);
-					
-					if(luck_num == 19)       luck_num = 0;
-					else if (luck_num >= 17) luck_num = 1;
-					else if (luck_num >= 10) luck_num = 2;
-					else if (luck_num >=  3) luck_num = 3;
-					else if (luck_num >=  1) luck_num = 4;
-					else                     luck_num = 5;
-					
-					replyTweet(user, lucky_msg[luck_num], status.getId());
+					replyTweet(user, getLuckyMsg().replace("{face}", getNekoFace()), status.getId());
 					break;
     			case Thanks:					
-					replyTweet(user, thanks_msg[random.nextInt(6)], status.getId());
+					replyTweet(user, getThanksMsg().replace("{face}", getNekoFace()), status.getId());
 					break;
+    			case Morning:
+					replyTweet(user, getMorningMsg().replace("{face}", getNekoFace()), status.getId());
+    				break;
+    			case Weather:
+    				String tweetMsg = getWeatherMsg();
+    				
+    				tweetMsg = tweetMsg.replace("{world}", "猫ワールド");
+    				
+    				if(nekoCore.hasStorm()) tweetMsg = tweetMsg.replace("{weather}", "雨");
+    				else                    tweetMsg = tweetMsg.replace("{weather}", "晴れ");
+    				
+    				tweetMsg = tweetMsg.replace("{face}", getNekoFace());
+    				
+					replyTweet(user, tweetMsg, status.getId());
+    				break;
+    			case Nyan:
+    				replyTweet(user, getNyanMsg().replace("{face}", getNekoFace()), status.getId());
+    				break;
 				default:					
-					replyTweet(user, unknown_command_msg[random.nextInt(5)], status.getId());
+					replyTweet(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
 					break;
     			}
 	    	}
@@ -147,8 +161,8 @@ public class TwitterBot {
 		if(!isTweenEnable) return;
 		
 		try{
-			twitter.updateStatus(str + "\n#猫鯖");
 			nekoCore.getLogger().info("Tweet:" + str);
+			twitter.updateStatus(str + "\n#猫鯖");
 		} catch(TwitterException e){
 			nekoCore.getLogger().warning("Tweet Failed:" + e.getMessage());
 		}
@@ -168,8 +182,8 @@ public class TwitterBot {
 	
     public static void replyTweet (String user, String message, long statusId) {
     	try {
-			twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
 			nekoCore.getLogger().info("Tweet:" + "@" + user + " " + message);
+			twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
 		} catch (TwitterException e) {
 			System.err.println("Tweet Failed:" + e.getMessage());
 		}
@@ -180,15 +194,50 @@ public class TwitterBot {
     	if(str.indexOf("サーバー") != -1 && (str.indexOf("負荷") != -1 || str.indexOf("重") != -1)) return Command.ServerLoad;
     	if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1) return Command.findStaff;
     	if(str.indexOf("おみくじ") != -1 || str.indexOf("運勢") != -1) return Command.Lucky;
-    	if(str.indexOf("再起動") != -1) return Command.Reboot;
-    	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1) return Command.Trigger;
-    	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1) return Command.Cancel;
+    	if(str.indexOf("再起動") != -1)                              return Command.Reboot;
+    	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1)    return Command.Trigger;
+    	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1)      return Command.Cancel;
     	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1) return Command.Thanks;
+    	if(str.indexOf("おは") != -1)                                                        return Command.Morning;
+    	if(str.indexOf("天気") != -1 || str.indexOf("雨") != -1 || str.indexOf("晴れ") != -1) return Command.Weather;
+    	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1) return Command.Nyan;
     	
     	return Command.None;
     }
     
     public static String getNekoFace(){
-    	return neko_face[random.nextInt(11)];
+    	return nekoFaceList.get(random.nextInt(nekoFaceList.size()));
+    }
+    
+    public static String getActionMsg(){
+    	return msgPlayerActionList.get(random.nextInt(msgPlayerActionList.size()));
+    }
+    
+    public static String getUnkownCommandMsg(){
+    	return msgUnkownCommandList.get(random.nextInt(msgUnkownCommandList.size()));
+    }
+    
+    public static String getRejectCommandMsg(){
+    	return msgRejectCommandList.get(random.nextInt(msgRejectCommandList.size()));
+    }
+    
+    public static String getThanksMsg(){
+    	return msgThanksList.get(random.nextInt(msgThanksList.size()));
+    }
+    
+    public static String getLuckyMsg(){
+    	return msgLuckyList.get(random.nextInt(msgLuckyList.size()));
+    }
+    
+    public static String getMorningMsg(){
+    	return msgMorningList.get(random.nextInt(msgMorningList.size()));
+    }
+    
+    public static String getWeatherMsg(){
+    	return msgWeatherList.get(random.nextInt(msgWeatherList.size()));
+    }
+    
+    public static String getNyanMsg(){
+    	return msgNyanList.get(random.nextInt(msgNyanList.size()));
     }
 }

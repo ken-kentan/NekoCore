@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,9 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class NekoCore extends JavaPlugin implements Listener{
-	private static Random random = new Random();
-	
+public class NekoCore extends JavaPlugin implements Listener{	
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
 	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
@@ -141,9 +138,11 @@ public class NekoCore extends JavaPlugin implements Listener{
 					break;
 				case "tweet":
 					TwitterBot.switchMode();
+					break;
 				case "reload":
 					ConfigManager.init(this);
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
+					break;
 				case "test":
 					if(hasStorm()) getLogger().info("雨");
 					else           getLogger().info("晴れ");

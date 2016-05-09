@@ -7,12 +7,14 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import twitter4j.AsyncTwitter;
+import twitter4j.AsyncTwitterFactory;
 import twitter4j.Status;
 import twitter4j.StatusAdapter;
 import twitter4j.StatusUpdate;
-import twitter4j.Twitter;
+import twitter4j.TwitterAdapter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
+import twitter4j.TwitterMethod;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.auth.AccessToken;
@@ -23,7 +25,7 @@ public class TwitterBot {
 	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan}
 	
 	private static NekoCore nekoCore;
-	private static Twitter twitter;
+	private static AsyncTwitter twitter;
 	private static TwitterStream twitterStream;
 	
 	public static String consumerKey       = "";
@@ -49,9 +51,20 @@ public class TwitterBot {
 	public static void init(NekoCore _neko){
 		nekoCore = _neko;
 		
-		twitter = new TwitterFactory().getInstance();
+		twitter = new AsyncTwitterFactory().getInstance();
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
 		twitter.setOAuthAccessToken(new AccessToken(accessToken,accessTokenSecret));
+		twitter.addListener(new TwitterAdapter() {
+            @Override
+            public void updatedStatus(Status status) {
+                nekoCore.getLogger().info("Async Tweet:" + status.getText());
+            }
+
+            @Override
+            public void onException(TwitterException e, TwitterMethod method) {
+            	nekoCore.getLogger().warning("Async Tweet Failed " + e.getMessage());
+            }
+        });
 		
 		//Streamの設定
         ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -68,6 +81,11 @@ public class TwitterBot {
         twitterStream.user();
 		
 		nekoCore.getLogger().info("TwitterBotモジュールを初期化しました。");
+	}
+	
+	public static void closeStream(){
+		twitterStream.shutdown();
+		nekoCore.getLogger().info("TwitterStreamを停止しました。");
 	}
 	
 	static class streamListener extends StatusAdapter {
@@ -160,13 +178,18 @@ public class TwitterBot {
 	public static void tweet(String str){
 		if(!isTweenEnable) return;
 		
-		try{
-			nekoCore.getLogger().info("Tweet:" + str);
-			twitter.updateStatus(str + "\n#猫鯖");
-		} catch(TwitterException e){
-			nekoCore.getLogger().warning("Tweet Failed:" + e.getMessage());
-		}
+		twitter.updateStatus(str + "\n#猫鯖");
 	}
+	
+    public static void replyTweet (String user, String message, long statusId) {
+    	if(!isTweenEnable) return;
+		twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
+    }
+    
+    public static void sendDM(String user, String str){
+    	twitter.sendDirectMessage(user, str);
+    	nekoCore.getLogger().info("Twitter DM:Successfully sent to " + user);
+    }
 	
 	static boolean isReplay(Status status){
 		if(status.getText().indexOf("@DekitateServer") != -1) return true;
@@ -179,15 +202,6 @@ public class TwitterBot {
 		
 		return false;
 	}
-	
-    public static void replyTweet (String user, String message, long statusId) {
-    	try {
-			nekoCore.getLogger().info("Tweet:" + "@" + user + " " + message);
-			twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
-		} catch (TwitterException e) {
-			System.err.println("Tweet Failed:" + e.getMessage());
-		}
-    }
     
     static Command typeCommand(String str){
     	if((str.indexOf("プレイヤー") != -1 || str.indexOf("ログイン") != -1) && (str.indexOf("数") != -1 || str.indexOf("何人") != -1)) return Command.PlayerNum;
@@ -197,7 +211,7 @@ public class TwitterBot {
     	if(str.indexOf("再起動") != -1)                              return Command.Reboot;
     	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1)    return Command.Trigger;
     	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1)      return Command.Cancel;
-    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1) return Command.Thanks;
+    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1)  return Command.Thanks;
     	if(str.indexOf("おは") != -1)                                                        return Command.Morning;
     	if(str.indexOf("天気") != -1 || str.indexOf("雨") != -1 || str.indexOf("晴れ") != -1) return Command.Weather;
     	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1) return Command.Nyan;

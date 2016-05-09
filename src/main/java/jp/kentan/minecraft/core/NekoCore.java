@@ -1,8 +1,5 @@
 package jp.kentan.minecraft.core;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Calendar;
 
 import org.bukkit.Bukkit;
@@ -51,7 +48,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		ConfigManager.init(this);
 		
 		TwitterBot.init(this);
-		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.3.0");
+		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.5.10");
 		
 		getLogger().info("NekoCoreを有効にしました");
 	}
@@ -59,6 +56,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 	@Override
 	public void onDisable() {
 		TwitterBot.tweet("@ken_kentan\n猫鯖が停止しました。");
+		TwitterBot.closeStream();
 		
 		getLogger().info("NekoCoreを無効にしました");
 	}
@@ -102,7 +100,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 				
 				if(!checkReportFormat(sender, args.length)) return true;
 				
-				writeReport(sender, args[1]);
+				Calendar calendar = Calendar.getInstance();
+				
+				TwitterBot.sendDM("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + args[1]);
+				TwitterBot.tweet("@ken_kentan\nレポートが送信されたよ！詳しくはDMを確認してね" + TwitterBot.getNekoFace());
 				
 				break;
 			case "server":
@@ -245,34 +246,6 @@ public class NekoCore extends JavaPlugin implements Listener{
 		_sender.sendMessage(nc_tag + ChatColor.GRAY + "上記を修正して再度送信してください。");
 		
 		return false;
-		
-	}
-	
-	private void writeReport(CommandSender _sender, String _str){
-		try {
-			File file = new File("plugins/NekoCore/report.txt");
-
-			if (checkBeforeWritefile(file)) {
-				FileWriter filewriter = new FileWriter(file, true);
-
-				Calendar calendar = Calendar.getInstance();
-
-				filewriter.write("[" + calendar.getTime().toString() + "]" + _sender.getName() + ":" + _str + "\r\n");
-
-				filewriter.close();
-
-				_sender.sendMessage(nc_tag + ChatColor.AQUA + "報告を正常に受け付けました！");
-				getLogger().info(_sender.getName() + " からレポートが送信されました");
-				
-				TwitterBot.tweet("@ken_kentan\nレポートが送信されました.\n詳細はレポートファイルを確認してね" + TwitterBot.getNekoFace());
-			} else {
-				_sender.sendMessage(nc_tag + ChatColor.RED + "報告内容を記録できませんでした。");
-				_sender.sendMessage(nc_tag + ChatColor.GRAY + "再度、送信するか/mail write をご利用ください。");
-				getLogger().info("レポートをファイルに書き込めませんでした");
-			}
-		} catch (IOException e) {
-			doError(_sender, e);
-		}
 	}
 	
 	private void showLoad(CommandSender _sender, double _tps) {
@@ -375,22 +348,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 			player.sendMessage(nc_tag + ChatColor.RED + "投票がリセットされました。");
         }
 	}
-
-	private static boolean checkBeforeWritefile(File file) {
-		if (file.exists()) {
-			if (file.isFile() && file.canWrite()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 	
+	
+	//TODO 雷雨にも対応
 	public boolean hasStorm(){
 		return Bukkit.getWorlds().get(0).hasStorm();
-	}
-	
-	private float getPerOfOnline(){		
-		return 100.0f * ((float)Bukkit.getOnlinePlayers().size() / 25.0f);
 	}
 }

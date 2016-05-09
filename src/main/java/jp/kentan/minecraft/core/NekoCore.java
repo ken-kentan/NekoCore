@@ -53,7 +53,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		
 		ConfigManager.init(this);
 		
-		//TwitterBot.init(this);
+		TwitterBot.init(this);
 		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.3.0");
 		
 		getLogger().info("NekoCoreを有効にしました");

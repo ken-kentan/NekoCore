@@ -213,31 +213,31 @@ public class TwitterBot {
     	return msgPlayerActionList.get(random.nextInt(msgPlayerActionList.size()));
     }
     
-    public static String getUnkownCommandMsg(){
+    private static String getUnkownCommandMsg(){
     	return msgUnkownCommandList.get(random.nextInt(msgUnkownCommandList.size()));
     }
     
-    public static String getRejectCommandMsg(){
+    private static String getRejectCommandMsg(){
     	return msgRejectCommandList.get(random.nextInt(msgRejectCommandList.size()));
     }
     
-    public static String getThanksMsg(){
+    private static String getThanksMsg(){
     	return msgThanksList.get(random.nextInt(msgThanksList.size()));
     }
     
-    public static String getLuckyMsg(){
+    private static String getLuckyMsg(){
     	return msgLuckyList.get(random.nextInt(msgLuckyList.size()));
     }
     
-    public static String getMorningMsg(){
+    private static String getMorningMsg(){
     	return msgMorningList.get(random.nextInt(msgMorningList.size()));
     }
     
-    public static String getWeatherMsg(){
+    private static String getWeatherMsg(){
     	return msgWeatherList.get(random.nextInt(msgWeatherList.size()));
     }
     
-    public static String getNyanMsg(){
+    private static String getNyanMsg(){
     	return msgNyanList.get(random.nextInt(msgNyanList.size()));
     }
 }

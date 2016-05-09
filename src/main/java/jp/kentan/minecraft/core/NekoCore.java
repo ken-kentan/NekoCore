@@ -103,7 +103,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					return false;
 				}
 				
-				if(checkReportFormat(sender, args.length) == false) return true;
+				if(!checkReportFormat(sender, args.length)) return true;
 				
 				writeReport(sender, args[1]);
 				
@@ -227,29 +227,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 	}
 	
 	private void showNyan(CommandSender _sender){
-		Random random = new Random();
-		int rand = random.nextInt(5);
-		switch (rand) {
-		case 0:
-			_sender.sendMessage(ChatColor.GOLD + " にゃーん (^・ω・^ )");
-			getLogger().info("にゃーん 0");
-			break;
-		case 1:
-			_sender.sendMessage(ChatColor.GOLD + " にゃーん ฅ(●´ω｀●)ฅ");
-			getLogger().info("にゃーん 1");
-			break;
-		case 2:
-			_sender.sendMessage(ChatColor.GOLD + " にゃーん ฅ⊱*•ω•*⊰ฅ");
-			getLogger().info("にゃーん 2");
-			break;
-		case 3:
-			_sender.sendMessage(ChatColor.GOLD + " にゃーん ฅ(^ω^ฅ)");
-			getLogger().info("にゃーん 3");
-			break;
-		case 4:
-			_sender.sendMessage(ChatColor.GOLD + " (ฅ`･ω･´)っ= にゃんぱーんち！");
-			getLogger().info("にゃーん 4");
-		}
+		_sender.sendMessage(ChatColor.GOLD + " にゃーん" + TwitterBot.getNekoFace());
+		getLogger().info("にゃーん");
 	}
 	
 	private static void showURL(CommandSender _sender, String _url) {
@@ -285,6 +264,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 
 				_sender.sendMessage(nc_tag + ChatColor.AQUA + "報告を正常に受け付けました！");
 				getLogger().info(_sender.getName() + " からレポートが送信されました");
+				
+				TwitterBot.tweet("@ken_kentan\nレポートが送信されました.\n詳細はレポートファイルを確認してね" + TwitterBot.getNekoFace());
 			} else {
 				_sender.sendMessage(nc_tag + ChatColor.RED + "報告内容を記録できませんでした。");
 				_sender.sendMessage(nc_tag + ChatColor.GRAY + "再度、送信するか/mail write をご利用ください。");
@@ -409,5 +390,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 	public boolean hasStorm(){
 		return Bukkit.getWorlds().get(0).hasStorm();
 	}
+	
+	private float getPerOfOnline(){		
+		return 100.0f * ((float)Bukkit.getOnlinePlayers().size() / 25.0f);
+	}
 }
-

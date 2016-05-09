@@ -50,14 +50,14 @@ public class NekoCore extends JavaPlugin implements Listener{
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
 		TwitterBot.init(this);
-		TwitterBot.tweet("猫鯖が起動したよ.");
+		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.3.0");
 		
 		getLogger().info("NekoCoreを有効にしました");
 	}
 
 	@Override
 	public void onDisable() {
-		TwitterBot.tweet("猫鯖が落ちたよ.");
+		TwitterBot.tweet("@ken_kentan\n猫鯖が停止しました。");
 		
 		getLogger().info("NekoCoreを無効にしました");
 	}
@@ -128,9 +128,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 				
 				switch (args[1]) {
 				case "reboot":
-					if(sec_reboot < 0) sec_reboot = 300;
 					sender.sendMessage(nc_tag + "Run, Server reboot sequence.");
-					TwitterBot.tweet("5分後に再起動します.");
+					rebootModule();
 					break;
 				case "cancel":
 					sec_reboot = -1;
@@ -144,6 +143,11 @@ public class NekoCore extends JavaPlugin implements Listener{
 			}
 		}			
 		return true;
+	}
+	
+	public void rebootModule(){
+		if(sec_reboot < 0) sec_reboot = 300;
+		TwitterBot.tweet("@ken_kentan\n5分後に再起動します.");
 	}
 	
 	void reboot(){
@@ -167,7 +171,7 @@ public class NekoCore extends JavaPlugin implements Listener{
      
         Player player = event.getPlayer();
      
-        TwitterBot.tweet(player.getName() + "がログインしました.");
+        TwitterBot.tweet(player.getName() + "がログイン" + TwitterBot.getNekoFace());
     }
 	
 	@EventHandler
@@ -175,7 +179,7 @@ public class NekoCore extends JavaPlugin implements Listener{
      
         Player player = event.getPlayer();
      
-        TwitterBot.tweet(player.getName() + "がログアウトしました.");
+        TwitterBot.tweet(player.getName() + "がログアウト" + TwitterBot.getNekoFace());
     }
 
 	public void doError(CommandSender _sender, Exception _e) {

@@ -151,8 +151,17 @@ public class TwitterBot {
     				
     				tweetMsg = tweetMsg.replace("{world}", "猫ワールド");
     				
-    				if(nekoCore.hasStorm()) tweetMsg = tweetMsg.replace("{weather}", "雨");
-    				else                    tweetMsg = tweetMsg.replace("{weather}", "晴れ");
+    				switch(nekoCore.getWeather()){
+					case 0:
+						tweetMsg = tweetMsg.replace("{weather}", "晴れ");
+						break;
+					case 1:
+						tweetMsg = tweetMsg.replace("{weather}", "雨");
+						break;
+					case 2:
+						tweetMsg = tweetMsg.replace("{weather}", "雨ときどき雷");
+						break;
+					}
     				
     				tweetMsg = tweetMsg.replace("{face}", getNekoFace());
     				
@@ -204,17 +213,39 @@ public class TwitterBot {
 	}
     
     static Command typeCommand(String str){
-    	if((str.indexOf("プレイヤー") != -1 || str.indexOf("ログイン") != -1) && (str.indexOf("数") != -1 || str.indexOf("何人") != -1)) return Command.PlayerNum;
-    	if(str.indexOf("サーバー") != -1 && (str.indexOf("負荷") != -1 || str.indexOf("重") != -1)) return Command.ServerLoad;
-    	if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1) return Command.findStaff;
-    	if(str.indexOf("おみくじ") != -1 || str.indexOf("運勢") != -1) return Command.Lucky;
-    	if(str.indexOf("再起動") != -1)                              return Command.Reboot;
-    	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1)    return Command.Trigger;
-    	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1)      return Command.Cancel;
-    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1)  return Command.Thanks;
-    	if(str.indexOf("おは") != -1)                                                        return Command.Morning;
-    	if(str.indexOf("天気") != -1 || str.indexOf("雨") != -1 || str.indexOf("晴れ") != -1) return Command.Weather;
-    	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1) return Command.Nyan;
+    	if((str.indexOf("プレイヤー") != -1 || str.indexOf("ログイン") != -1) && (str.indexOf("数") != -1 || str.indexOf("何人") != -1)){
+    		return Command.PlayerNum;
+    	}
+    	if(str.indexOf("サーバー") != -1 && (str.indexOf("負荷") != -1 || str.indexOf("重") != -1)){
+    		return Command.ServerLoad;
+    	}
+    	if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1){
+    		return Command.findStaff;
+    	}
+    	if(str.indexOf("おみくじ") != -1 || str.indexOf("運勢") != -1){
+    		return Command.Lucky;
+    	}
+    	if(str.indexOf("再起動") != -1){
+    		return Command.Reboot;
+    	}
+    	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1){
+    		return Command.Trigger;
+    	}
+    	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1){
+    		return Command.Cancel;
+    	}
+    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1){
+    		return Command.Thanks;
+    	}
+    	if(str.indexOf("おは") != -1){
+    		return Command.Morning;
+    	}
+    	if(str.indexOf("天気") != -1 || str.indexOf("雨") != -1 || str.indexOf("晴れ") != -1){
+    		return Command.Weather;
+    	}
+    	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1){
+    		return Command.Nyan;
+    	}
     	
     	return Command.None;
     }

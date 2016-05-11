@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -145,8 +146,17 @@ public class NekoCore extends JavaPlugin implements Listener{
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
-					if(hasStorm()) getLogger().info("雨");
-					else           getLogger().info("晴れ");
+					switch(getWeather()){
+					case 0:
+						getLogger().info("晴れ");
+						break;
+					case 1:
+						getLogger().info("雨");
+						break;
+					case 2:
+						getLogger().info("雷雨");
+						break;
+					}
 				default:
 					break;
 				}
@@ -349,9 +359,14 @@ public class NekoCore extends JavaPlugin implements Listener{
         }
 	}
 	
-	
-	//TODO 雷雨にも対応
-	public boolean hasStorm(){
-		return Bukkit.getWorlds().get(0).hasStorm();
+	public int getWeather(){
+		World world = Bukkit.getWorlds().get(0);
+		
+		if(world.hasStorm()){
+			if(world.isThundering()) return 2;
+			else                     return 1;
+		}
+		
+		return 0;
 	}
 }

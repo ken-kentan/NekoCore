@@ -22,9 +22,11 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterBot {
-	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan}
+	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan, Gacha}
 	
 	private static NekoCore nekoCore;
+	private static EconomyManager economy;
+	private static ConfigManager config;
 	private static AsyncTwitter twitter;
 	private static TwitterStream twitterStream;
 	
@@ -43,13 +45,21 @@ public class TwitterBot {
 	public static List<String> msgWeatherList       = new ArrayList<String>();
 	public static List<String> msgNyanList          = new ArrayList<String>();
 	
+	public static int gachaSize   = 10,
+			          gachaCost   = 100,
+			          gachaReward = 1000;
+	
 	private static Random random = new Random();
 	
 	private static boolean isTweenEnable = true,
-						   isReadyReboot = false;
+						   isReadyReboot = false,
+						   isReadyGacha  = false;
 	
-	public static void init(NekoCore _neko){
+	public static void init(NekoCore _neko, EconomyManager _economy, ConfigManager _config){
 		nekoCore = _neko;
+		economy = _economy;
+		config = _config;
+		
 		
 		twitter = new AsyncTwitterFactory().getInstance();
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
@@ -66,7 +76,7 @@ public class TwitterBot {
             }
         });
 		
-		//Streamの設定
+		//Stream config
         ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.setOAuthConsumerKey(consumerKey);
         builder.setOAuthConsumerSecret(consumerSecret);
@@ -77,7 +87,7 @@ public class TwitterBot {
         twitterStream = new TwitterStreamFactory(conf).getInstance();
         twitterStream.addListener(new streamListener());
 
-        // Streamの実行
+        //start user Stream
         twitterStream.user();
 		
 		nekoCore.getLogger().info("TwitterBotモジュールを初期化しました。");
@@ -170,6 +180,35 @@ public class TwitterBot {
     			case Nyan:
     				replyTweet(user, getNyanMsg().replace("{face}", getNekoFace()), status.getId());
     				break;
+    			case Gacha:
+    				if(!isReadyGacha){
+    					replyTweet(user, "猫ガチャ(1回鯖ﾏﾈｰ" + gachaCost + "円)するー" + getNekoFace() + "？" + "\nリプライでマイクラIDを「」に入れて教えてね！(試験機能) #猫ガチャ", status.getId());
+    					isReadyGacha = true;
+    					return;
+    				}
+    				
+    				String strPlayerID = getIDfromString(status.getText());
+    				
+    				if(!economy.isPlayer(strPlayerID) && !config.isLinkedTwitterAccount(strPlayerID, status.getUser().getScreenName())){
+    					replyTweet(user, "うーん...\nプレイヤー「" + strPlayerID + "」を見つけれなかったよ" + getNekoFace() +
+    							"\nまだ、アカウントをリンクしていないなら、サーバーにログインして「/nk account <Twitter ID>」と入力してね.", status.getId());
+    					isReadyGacha = false;
+    				}else if(economy.deposit(strPlayerID, (double)(-gachaCost))){
+    					int gacha = random.nextInt(gachaSize);
+    					switch (gacha) {
+						case 1:
+							economy.deposit(strPlayerID, (double)gachaReward);
+							replyTweet(user, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + strPlayerID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
+							break;
+						default:
+							replyTweet(user, "はずれーっ.残念..." + getNekoFace(), status.getId());
+							break;
+						}
+    					nekoCore.getLogger().info("Gacha:" + gacha);
+    				}else{
+    					replyTweet(user, "失敗.." + getNekoFace(), status.getId());
+    				}
+    				break;
 				default:					
 					replyTweet(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
 					break;
@@ -201,7 +240,7 @@ public class TwitterBot {
     }
 	
 	static boolean isReplay(Status status){
-		if(status.getText().indexOf("@DekitateServer") != -1) return true;
+		if(status.getText().indexOf("@DekitateServer") != -1 && !status.getUser().getScreenName().equals("DekitateServer")) return true;
 		
 		return false;
 	}
@@ -234,7 +273,7 @@ public class TwitterBot {
     	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1){
     		return Command.Cancel;
     	}
-    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1){
+    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1 || str.indexOf("かわいい") != -1){
     		return Command.Thanks;
     	}
     	if(str.indexOf("おは") != -1){
@@ -246,8 +285,26 @@ public class TwitterBot {
     	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1){
     		return Command.Nyan;
     	}
+    	if(str.indexOf("ガチャ") != -1 || (str.indexOf("「") != -1 && str.indexOf("」") != -1)){
+    		if(str.indexOf("「") == -1 && str.indexOf("」") == -1){
+    			isReadyGacha = false;
+    		}
+    		return Command.Gacha;
+    	}
     	
     	return Command.None;
+    }
+    
+    static String getIDfromString(String str){
+
+    	int index_top = str.indexOf("「") + 1;
+    	int index_bottom = str.indexOf("」");
+    	
+    	if(index_top == -1 || index_bottom == -1){
+    		return "!ERROR!";
+    	}
+    	
+    	return str.substring(index_top,index_bottom);
     }
     
     public static String getNekoFace(){

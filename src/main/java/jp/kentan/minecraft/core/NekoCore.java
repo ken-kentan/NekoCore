@@ -16,7 +16,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class NekoCore extends JavaPlugin implements Listener{	
+public class NekoCore extends JavaPlugin implements Listener{
+	private ConfigManager config = null;
+	private EconomyManager economy = null;
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
 	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
@@ -46,10 +48,13 @@ public class NekoCore extends JavaPlugin implements Listener{
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
-		ConfigManager.init(this);
+		config = new ConfigManager(this);
+		economy = new EconomyManager(this, config);
 		
-		TwitterBot.init(this);
-		TwitterBot.tweet("@ken_kentan\nLaunch success. NekoCore v1.5.10");
+		config.setTwitterBotData();
+		
+		TwitterBot.init(this, economy, config);
+		TwitterBot.tweet("@ken_kentan\nLaunch success." + getDescription().getName() + "　v" +getDescription().getVersion());
 		
 		getLogger().info("NekoCoreを有効にしました");
 	}
@@ -124,6 +129,17 @@ public class NekoCore extends JavaPlugin implements Listener{
 				
 				voteProcess(sender);
 				break;
+			case "account":
+				if(args.length > 1){
+					if(config.saveLinkedTwitterAccount((Player)sender, args[1])){
+						sender.sendMessage(nc_tag + "Twitterアカウント(@" + args[1] + ")のリンクに成功しました！");
+					}else{
+						sender.sendMessage(nc_tag + "Twitterアカウンのリンクに失敗しました...");
+					}
+				}else{
+					sender.sendMessage(nc_tag + "TwitterIDを入力して下さい.");
+				}
+				break;
 			}
 			
 			if(args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !checkInGame(sender))){
@@ -142,7 +158,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					TwitterBot.switchMode();
 					break;
 				case "reload":
-					ConfigManager.init(this);
+					config.setTwitterBotData();
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":

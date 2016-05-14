@@ -23,6 +23,8 @@ public class ConfigManager {
 		
 		confFilePath   = nekoCore.getDataFolder() + File.separator + "config.yml";
 		playerFilePath = nekoCore.getDataFolder() + File.separator + "player.yml";
+		
+		setTwitterBotData();
 	}
 	
 	public void setTwitterBotData(){
@@ -38,7 +40,7 @@ public class ConfigManager {
 			TwitterBot.accessToken       = conf.getString("Twitter.accessToken");
 			TwitterBot.accessTokenSecret = conf.getString("Twitter.accessTokenSecret");
 			
-			//init All List
+			//clear All List
 			TwitterBot.nekoFaceList.clear();
 			TwitterBot.msgPlayerActionList.clear();
 			TwitterBot.msgUnkownCommandList.clear();
@@ -48,6 +50,7 @@ public class ConfigManager {
 			TwitterBot.msgMorningList.clear();
 			TwitterBot.msgWeatherList.clear();
 			TwitterBot.msgNyanList.clear();
+			TwitterBot.msgGachaMissList.clear();
 			
 			TwitterBot.nekoFaceList         = conf.getStringList("Bot.nekoFace");
 			TwitterBot.msgPlayerActionList  = conf.getStringList("Bot.msgPlayerAction");
@@ -58,6 +61,7 @@ public class ConfigManager {
 			TwitterBot.msgMorningList       = conf.getStringList("Bot.msgGoodMorning");
 			TwitterBot.msgWeatherList       = conf.getStringList("Bot.msgWeather");
 			TwitterBot.msgNyanList          = conf.getStringList("Bot.msgNyan");
+			TwitterBot.msgGachaMissList     = conf.getStringList("Bot.msgGachaMiss");
 			
 			TwitterBot.gachaSize   = conf.getInt("Gacha.size");
 			TwitterBot.gachaCost   = conf.getInt("Gacha.cost");
@@ -66,7 +70,7 @@ public class ConfigManager {
 			nekoCore.getLogger().warning(e.toString());
 		}
 		
-		nekoCore.getLogger().info("Twitter設定ファイルを正常に読み込みました。");
+		nekoCore.getLogger().info("Successfully read the config.yml file.");
 	}
 	
 	public boolean saveLinkedTwitterAccount(Player player, String strTwitterAccount){

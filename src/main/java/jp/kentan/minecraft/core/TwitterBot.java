@@ -27,7 +27,7 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterBot {
-	enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan, Gacha}
+	private static enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel, Lucky, Thanks, Morning, Weather, Nyan, Gacha}
 	
 	private static NekoCore nekoCore;
 	private static EconomyManager economy;
@@ -49,6 +49,7 @@ public class TwitterBot {
 	public static List<String> msgMorningList       = new ArrayList<String>();
 	public static List<String> msgWeatherList       = new ArrayList<String>();
 	public static List<String> msgNyanList          = new ArrayList<String>();
+	public static List<String> msgGachaMissList     = new ArrayList<String>();
 	
 	public static int gachaSize   = 10,
 			          gachaCost   = 100,
@@ -58,11 +59,11 @@ public class TwitterBot {
 	
 	private static Random random = new Random();
 	
-	private static boolean isTweenEnable = true,
-						   isReadyReboot = false,
-						   isReadyGacha  = false;
+	private static boolean isBotEnable    = true,
+						   isReadyReboot  = false,
+						   isReadyGacha   = false;
 	
-	public static void init(NekoCore _neko, EconomyManager _economy, ConfigManager _config){
+	TwitterBot(NekoCore _neko, EconomyManager _economy, ConfigManager _config){
 		nekoCore = _neko;
 		economy = _economy;
 		config = _config;
@@ -97,28 +98,27 @@ public class TwitterBot {
         //start user Stream
         twitterStream.user();
 		
-		nekoCore.getLogger().info("TwitterBotモジュールを初期化しました。");
+		nekoCore.getLogger().info("Successfully initialized the Twitter Module.");
 	}
 	
-	public static void eventHandler(){
-		if(isReadyGacha && ++timerGacha > 30){
-			timerGacha = 0;
-			isReadyGacha = false;
+	public void eventHandler(){
+		if(isReadyGacha && ++timerGacha > 10){
+			resetGacha();
 		}
 	}
 	
-	public static void closeStream(){
+	public void closeStream(){
 		twitterStream.shutdown();
-		nekoCore.getLogger().info("TwitterStreamを停止しました。");
+		nekoCore.getLogger().info("Shutdown the TwitterStream.");
 	}
 	
-	private static final UserStreamListener listener = new UserStreamListener() {
+	private final UserStreamListener listener = new UserStreamListener() {
 		@Override
 	    public void onStatus(Status status) {
 	    	if(!isReplay(status)) return;
 	    	
 			String user = status.getUser().getScreenName();
-			nekoCore.getLogger().info("Twitter:" + user + "からリプライを取得.");
+			nekoCore.getLogger().info("Twitter:Get replay from @" + user);
 			
 			switch(typeCommand(status.getText())){
 			case PlayerNum:
@@ -198,7 +198,8 @@ public class TwitterBot {
 				break;
 			case Gacha:
 				if(!isReadyGacha){
-					replyTweet(user, "猫ガチャ(1回鯖ﾏﾈｰ" + gachaCost + "円)するー" + getNekoFace() + "？" + "\nこのツイートをお気に入りしてね！(試験機能) #猫ガチャ", status.getId());
+					replyTweet(user, "1回鯖ﾏﾈｰ" + gachaCost + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gachaSize + "の確率で" + gachaReward +
+							"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをお気に入りしてね！  #猫ガチャ", status.getId());
 					isReadyGacha = true;
 				}
 				break;
@@ -212,7 +213,7 @@ public class TwitterBot {
 		public void onFavorite(User source, User target, Status favoritedStatus) {
 			if(!isFavToMe(target)) return;
 			
-			nekoCore.getLogger().info("Twitter:" + source.getScreenName() + "からお気に入りを取得.");
+			nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
 			
 			if(isReadyGacha && favoritedStatus.getText().indexOf("このツイートをお気に入りしてね") != -1){
 				gacha(source, favoritedStatus);
@@ -298,7 +299,7 @@ public class TwitterBot {
 		public void onQuotedTweet(User source, User target, Status quotingTweet) {}
 	};
 	
-	private static void gacha(User source, Status status){
+	private void gacha(User source, Status status){
 		String twitterID    = source.getScreenName();
 		String minecraftID  = config.getMinecraftID(twitterID);
 		
@@ -311,49 +312,62 @@ public class TwitterBot {
 				economy.deposit(minecraftID, (double)gachaReward);
 				replyTweet(twitterID, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + minecraftID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
 				break;
-			default:
-				replyTweet(twitterID, "はずれーっ.残念..." + getNekoFace(), status.getId());
-				break;
+			default://Miss
+				replyTweet(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをお気に入りしてね" + getNekoFace(), status.getId());
+				isReadyGacha = true;
+				timerGacha = 0;
+				return;
 			}
 			nekoCore.getLogger().info("Gacha:" + gacha);
 		}else{
 			replyTweet(twitterID, "あっれー. 何か失敗したーっ.." + getNekoFace(), status.getId());
 		}
 		
-		//reset gacha
+		resetGacha();
+	}
+	
+	private void resetGacha(){
 		isReadyGacha = false;
 		timerGacha = 0;
-	}
-	
-	public static void switchMode(){
-		isTweenEnable = !isTweenEnable;
 		
-		nekoCore.getLogger().info("TwitterBotモジュールを" + isTweenEnable + "にしました。");
+		nekoCore.getLogger().info("Gacha was reset.");
 	}
 	
-	public static void tweet(String str){
-		if(!isTweenEnable) return;
+	public void switchBotStatus(){
+		isBotEnable = !isBotEnable;
+		String msg = null;
+		
+		if(isBotEnable){
+			msg = "Successfully enabled the Twitter Bot.";
+		}else{
+			msg = "Successfully disabled the Twitter Bot.";
+		}
+		nekoCore.getLogger().info(msg);
+	}
+	
+	public void tweet(String str){
+		if(!isBotEnable) return;
 		
 		twitter.updateStatus(str + "\n#猫鯖");
 	}
 	
-    public static void replyTweet (String user, String message, long statusId) {
-    	if(!isTweenEnable) return;
+    public void replyTweet (String user, String message, long statusId) {
+    	if(!isBotEnable) return;
 		twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
     }
     
-    public static void sendDM(String user, String str){
+    public void sendDM(String user, String str){
     	twitter.sendDirectMessage(user, str);
     	nekoCore.getLogger().info("Twitter DM:Successfully sent to " + user);
     }
 	
-	static boolean isReplay(Status status){
+	private boolean isReplay(Status status){
 		if(status.getText().indexOf("@DekitateServer") != -1 && !status.getUser().getScreenName().equals("DekitateServer")) return true;
 		
 		return false;
 	}
 	
-	static boolean isOwner(Status status){
+	private boolean isOwner(Status status){
 		if(status.getUser().getScreenName().equals("ken_kentan")) return true;
 		
 		return false;
@@ -365,7 +379,7 @@ public class TwitterBot {
 		return false;
 	}
     
-    static Command typeCommand(String str){
+	private Command typeCommand(String str){
     	if((str.indexOf("プレイヤー") != -1 || str.indexOf("ログイン") != -1) && (str.indexOf("数") != -1 || str.indexOf("何人") != -1)){
     		return Command.PlayerNum;
     	}
@@ -440,5 +454,9 @@ public class TwitterBot {
     
     private static String getNyanMsg(){
     	return msgNyanList.get(random.nextInt(msgNyanList.size()));
+    }
+    
+    private static String getGachaMissMsg(){
+    	return msgGachaMissList.get(random.nextInt(msgGachaMissList.size())).replace("{face}", getNekoFace());
     }
 }

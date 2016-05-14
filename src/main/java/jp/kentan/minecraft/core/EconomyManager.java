@@ -23,14 +23,14 @@ public class EconomyManager {
 		config = _config;
 		
 		if (!setupEconomy()) {
-			nekoCore.getLogger().warning("Vaultとの提携に失敗しました.");
+			nekoCore.getLogger().warning("Failed link with Vault.");
             return;
         }
 		
         setupPermissions();
         setupChat();
         
-        nekoCore.getLogger().warning("Linked to Vault!");
+        nekoCore.getLogger().warning("Successfully linked with Vault.");
 	}
 	
 	private boolean setupEconomy() {
@@ -61,7 +61,7 @@ public class EconomyManager {
     	EconomyResponse r = null;
     	UUID uuid = config.getPlayerUUID(strPlayer);
     	OfflinePlayer player = null;
-    	String strMode = null;
+    	String msgLog = null;
     	
     	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
     	
@@ -69,14 +69,14 @@ public class EconomyManager {
     	
     	if(amount >= 0){
     		r = econ.depositPlayer(player, amount);
-    		strMode = "Deposit";
+    		msgLog = "deposit " + econ.format(r.amount) + " to " + strPlayer;
     	}else{
     		r = econ.withdrawPlayer(player, Math.abs(amount));
-    		strMode = "Withdraw";
+    		msgLog = "withdraw " + econ.format(r.amount) + " from " + strPlayer;
     	}
     	
     	if(r.transactionSuccess()) {
-    		nekoCore.getLogger().info(strMode + ":" + econ.format(r.amount) + " to " + strPlayer);
+    		nekoCore.getLogger().info(msgLog);
     		return true;
     	}else{
     		nekoCore.getLogger().warning(r.errorMessage);

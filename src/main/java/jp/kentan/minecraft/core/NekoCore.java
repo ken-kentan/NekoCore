@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class NekoCore extends JavaPlugin implements Listener{
 	private ConfigManager config = null;
 	private EconomyManager economy = null;
+	private TwitterBot bot = null;
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
 	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
@@ -29,13 +30,11 @@ public class NekoCore extends JavaPlugin implements Listener{
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		getServer().getPluginManager().registerEvents(this, this);
 		
-		config = new ConfigManager(this);
+		config  = new ConfigManager(this);
 		economy = new EconomyManager(this, config);
+		bot     = new TwitterBot(this, economy, config);
 		
-		config.setTwitterBotData();
-		
-		TwitterBot.init(this, economy, config);
-		TwitterBot.tweet("@ken_kentan\nLaunch success. " + getDescription().getName() + "　v" +getDescription().getVersion());
+		bot.tweet("@ken_kentan\nSuccessfully launched. " + getDescription().getName() + "　v" +getDescription().getVersion());
 		
 		new BukkitRunnable()
 		{
@@ -53,19 +52,19 @@ public class NekoCore extends JavaPlugin implements Listener{
 					voteReset();
 					sec_time = 0;
 				}
-				TwitterBot.eventHandler();
+				bot.eventHandler();
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
-		getLogger().info("NekoCoreを有効にしました");
+		getLogger().info("NekoCore was launched!");
 	}
 
 	@Override
 	public void onDisable() {
-		TwitterBot.tweet("@ken_kentan\n猫鯖が停止しました。");
-		TwitterBot.closeStream();
+		bot.tweet("@ken_kentan\nShutdown... " + getDescription().getName() + "　v" +getDescription().getVersion());
+		bot.closeStream();
 		
-		getLogger().info("NekoCoreを無効にしました");
+		getLogger().info("NekoCore was disabled.");
 	}
 
 	@Override
@@ -109,8 +108,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 				
 				Calendar calendar = Calendar.getInstance();
 				
-				TwitterBot.sendDM("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + args[1]);
-				TwitterBot.tweet("@ken_kentan\nレポートが送信されたよ！詳しくはDMを確認してね" + TwitterBot.getNekoFace());
+				bot.sendDM("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + args[1]);
+				bot.tweet("@ken_kentan\nレポートが送信されたよ！詳しくはDMを確認してね" + TwitterBot.getNekoFace());
 				
 				break;
 			case "server":
@@ -155,8 +154,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 					sec_reboot = -1;
 					for(Player player : Bukkit.getServer().getOnlinePlayers()) player.sendMessage(nc_tag + ChatColor.RED  + "サーバーの再起動がキャンセルされました。");
 					break;
-				case "tweet":
-					TwitterBot.switchMode();
+				case "bot":
+					bot.switchBotStatus();
 					break;
 				case "reload":
 					config.setTwitterBotData();
@@ -184,7 +183,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 	
 	public void rebootModule(){
 		if(sec_reboot < 0) sec_reboot = 300;
-		TwitterBot.tweet("@ken_kentan\n5分後に再起動します.");
+		bot.tweet("@ken_kentan\n5分後に再起動します.");
 	}
 	
 	void reboot(){
@@ -212,7 +211,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         tweet = tweet.replace("{status}", "ログイン");
         tweet = tweet.replace("{face}", TwitterBot.getNekoFace());
      
-        TwitterBot.tweet(tweet);
+        bot.tweet(tweet);
     }
 	
 	@EventHandler
@@ -224,7 +223,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         tweet = tweet.replace("{status}", "ログアウト");
         tweet = tweet.replace("{face}", TwitterBot.getNekoFace());
      
-        TwitterBot.tweet(tweet);
+        bot.tweet(tweet);
     }
 
 	public void doError(CommandSender _sender, Exception _e) {

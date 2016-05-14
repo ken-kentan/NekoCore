@@ -34,7 +34,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		economy = new EconomyManager(this, config);
 		bot     = new TwitterBot(this, economy, config);
 		
-		bot.tweet("@ken_kentan\nSuccessfully launched. " + getDescription().getName() + "　v" +getDescription().getVersion());
+		bot.tweet("@ken_kentan\nSuccessfully launched. " + getDescription().getName() + " v" +getDescription().getVersion());
 		
 		new BukkitRunnable()
 		{
@@ -61,7 +61,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
 	@Override
 	public void onDisable() {
-		bot.tweet("@ken_kentan\nShutdown... " + getDescription().getName() + "　v" +getDescription().getVersion());
+		bot.tweet("@ken_kentan\nShutdown... " + getDescription().getName() + " v" +getDescription().getVersion());
 		bot.closeStream();
 		
 		getLogger().info("NekoCore was disabled.");

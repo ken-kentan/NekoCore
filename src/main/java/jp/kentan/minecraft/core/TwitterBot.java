@@ -40,6 +40,7 @@ public class TwitterBot {
 	public static String accessToken       = "";
 	public static String accessTokenSecret = "";
 	
+	/* Bot Messages List */
 	public static List<String> nekoFaceList         = new ArrayList<String>();
 	public static List<String> msgPlayerActionList  = new ArrayList<String>();
 	public static List<String> msgUnkownCommandList = new ArrayList<String>();
@@ -51,17 +52,19 @@ public class TwitterBot {
 	public static List<String> msgNyanList          = new ArrayList<String>();
 	public static List<String> msgGachaMissList     = new ArrayList<String>();
 	
+	/* Gacha */
+	private static List<String>  readyGachaUserList = new ArrayList<String>();
+	private static List<Integer> timerGachaUserList = new ArrayList<Integer>();
+	
 	public static int gachaSize   = 10,
 			          gachaCost   = 100,
 			          gachaReward = 1000;
-	
-	private static int timerGacha = 0;
+	/* Gacha end */
 	
 	private static Random random = new Random();
 	
 	private static boolean isBotEnable    = true,
-						   isReadyReboot  = false,
-						   isReadyGacha   = false;
+						   isReadyReboot  = false;
 	
 	TwitterBot(NekoCore _neko, EconomyManager _economy, ConfigManager _config){
 		nekoCore = _neko;
@@ -102,8 +105,11 @@ public class TwitterBot {
 	}
 	
 	public void eventHandler(){
-		if(isReadyGacha && ++timerGacha > 10){
-			resetGacha();
+		for(int i=0; i<readyGachaUserList.size(); i++) {
+			int timer = timerGachaUserList.get(i);
+		    timerGachaUserList.set(i, ++timer);
+		    
+		    if(timer > 30) resetGacha(i);
 		}
 	}
 	
@@ -197,11 +203,18 @@ public class TwitterBot {
 				replyTweet(user, getNyanMsg().replace("{face}", getNekoFace()), status.getId());
 				break;
 			case Gacha:
-				if(!isReadyGacha){
-					replyTweet(user, "1回鯖ﾏﾈｰ" + gachaCost + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gachaSize + "の確率で" + gachaReward +
-							"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをお気に入りしてね！  #猫ガチャ", status.getId());
-					isReadyGacha = true;
+				for(String readyUserString : readyGachaUserList){
+					if(readyUserString.equals(user)){
+						return;
+					}
 				}
+				
+				replyTweet(user, "1回鯖ﾏﾈｰ" + gachaCost + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gachaSize + "の確率で" + gachaReward +
+						"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをお気に入りしてね！  #猫ガチャ", status.getId());
+				
+				readyGachaUserList.add(user);
+				timerGachaUserList.add(0);
+				
 				break;
 			default:					
 				replyTweet(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
@@ -215,8 +228,13 @@ public class TwitterBot {
 			
 			nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
 			
-			if(isReadyGacha && favoritedStatus.getText().indexOf("このツイートをお気に入りしてね") != -1){
-				gacha(source, favoritedStatus);
+			int index = 0;
+			
+			for(String readyUserString : readyGachaUserList){
+				if(readyUserString.equals(source.getScreenName()) && favoritedStatus.getText().indexOf("このツイートをお気に入りしてね") != -1){
+					gacha(source, favoritedStatus, index);
+				}
+				++index;
 			}
 		}
 		
@@ -299,7 +317,7 @@ public class TwitterBot {
 		public void onQuotedTweet(User source, User target, Status quotingTweet) {}
 	};
 	
-	private void gacha(User source, Status status){
+	private void gacha(User source, Status status, int indexList){
 		String twitterID    = source.getScreenName();
 		String minecraftID  = config.getMinecraftID(twitterID);
 		
@@ -314,23 +332,22 @@ public class TwitterBot {
 				break;
 			default://Miss
 				replyTweet(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをお気に入りしてね" + getNekoFace(), status.getId());
-				isReadyGacha = true;
-				timerGacha = 0;
+				timerGachaUserList.set(indexList, 0);
 				return;
 			}
-			nekoCore.getLogger().info("Gacha:" + gacha);
+			nekoCore.getLogger().info("Gacha result is " + gacha);
 		}else{
 			replyTweet(twitterID, "あっれー. 何か失敗したーっ.." + getNekoFace(), status.getId());
 		}
 		
-		resetGacha();
+		resetGacha(indexList);
 	}
 	
-	private void resetGacha(){
-		isReadyGacha = false;
-		timerGacha = 0;
+	private void resetGacha(int index){
+		readyGachaUserList.remove(index);
+		timerGachaUserList.remove(index);
 		
-		nekoCore.getLogger().info("Gacha was reset.");
+		nekoCore.getLogger().info("Gacha(" + index + ") was reset.");
 	}
 	
 	public void switchBotStatus(){

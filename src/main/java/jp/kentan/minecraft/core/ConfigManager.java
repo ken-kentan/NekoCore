@@ -15,16 +15,18 @@ import org.bukkit.entity.Player;
 public class ConfigManager {
 	private NekoCore nekoCore;
 	final private Charset CONFIG_CHAREST = StandardCharsets.UTF_8;
+	private String confFilePath = null;
+	private String playerFilePath = null;
 	
 	public ConfigManager(NekoCore _neko) {
 		nekoCore = _neko;
+		
+		confFilePath   = nekoCore.getDataFolder() + File.separator + "config.yml";
+		playerFilePath = nekoCore.getDataFolder() + File.separator + "player.yml";
 	}
 	
 	public void setTwitterBotData(){
 		
-		String confFilePath= nekoCore.getDataFolder() + File.separator + "config.yml";
-
-		// 設定ファイルを開く
 		try(Reader reader = new InputStreamReader(new FileInputStream(confFilePath),CONFIG_CHAREST)){
 			
 			FileConfiguration conf = new YamlConfiguration();
@@ -78,6 +80,8 @@ public class ConfigManager {
 				conf.set("Player." + player.getName() + ".TwitterID", strTwitterAccount);
 				conf.set("Player." + player.getName() + ".UUID", player.getUniqueId().toString());
 				
+				conf.set("Twitter." + strTwitterAccount + ".mcID", player.getName());
+				
 				conf.save(configFile);
 			}
 		} catch (Exception e) {
@@ -89,10 +93,8 @@ public class ConfigManager {
 	}
 	
 	public boolean isLinkedTwitterAccount(String strMinecraftID, String strTwitterAccount){
-		
-		String confFilePath= nekoCore.getDataFolder() + File.separator + "player.yml";
 
-		try(Reader reader = new InputStreamReader(new FileInputStream(confFilePath),CONFIG_CHAREST)){
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerFilePath),CONFIG_CHAREST)){
 			
 			FileConfiguration conf = new YamlConfiguration();
 
@@ -111,9 +113,8 @@ public class ConfigManager {
 	}
 	
 	public UUID getPlayerUUID(String strMinecraftID){
-		String confFilePath= nekoCore.getDataFolder() + File.separator + "player.yml";
 
-		try(Reader reader = new InputStreamReader(new FileInputStream(confFilePath),CONFIG_CHAREST)){
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerFilePath),CONFIG_CHAREST)){
 			
 			FileConfiguration conf = new YamlConfiguration();
 
@@ -121,7 +122,29 @@ public class ConfigManager {
 			
 			String uuid = conf.getString("Player." + strMinecraftID + ".UUID");
 			
-			return UUID.fromString(uuid);
+			if(uuid != null){
+				return UUID.fromString(uuid);
+			}
+		}catch(Exception e){
+			nekoCore.getLogger().warning(e.toString());
+		}
+		
+		return null;
+	}
+	
+	public String getMinecraftID(String strTwitterAccount){
+		
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerFilePath),CONFIG_CHAREST)){
+			
+			FileConfiguration conf = new YamlConfiguration();
+
+			conf.load(reader);
+			
+			String mcID = conf.getString("Twitter." + strTwitterAccount + ".mcID");
+			
+			if(mcID != null){
+				return mcID;
+			}
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());
 		}

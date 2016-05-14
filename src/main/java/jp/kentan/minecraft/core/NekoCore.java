@@ -29,6 +29,14 @@ public class NekoCore extends JavaPlugin implements Listener{
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		getServer().getPluginManager().registerEvents(this, this);
 		
+		config = new ConfigManager(this);
+		economy = new EconomyManager(this, config);
+		
+		config.setTwitterBotData();
+		
+		TwitterBot.init(this, economy, config);
+		TwitterBot.tweet("@ken_kentan\nLaunch success. " + getDescription().getName() + "　v" +getDescription().getVersion());
+		
 		new BukkitRunnable()
 		{
 		    @Override
@@ -45,16 +53,9 @@ public class NekoCore extends JavaPlugin implements Listener{
 					voteReset();
 					sec_time = 0;
 				}
+				TwitterBot.eventHandler();
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
-		
-		config = new ConfigManager(this);
-		economy = new EconomyManager(this, config);
-		
-		config.setTwitterBotData();
-		
-		TwitterBot.init(this, economy, config);
-		TwitterBot.tweet("@ken_kentan\nLaunch success." + getDescription().getName() + "　v" +getDescription().getVersion());
 		
 		getLogger().info("NekoCoreを有効にしました");
 	}
@@ -96,7 +97,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 				break;
 			case "twitter":
 			case "tw":
-				showURL(sender,"https://twitter.com/ken_kentan/");
+				showURL(sender,"https://twitter.com/DekitateServer");
 				break;
 			case "report":
 				if(checkInGame(sender) == false){
@@ -243,7 +244,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko map" + ChatColor.WHITE + " DynmapのURLを表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko blog" + ChatColor.WHITE + " BlogのURLを表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko hp" + ChatColor.WHITE + " ホームページのURLを表示します。");
-		_sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.WHITE + " ServerAdminのTwitterURLを表示します。");
+		_sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.WHITE + " ServerのTwitterURLを表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.WHITE + " 運営に<報告文>を送信します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko server" + ChatColor.WHITE + " 現在の猫鯖の負荷率を表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います。");

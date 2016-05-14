@@ -57,16 +57,6 @@ public class EconomyManager {
         return perms != null;
     }
     
-    public boolean isPlayer(String strPlayer){
-    	OfflinePlayer player = null;
-    	UUID uuid = config.getPlayerUUID(strPlayer);
-    	
-    	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
-    	
-    	if(uuid == null || player == null) return false;
-    	else                              return true;
-    }
-    
     public boolean deposit(String strPlayer, double amount){
     	EconomyResponse r = null;
     	UUID uuid = config.getPlayerUUID(strPlayer);

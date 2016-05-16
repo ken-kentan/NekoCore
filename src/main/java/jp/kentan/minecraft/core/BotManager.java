@@ -13,7 +13,7 @@ import twitter4j.User;
 public class BotManager {
 	
 	private enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
-		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer}
+		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer, Detach}
 	
 	private NekoCore nekoCore = null;
 	private Twitter  tw       = null;
@@ -43,7 +43,8 @@ public class BotManager {
 	
 	private Random random = new Random();
 	
-	private boolean isReadyReboot  = false;
+	private boolean isReadyReboot = false,
+			        isReadyDetach = false;
 	
 	public BotManager(NekoCore _neko, Twitter _tw) {
 		nekoCore = _neko;
@@ -96,6 +97,9 @@ public class BotManager {
 				if(isReadyReboot){
 					tw.reply(user, "サーバーを再起動します.", status.getId());
 					nekoCore.rebootModule();
+				}else if(isReadyDetach){
+					tw.reply(user, "NekoCoreをサーバーから切り離します.\n再ロードはコンソールから行ってください.", status.getId());
+					nekoCore.getServer().dispatchCommand(nekoCore.getServer().getConsoleSender(), "plugman unload NekoCore");
 				}
 			}
 			break;
@@ -172,6 +176,14 @@ public class BotManager {
 				tw.reply(user, getAskNoMsg().replace("{player}", mcID).replace("{status}", "ログイン"), status.getId());
 			}
 			break;
+		case Detach:
+			if(tw.isOwner(status)){
+				isReadyDetach = true;
+				tw.reply(user, "ほんとにNekoCoreをサーバーか切り離すの" + getNekoFace() + "？", status.getId());
+			}else{
+				tw.reply(user, getRejectCommandMsg().replace("{face}", getNekoFace()), status.getId());
+			}
+			break;
 		default:					
 			tw.reply(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
 			break;
@@ -220,6 +232,9 @@ public class BotManager {
     	}
     	if(isIncludeWord(str) && (str.indexOf("いる") != -1 || str.indexOf("ログイン") != -1)){
     		return Command.AskOnlinePlayer;
+    	}
+    	if(str.indexOf("切り離し") != -1){
+    		return Command.Detach;
     	}
     	
     	return Command.None;

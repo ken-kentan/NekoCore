@@ -107,7 +107,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					String msgReport = "";
 					
 					for(int i=1; i < args.length; ++i){
-						msgReport = msgReport.concat(args[i]);
+						msgReport = msgReport.concat(args[i]).concat(" ");
 					}
 					
 					tw.sendDirectMessgae("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + msgReport);

@@ -234,18 +234,19 @@ public class BotManager {
 			tw.reply(twitterID, "うーん...そのアカウントはまだリンクされていないよ" + getNekoFace() + "\nサーバーにログインして「/nk account " + twitterID + "」と入力してね.", status.getId());		
 		}else if(nekoCore.economy.deposit(minecraftID, (double)(-gachaCost))){
 			int gacha = random.nextInt(gachaSize);
-			switch (gacha) {
-			case 1:
+			
+			if(gacha == 0){
 				nekoCore.economy.deposit(minecraftID, (double)gachaReward);
 				tw.reply(twitterID, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + minecraftID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
-				break;
-			default://Miss
+			}else{
 				tw.reply(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをお気に入りしてね" + getNekoFace(), status.getId());
 				timerGachaUserList.set(indexList, 0);
 				nekoCore.getLogger().info("Gacha result is " + gacha);
 				return;
 			}
+			
 			nekoCore.getLogger().info("Gacha result is " + gacha);
+			
 		}else{
 			tw.reply(twitterID, "あっれー. 何か失敗したーっ.." + getNekoFace(), status.getId());
 		}

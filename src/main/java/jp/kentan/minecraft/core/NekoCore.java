@@ -250,6 +250,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko server" + ChatColor.WHITE + " 現在の猫鯖の負荷率を表示します。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います。");
 		_sender.sendMessage("| " + ChatColor.GOLD + "/neko vote status" + ChatColor.WHITE + " 天気投票のステータスを表示します。");
+		_sender.sendMessage("| " + ChatColor.GOLD + "/neko account <Twitter ID>" + ChatColor.WHITE + " MinecraftIDとTwitterIDをリンクします。");
 		_sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です。");
 		_sender.sendMessage("---------------------------------------");
 	}

@@ -87,11 +87,11 @@ public class Twitter {
 
 		@Override
 		public void onFavorite(User source, User target, Status favoritedStatus) {
-			if(!isFavToMe(target)) return;
+			if(isFavToMe(target)){
+				nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
 			
-			nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
-			
-			bot.triggerGacha(source, favoritedStatus);
+				bot.triggerGacha(source, favoritedStatus);
+			}
 		}
 		
 		@Override
@@ -188,14 +188,15 @@ public class Twitter {
 	}
 	
 	public void tweet(String str){
-		if(!isBotEnable) return;
-		
-		twitter.updateStatus(str + "\n#猫鯖");
+		if(isBotEnable){
+			twitter.updateStatus(str + "\n#猫鯖");
+		}
 	}
 	
     public void reply(String user, String message, long statusId) {
-    	if(!isBotEnable) return;
-		twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
+    	if(isBotEnable){
+    		twitter.updateStatus(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
+    	}
     }
     
     public void sendDirectMessgae(String user, String str){
@@ -215,7 +216,7 @@ public class Twitter {
 		return false;
 	}
 	
-	static boolean isFavToMe(User targer){
+	private boolean isFavToMe(User targer){
 		if(targer.getScreenName().equals("DekitateServer")) return true;
 		
 		return false;

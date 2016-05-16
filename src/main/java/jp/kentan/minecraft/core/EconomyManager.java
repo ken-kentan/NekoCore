@@ -83,4 +83,21 @@ public class EconomyManager {
     		return false;
     	}
     }
+    
+    public int getBalance(String strPlayer){
+    	UUID uuid = config.getPlayerUUID(strPlayer);
+    	OfflinePlayer player = null;
+    	
+    	if(uuid != null){
+    		player = nekoCore.getServer().getOfflinePlayer(uuid);
+    	}else{
+    		return -1; //not linked
+    	}
+    	
+    	if(player == null || !econ.hasAccount(player)){
+    		return -2; //not has bank account
+    	}
+    	
+    	return (int)econ.getBalance(player);
+    }
 }

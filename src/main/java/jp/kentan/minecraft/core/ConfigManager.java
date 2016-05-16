@@ -35,37 +35,37 @@ public class ConfigManager {
 
 			conf.load(reader);
 			
-			TwitterBot.consumerKey       = conf.getString("Twitter.consumerKey");
-			TwitterBot.consumerSecret    = conf.getString("Twitter.consumerSecret");
-			TwitterBot.accessToken       = conf.getString("Twitter.accessToken");
-			TwitterBot.accessTokenSecret = conf.getString("Twitter.accessTokenSecret");
+			Twitter.consumerKey       = conf.getString("Twitter.consumerKey");
+			Twitter.consumerSecret    = conf.getString("Twitter.consumerSecret");
+			Twitter.accessToken       = conf.getString("Twitter.accessToken");
+			Twitter.accessTokenSecret = conf.getString("Twitter.accessTokenSecret");
 			
 			//clear All List
-			TwitterBot.nekoFaceList.clear();
-			TwitterBot.msgPlayerActionList.clear();
-			TwitterBot.msgUnkownCommandList.clear();
-			TwitterBot.msgRejectCommandList.clear();
-			TwitterBot.msgThanksList.clear();
-			TwitterBot.msgLuckyList.clear();
-			TwitterBot.msgMorningList.clear();
-			TwitterBot.msgWeatherList.clear();
-			TwitterBot.msgNyanList.clear();
-			TwitterBot.msgGachaMissList.clear();
+			BotManager.nekoFaceList.clear();
+			BotManager.msgPlayerActionList.clear();
+			BotManager.msgUnkownCommandList.clear();
+			BotManager.msgRejectCommandList.clear();
+			BotManager.msgThanksList.clear();
+			BotManager.msgLuckyList.clear();
+			BotManager.msgMorningList.clear();
+			BotManager.msgWeatherList.clear();
+			BotManager.msgNyanList.clear();
+			BotManager.msgGachaMissList.clear();
 			
-			TwitterBot.nekoFaceList         = conf.getStringList("Bot.nekoFace");
-			TwitterBot.msgPlayerActionList  = conf.getStringList("Bot.msgPlayerAction");
-			TwitterBot.msgUnkownCommandList = conf.getStringList("Bot.msgUnknownCommand");
-			TwitterBot.msgRejectCommandList = conf.getStringList("Bot.msgRejectCommand");
-			TwitterBot.msgThanksList        = conf.getStringList("Bot.msgThanks");
-			TwitterBot.msgLuckyList         = conf.getStringList("Bot.msgLucky");
-			TwitterBot.msgMorningList       = conf.getStringList("Bot.msgGoodMorning");
-			TwitterBot.msgWeatherList       = conf.getStringList("Bot.msgWeather");
-			TwitterBot.msgNyanList          = conf.getStringList("Bot.msgNyan");
-			TwitterBot.msgGachaMissList     = conf.getStringList("Bot.msgGachaMiss");
+			BotManager.nekoFaceList         = conf.getStringList("Bot.nekoFace");
+			BotManager.msgPlayerActionList  = conf.getStringList("Bot.msgPlayerAction");
+			BotManager.msgUnkownCommandList = conf.getStringList("Bot.msgUnknownCommand");
+			BotManager.msgRejectCommandList = conf.getStringList("Bot.msgRejectCommand");
+			BotManager.msgThanksList        = conf.getStringList("Bot.msgThanks");
+			BotManager.msgLuckyList         = conf.getStringList("Bot.msgLucky");
+			BotManager.msgMorningList       = conf.getStringList("Bot.msgGoodMorning");
+			BotManager.msgWeatherList       = conf.getStringList("Bot.msgWeather");
+			BotManager.msgNyanList          = conf.getStringList("Bot.msgNyan");
+			BotManager.msgGachaMissList     = conf.getStringList("Bot.msgGachaMiss");
 			
-			TwitterBot.gachaSize   = conf.getInt("Gacha.size");
-			TwitterBot.gachaCost   = conf.getInt("Gacha.cost");
-			TwitterBot.gachaReward = conf.getInt("Gacha.reward");
+			BotManager.gachaSize   = conf.getInt("Gacha.size");
+			BotManager.gachaCost   = conf.getInt("Gacha.cost");
+			BotManager.gachaReward = conf.getInt("Gacha.reward");
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());
 		}
@@ -92,6 +92,8 @@ public class ConfigManager {
 			nekoCore.getLogger().warning(e.getMessage());
 			return false;
 		}
+		
+		nekoCore.getLogger().info("Successfully linked " + player.getName() + " <--> @" + strTwitterAccount);
 		
 		return true;
 	}

@@ -109,7 +109,7 @@ public class TwitterBot {
 			int timer = timerGachaUserList.get(i);
 		    timerGachaUserList.set(i, ++timer);
 		    
-		    if(timer > 30) resetGacha(i);
+		    if(timer > 60) resetGacha(i);
 		}
 	}
 	
@@ -333,6 +333,7 @@ public class TwitterBot {
 			default://Miss
 				replyTweet(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをお気に入りしてね" + getNekoFace(), status.getId());
 				timerGachaUserList.set(indexList, 0);
+				nekoCore.getLogger().info("Gacha result is " + gacha);
 				return;
 			}
 			nekoCore.getLogger().info("Gacha result is " + gacha);

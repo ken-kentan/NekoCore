@@ -51,6 +51,8 @@ public class ConfigManager {
 			BotManager.msgWeatherList.clear();
 			BotManager.msgNyanList.clear();
 			BotManager.msgGachaMissList.clear();
+			BotManager.msgAskYesList.clear();
+			BotManager.msgAskNoList.clear();
 			
 			BotManager.nekoFaceList         = conf.getStringList("Bot.nekoFace");
 			BotManager.msgPlayerActionList  = conf.getStringList("Bot.msgPlayerAction");
@@ -62,6 +64,9 @@ public class ConfigManager {
 			BotManager.msgWeatherList       = conf.getStringList("Bot.msgWeather");
 			BotManager.msgNyanList          = conf.getStringList("Bot.msgNyan");
 			BotManager.msgGachaMissList     = conf.getStringList("Bot.msgGachaMiss");
+			BotManager.msgAskYesList        = conf.getStringList("Bot.msgAskYes");
+			BotManager.msgAskNoList         = conf.getStringList("Bot.msgAskNo");
+			
 			
 			BotManager.gachaSize   = conf.getInt("Gacha.size");
 			BotManager.gachaCost   = conf.getInt("Gacha.cost");

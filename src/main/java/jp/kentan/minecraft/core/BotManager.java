@@ -13,7 +13,7 @@ import twitter4j.User;
 public class BotManager {
 	
 	private static enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
-		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance}
+		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer}
 	
 	private NekoCore nekoCore = null;
 	private Twitter  tw       = null;
@@ -29,6 +29,8 @@ public class BotManager {
 	public static List<String> msgWeatherList       = new ArrayList<String>();
 	public static List<String> msgNyanList          = new ArrayList<String>();
 	public static List<String> msgGachaMissList     = new ArrayList<String>();
+	public static List<String> msgAskYesList        = new ArrayList<String>();
+	public static List<String> msgAskNoList         = new ArrayList<String>();
 	
 	/* Gacha */
 	private static List<String>  readyGachaUserList = new ArrayList<String>();
@@ -161,6 +163,15 @@ public class BotManager {
 				tw.reply(user, "うーん...そのアカウントはまだリンクされていないよ" + getNekoFace() + "\nサーバーにログインして「/nk account " + user + "」と入力してね.", status.getId());
 			}
 			break;
+		case AskOnlinePlayer:
+			String mcID = getIncludeWord(status.getText());
+			
+			if(nekoCore.getServer().getPlayer(mcID) != null){
+				tw.reply(user, getAskYesMsg().replace("{player}", mcID).replace("{status}", "ログイン"), status.getId());
+			}else{
+				tw.reply(user, getAskNoMsg().replace("{player}", mcID).replace("{status}", "ログイン"), status.getId());
+			}
+			break;
 		default:					
 			tw.reply(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
 			break;
@@ -206,6 +217,9 @@ public class BotManager {
     	}
     	if(str.indexOf("所持金") != -1){
     		return Command.GetBalance;
+    	}
+    	if(isIncludeWord(str) && (str.indexOf("いる") != -1 || str.indexOf("ログイン") != -1)){
+    		return Command.AskOnlinePlayer;
     	}
     	
     	return Command.None;
@@ -258,6 +272,21 @@ public class BotManager {
 	}
 	/* Gacha end */
 	
+	private boolean isIncludeWord(String str){
+		if(str.indexOf("「") != -1 && str.indexOf("」") != -1){
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private String getIncludeWord(String str){
+		int beginIndex = str.indexOf("「") + 1,
+			endIndex   = str.indexOf("」");
+		
+		return str.substring(beginIndex, endIndex);
+	}
+	
 	/* return messages etc */
 	public String getNekoFace(){
     	return nekoFaceList.get(random.nextInt(nekoFaceList.size()));
@@ -297,6 +326,14 @@ public class BotManager {
     
     private String getGachaMissMsg(){
     	return msgGachaMissList.get(random.nextInt(msgGachaMissList.size())).replace("{face}", getNekoFace());
+    }
+    
+    private String getAskYesMsg(){
+    	return msgAskYesList.get(random.nextInt(msgAskYesList.size())).replace("{face}", getNekoFace());
+    }
+    
+    private String getAskNoMsg(){
+    	return msgAskNoList.get(random.nextInt(msgAskNoList.size())).replace("{face}", getNekoFace());
     }
 
 }

@@ -21,10 +21,10 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class Twitter {
 	
-	private static NekoCore       nekoCore;
-	public         BotManager     bot;
-	private static AsyncTwitter twitter;
-	private static TwitterStream twitterStream;
+	private NekoCore       nekoCore;
+	public  BotManager     bot;
+	private AsyncTwitter twitter;
+	private TwitterStream twitterStream;
 	
 	public static String consumerKey       = "";
 	public static String consumerSecret    = "";
@@ -35,8 +35,6 @@ public class Twitter {
 	
 	Twitter(NekoCore _neko){
 		nekoCore = _neko;
-		
-		bot = new BotManager(nekoCore, this);
 		
 		twitter = new AsyncTwitterFactory().getInstance();
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
@@ -68,6 +66,8 @@ public class Twitter {
         twitterStream.user();
 		
 		nekoCore.getLogger().info("Successfully initialized the Twitter Module.");
+		
+		bot = new BotManager(nekoCore, this);
 	}
 	
 	public void closeStream(){

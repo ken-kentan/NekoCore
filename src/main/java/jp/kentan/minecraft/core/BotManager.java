@@ -12,7 +12,7 @@ import twitter4j.User;
 
 public class BotManager {
 	
-	private static enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
+	private enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
 		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer}
 	
 	private NekoCore nekoCore = null;
@@ -41,9 +41,9 @@ public class BotManager {
 			          gachaReward = 1000;
 	/* Gacha end */
 	
-	private static Random random = new Random();
+	private Random random = new Random();
 	
-	private static boolean isReadyReboot  = false;
+	private boolean isReadyReboot  = false;
 	
 	public BotManager(NekoCore _neko, Twitter _tw) {
 		nekoCore = _neko;

@@ -101,17 +101,20 @@ public class NekoCore extends JavaPlugin implements Listener{
 				showURL(sender,"https://twitter.com/DekitateServer");
 				break;
 			case "report":
-				if(checkInGame(sender) == false){
-					sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
-					return false;
+				
+				if(checkReportFormat(sender, args.length)){
+					Calendar calendar = Calendar.getInstance();
+					String msgReport = "";
+					
+					for(int i=1; i < args.length; ++i){
+						msgReport = msgReport.concat(args[i]);
+					}
+					
+					tw.sendDirectMessgae("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + msgReport);
+					tw.tweet("@ken_kentan\nレポートが送信されたよ！詳しくはDMを確認してね" + tw.bot.getNekoFace());
+					
+					sender.sendMessage(nc_tag + "レポートが正常に送信されました.");
 				}
-				
-				if(!checkReportFormat(sender, args.length)) return true;
-				
-				Calendar calendar = Calendar.getInstance();
-				
-				tw.sendDirectMessgae("ken_kentan", "[" + calendar.getTime().toString() + "]" + sender.getName() + ":" + args[1]);
-				tw.tweet("@ken_kentan\nレポートが送信されたよ！詳しくはDMを確認してね" + tw.bot.getNekoFace());
 				
 				break;
 			case "server":
@@ -122,14 +125,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 				if(args.length > 1 && args[1].equals("status")){
 					showVoteStatus(sender);
 					return true;
+				}else{
+					voteProcess(sender);
 				}
 				
-				if(checkInGame(sender) == false){
-					sender.sendMessage(ChatColor.RED + "このコマンドはゲーム内から実行してください。");
-					return false;
-				}
-				
-				voteProcess(sender);
 				break;
 			case "account":
 				if(args.length > 1){
@@ -260,21 +259,20 @@ public class NekoCore extends JavaPlugin implements Listener{
 		getLogger().info("にゃーん");
 	}
 	
-	private static void showURL(CommandSender _sender, String _url) {
+	private void showURL(CommandSender _sender, String _url) {
 		_sender.sendMessage(nc_tag + ChatColor.AQUA + "" + ChatColor.UNDERLINE + _url);
 		_sender.sendMessage(nc_tag + ChatColor.GRAY + "↑のアドレスをクリックして下さい。");
 	}
 	
 	private boolean checkReportFormat(CommandSender _sender, int args_length){
 		
-		if(args_length == 2) return true;
-		
-		if (args_length > 2)       _sender.sendMessage(nc_tag + ChatColor.RED + "文にスペースを挟まないでください。");
-		else if (args_length == 1) _sender.sendMessage(nc_tag + ChatColor.RED + "報告文を記入してください。");
-		
-		_sender.sendMessage(nc_tag + ChatColor.GRAY + "上記を修正して再度送信してください。");
-		
-		return false;
+		if (args_length < 2){
+			_sender.sendMessage(nc_tag + ChatColor.RED + "報告文を記入してください.");
+			
+			return false;
+		}
+
+		return true;
 	}
 	
 	private void showLoad(CommandSender _sender, double _tps) {
@@ -356,7 +354,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		_sender.sendMessage(nc_tag + ChatColor.AQUA + "天候投票に成功しました！");
 		_sender.sendMessage(nc_tag + "現在の投票数：" + ChatColor.AQUA + " " + voted_player + "人");
 		_sender.sendMessage(nc_tag + "残り投票時間：" + ChatColor.GREEN + " " + (300 - sec_time)  + "秒");
-		_sender.sendMessage(nc_tag + ChatColor.GRAY + "ログインプレイヤーの50%が投票すると天候が晴れになります。");
+		_sender.sendMessage(nc_tag + ChatColor.GRAY + "プレイヤーの50%が投票すると天候が晴れになります。");
 		_sender.sendMessage(nc_tag + ChatColor.GRAY + "投票状況は /neko vote status で確認できます。");
 	}
 	
@@ -367,7 +365,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 			cs_player[i] = null;
 		}
 
-		getLogger().info("天候投票がリセットされました");
+		getLogger().info("Weather vote was reset.");
 	}
 	
 	private void voteResetMessage(){

@@ -1,7 +1,9 @@
 package jp.kentan.minecraft.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -33,8 +35,7 @@ public class BotManager {
 	public static List<String> msgAskNoList         = new ArrayList<String>();
 	
 	/* Gacha */
-	private static List<String>  readyGachaUserList = new ArrayList<String>();
-	private static List<Integer> timerGachaUserList = new ArrayList<Integer>();
+	private static Map<String, Integer> userGachaMap = new HashMap<String, Integer>();
 	
 	public static int gachaSize   = 10,
 			          gachaCost   = 100,
@@ -54,11 +55,13 @@ public class BotManager {
 	}
 	
 	public void eventHandler(){
-		for(int i=0; i<readyGachaUserList.size(); i++) {
-			int timer = timerGachaUserList.get(i);
-		    timerGachaUserList.set(i, ++timer);
-		    
-		    if(timer > 60) resetGacha(i);
+		for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
+			String key = entry.getKey();
+			int timer = entry.getValue();
+			
+			userGachaMap.put(key, ++timer);
+			
+			if(timer > 300) resetGacha(key);
 		}
 	}
 	
@@ -145,17 +148,17 @@ public class BotManager {
 			tw.reply(user, getNyanMsg().replace("{face}", getNekoFace()), status.getId());
 			break;
 		case Gacha:
-			for(String readyUserString : readyGachaUserList){
-				if(readyUserString.equals(user)){
-					return;
+			for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
+				if(user.equals(entry.getKey())){
+					resetGacha(user);
+					break;
 				}
 			}
 			
 			tw.reply(user, "1回鯖ﾏﾈｰ" + gachaCost + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gachaSize + "の確率で" + gachaReward +
-					"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをお気に入りしてね！  #猫ガチャ", status.getId());
+					"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをいいねしてね！  #猫ガチャ", status.getId());
 			
-			readyGachaUserList.add(user);
-			timerGachaUserList.add(0);
+			userGachaMap.put(user, 0);
 			
 			break;
 		case GetBalance:
@@ -254,8 +257,10 @@ public class BotManager {
 				nekoCore.economy.deposit(minecraftID, (double)gachaReward);
 				tw.reply(twitterID, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + minecraftID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
 			}else{
-				tw.reply(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをお気に入りしてね" + getNekoFace(), status.getId());
-				timerGachaUserList.set(indexList, 0);
+				tw.reply(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをいいねしてね" + getNekoFace(), status.getId());
+				
+				userGachaMap.put(twitterID, 0);
+				
 				nekoCore.getLogger().info("Gacha result is " + gacha);
 				return;
 			}
@@ -266,25 +271,22 @@ public class BotManager {
 			tw.reply(twitterID, "あっれー. 何か失敗したーっ.." + getNekoFace(), status.getId());
 		}
 		
-		resetGacha(indexList);
+		resetGacha(twitterID);
 	}
 	
 	public void triggerGacha(User source, Status favoritedStatus){
 		int index = 0;
 		
-		for(String readyUserString : readyGachaUserList){
-			if(readyUserString.equals(source.getScreenName()) && favoritedStatus.getText().indexOf("このツイートをお気に入りしてね") != -1){
+		for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
+			if(source.getScreenName().equals(entry.getKey()) && favoritedStatus.getText().indexOf("このツイートをいいねしてね") != -1){
 				gacha(source, favoritedStatus, index);
 			}
-			++index;
 		}
 	}
 	
-	private void resetGacha(int index){
-		readyGachaUserList.remove(index);
-		timerGachaUserList.remove(index);
-		
-		nekoCore.getLogger().info("Gacha(" + index + ") was reset.");
+	private void resetGacha(String entry){
+		userGachaMap.remove(entry);
+		nekoCore.getLogger().info("Gacha(" + entry + ") was reset.");
 	}
 	/* Gacha end */
 	

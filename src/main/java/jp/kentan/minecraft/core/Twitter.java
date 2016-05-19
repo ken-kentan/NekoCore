@@ -189,7 +189,7 @@ public class Twitter {
 	
 	public void tweet(String str){
 		if(isBotEnable){
-			twitter.updateStatus(str + "\n#猫鯖");
+			twitter.updateStatus(str + " #猫鯖");
 		}
 	}
 	

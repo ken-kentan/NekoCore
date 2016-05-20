@@ -12,7 +12,7 @@ import twitter4j.Status;
 import twitter4j.User;
 
 public class GachaManager {
-	public enum Type{Money, Diamond}
+	public enum Type{Money, Diamond, EventTicket}
 	
 	private NekoCore nekoCore = null;
 	private Twitter tw = null;
@@ -87,6 +87,9 @@ public class GachaManager {
 		case Diamond:
 			nekoCore.config.addPlayerGachaRewards(minecraftID, "give " + minecraftID + " minecraft:diamond " + rewardMap.get(type) + " 0");
 			break;
+		case EventTicket:
+			nekoCore.config.addPlayerGachaRewards(minecraftID, "event ticket " + minecraftID + " " + rewardMap.get(type));
+			break;
 		default:
 			break;
 		}
@@ -94,7 +97,7 @@ public class GachaManager {
 	
 	public Type setup(String user){
 		Type type = null;
-		int rand = random.nextInt(2);
+		int rand = random.nextInt(3);
 		
 		switch (rand) {
 		case 0:
@@ -102,6 +105,10 @@ public class GachaManager {
 			break;
 		case 1:
 			type = Type.Diamond;
+			break;
+		case 2:
+			type = Type.EventTicket;
+			break;
 		default:
 			break;
 		}
@@ -137,6 +144,10 @@ public class GachaManager {
 			break;
 		case Diamond:
 			strReward = rewardMap.get(type) + "個のダイアモンド";
+			break;
+		case EventTicket:
+			strReward = rewardMap.get(type) + "枚のイベチケ";
+			break;
 		default:
 			break;
 		}

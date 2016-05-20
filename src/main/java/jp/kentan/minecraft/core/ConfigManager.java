@@ -77,14 +77,17 @@ public class ConfigManager {
 			GachaManager.costMap.clear();
 			GachaManager.rewardMap.clear();
 			
-			GachaManager.sizeMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.size"));
-			GachaManager.sizeMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.size"));
+			GachaManager.sizeMap.put(GachaManager.Type.Money,       conf.getInt("Gacha.typeMoney.size"));
+			GachaManager.sizeMap.put(GachaManager.Type.Diamond,     conf.getInt("Gacha.typeDiamond.size"));
+			GachaManager.sizeMap.put(GachaManager.Type.EventTicket, conf.getInt("Gacha.typeEventTicket.size"));
 			
-			GachaManager.costMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.cost"));
-			GachaManager.costMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.cost"));
+			GachaManager.costMap.put(GachaManager.Type.Money,       conf.getInt("Gacha.typeMoney.cost"));
+			GachaManager.costMap.put(GachaManager.Type.Diamond,     conf.getInt("Gacha.typeDiamond.cost"));
+			GachaManager.costMap.put(GachaManager.Type.EventTicket, conf.getInt("Gacha.typeEventTicket.cost"));
 			
-			GachaManager.rewardMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.reward"));
-			GachaManager.rewardMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.reward"));
+			GachaManager.rewardMap.put(GachaManager.Type.Money,       conf.getInt("Gacha.typeMoney.reward"));
+			GachaManager.rewardMap.put(GachaManager.Type.Diamond,     conf.getInt("Gacha.typeDiamond.reward"));
+			GachaManager.rewardMap.put(GachaManager.Type.EventTicket, conf.getInt("Gacha.typeEventTicket.reward"));
 			
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.kentan.minecraft</groupId>
 	<artifactId>NekoCore</artifactId>
-	<version>1.10.24-SNAPSHOT</version>
+	<version>1.10.25</version>
 
 	<build>
 		<plugins>

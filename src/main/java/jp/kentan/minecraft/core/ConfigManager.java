@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,14 +16,18 @@ import org.bukkit.entity.Player;
 public class ConfigManager {
 	private NekoCore nekoCore;
 	final private Charset CONFIG_CHAREST = StandardCharsets.UTF_8;
+	
 	private String confFilePath = null;
 	private String playerFilePath = null;
+	private String playerGachaRewardFile = null;
 	
 	public ConfigManager(NekoCore _neko) {
 		nekoCore = _neko;
 		
 		confFilePath   = nekoCore.getDataFolder() + File.separator + "config.yml";
 		playerFilePath = nekoCore.getDataFolder() + File.separator + "player.yml";
+		
+		playerGachaRewardFile = nekoCore.getDataFolder() + File.separator + "gachaReward.yml";
 		
 		setTwitterBotData();
 	}
@@ -68,9 +73,19 @@ public class ConfigManager {
 			BotManager.msgAskNoList         = conf.getStringList("Bot.msgAskNo");
 			
 			
-			BotManager.gachaSize   = conf.getInt("Gacha.size");
-			BotManager.gachaCost   = conf.getInt("Gacha.cost");
-			BotManager.gachaReward = conf.getInt("Gacha.reward");
+			GachaManager.sizeMap.clear();
+			GachaManager.costMap.clear();
+			GachaManager.rewardMap.clear();
+			
+			GachaManager.sizeMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.size"));
+			GachaManager.sizeMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.size"));
+			
+			GachaManager.costMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.cost"));
+			GachaManager.costMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.cost"));
+			
+			GachaManager.rewardMap.put(GachaManager.Type.Money,   conf.getInt("Gacha.typeMoney.reward"));
+			GachaManager.rewardMap.put(GachaManager.Type.Diamond, conf.getInt("Gacha.typeDiamond.reward"));
+			
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());
 		}
@@ -161,5 +176,69 @@ public class ConfigManager {
 		}
 		
 		return null;
+	}
+	
+	public List<String> getPlayerGachaRewards(String strPlayer){
+		
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerGachaRewardFile),CONFIG_CHAREST)){
+			
+			FileConfiguration conf = new YamlConfiguration();
+
+			conf.load(reader);
+			
+			List<String> rewardsList = conf.getStringList(strPlayer + ".gachaRewards");
+			
+			if(rewardsList != null){
+				return rewardsList;
+			}
+		}catch(Exception e){
+			nekoCore.getLogger().warning(e.toString());
+		}
+		
+		return null;
+	}
+	
+	public void addPlayerGachaRewards(String strPlayer, String strCommand){
+		
+		try {
+			File configFile = new File(nekoCore.getDataFolder(), "gachaReward.yml");
+			
+			if(configFile != null){
+				FileConfiguration conf = new YamlConfiguration();
+				conf.load(configFile);
+				
+				List<String> rewardsList = conf.getStringList(strPlayer + ".gachaRewards");
+				
+				rewardsList.add(strCommand);
+				
+				conf.set(strPlayer + ".gachaRewards", rewardsList);
+				
+				conf.save(configFile);
+			}
+		} catch (Exception e) {
+			nekoCore.getLogger().warning(e.getMessage());
+		}
+		
+		return;
+	}
+	
+	public void deletePlayerGachaRewards(String strPlayer){
+			
+		try {
+			File configFile = new File(nekoCore.getDataFolder(), "gachaReward.yml");
+			
+			if(configFile != null){
+				FileConfiguration conf = new YamlConfiguration();
+				conf.load(configFile);
+				
+				conf.set(strPlayer + ".gachaRewards", null);
+				
+				conf.save(configFile);
+			}
+		} catch (Exception e) {
+			nekoCore.getLogger().warning(e.getMessage());
+		}
+		
+		return;
 	}
 }

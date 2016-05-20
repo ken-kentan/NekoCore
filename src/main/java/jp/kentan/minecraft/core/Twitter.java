@@ -23,6 +23,7 @@ public class Twitter {
 	
 	private NekoCore       nekoCore;
 	public  BotManager     bot;
+	public GachaManager    gacha;
 	private AsyncTwitter twitter;
 	private TwitterStream twitterStream;
 	
@@ -33,8 +34,8 @@ public class Twitter {
 	
 	private static boolean isBotEnable    = true;
 	
-	Twitter(NekoCore _neko){
-		nekoCore = _neko;
+	Twitter(NekoCore nekoCore){
+		this.nekoCore = nekoCore;
 		
 		twitter = new AsyncTwitterFactory().getInstance();
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
@@ -67,7 +68,8 @@ public class Twitter {
 		
 		nekoCore.getLogger().info("Successfully initialized the Twitter Module.");
 		
-		bot = new BotManager(nekoCore, this);
+		gacha = new GachaManager(nekoCore, this);
+		bot = new BotManager(nekoCore, this, gacha);
 	}
 	
 	public void closeStream(){
@@ -90,7 +92,7 @@ public class Twitter {
 			if(isFavToMe(target)){
 				nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
 			
-				bot.triggerGacha(source, favoritedStatus);
+				gacha.trigger(source, favoritedStatus);
 			}
 		}
 		

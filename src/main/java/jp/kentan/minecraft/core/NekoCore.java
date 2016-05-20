@@ -24,7 +24,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 	
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
-	private static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
+	public static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD  + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
 	@Override
 	public void onEnable() {
@@ -54,7 +54,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					voteReset();
 					sec_time = 0;
 				}
-				tw.bot.eventHandler();
+				tw.gacha.EventHandler();
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
@@ -213,6 +213,8 @@ public class NekoCore extends JavaPlugin implements Listener{
         tweet = tweet.replace("{face}", tw.bot.getNekoFace());
      
         tw.tweet(tweet);
+
+        tw.gacha.giveRewards(player);
     }
 	
 	@EventHandler

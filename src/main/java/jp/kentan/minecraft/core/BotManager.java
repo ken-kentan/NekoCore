@@ -1,16 +1,13 @@
 package jp.kentan.minecraft.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import twitter4j.Status;
-import twitter4j.User;
 
 public class BotManager {
 	
@@ -19,6 +16,7 @@ public class BotManager {
 	
 	private NekoCore nekoCore = null;
 	private Twitter  tw       = null;
+	private GachaManager gacha = null;
 	
 	/* Bot Messages List */
 	public static List<String> nekoFaceList         = new ArrayList<String>();
@@ -34,35 +32,18 @@ public class BotManager {
 	public static List<String> msgAskYesList        = new ArrayList<String>();
 	public static List<String> msgAskNoList         = new ArrayList<String>();
 	
-	/* Gacha */
-	private Map<String, Integer> userGachaMap = new HashMap<String, Integer>();
-	
-	public static int gachaSize   = 10,
-			          gachaCost   = 100,
-			          gachaReward = 1000;
-	/* Gacha end */
 	
 	private Random random = new Random();
 	
 	private boolean isReadyReboot = false,
 			        isReadyDetach = false;
 	
-	public BotManager(NekoCore _neko, Twitter _tw) {
-		nekoCore = _neko;
-		tw = _tw;
+	public BotManager(NekoCore nekoCore, Twitter tw, GachaManager gacha) {
+		this.nekoCore = nekoCore;
+		this.tw = tw;
+		this.gacha = gacha;
 		
 		nekoCore.getLogger().info("Successfully initialized the Bot Module.");
-	}
-	
-	public void eventHandler(){
-		for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
-			String key = entry.getKey();
-			int timer = entry.getValue();
-			
-			userGachaMap.put(key, ++timer);
-			
-			if(timer > 300) resetGacha(key);
-		}
 	}
 	
 	public void reaction(Status status){
@@ -149,17 +130,12 @@ public class BotManager {
 			tw.reply(user, getNyanMsg().replace("{face}", getNekoFace()), status.getId());
 			break;
 		case Gacha:
-			for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
-				if(user.equals(entry.getKey())){
-					resetGacha(user);
-					break;
-				}
-			}
+			gacha.checkFlag(user);
 			
-			tw.reply(user, "1回鯖ﾏﾈｰ" + gachaCost + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gachaSize + "の確率で" + gachaReward +
-					"円がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをいいねしてね！  #猫ガチャ", status.getId());
+			GachaManager.Type type = gacha.setup(user);
 			
-			userGachaMap.put(user, 0);
+			tw.reply(user, "1回鯖ﾏﾈｰ" + gacha.getCost(type) + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gacha.getProb(type) + "の確率で" + gacha.getRewardName(type) +
+					"がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをいいねしてね！  #猫ガチャ", status.getId());
 			
 			break;
 		case GetBalance:
@@ -244,60 +220,6 @@ public class BotManager {
     	return Command.None;
     }
 	
-	/* Gacha system */
-	private void gacha(User source, Status status, int indexList){
-		String twitterID    = source.getScreenName();
-		String minecraftID  = nekoCore.config.getMinecraftID(twitterID);
-		
-		if(!nekoCore.config.isLinkedTwitterAccount(minecraftID, twitterID)){
-			tw.reply(twitterID, "うーん...そのアカウントはまだリンクされていないよ" + getNekoFace() + "\nサーバーにログインして「/nk account " + twitterID + "」と入力してね.", status.getId());		
-			
-			resetGacha(twitterID);
-			return;
-		}
-		
-		if(nekoCore.economy.withdraw(minecraftID, (double)(gachaCost))){
-			int gacha = random.nextInt(gachaSize);
-			
-			if(gacha == 0){
-				nekoCore.economy.deposit(minecraftID, (double)gachaReward);
-				
-				tw.reply(twitterID, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + minecraftID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
-			}else{
-				tw.reply(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをいいねしてね" + getNekoFace(), status.getId());
-				
-				userGachaMap.put(twitterID, 0);
-				
-				nekoCore.getLogger().info("Gacha result is " + gacha);
-				return;
-			}
-			
-			nekoCore.getLogger().info("Gacha result is " + gacha);
-			
-		}else{
-			tw.reply(twitterID, "あっれー. 何か失敗したーっ.." + getNekoFace(), status.getId());
-		}
-		
-		resetGacha(twitterID);
-	}
-	
-	public void triggerGacha(User source, Status favoritedStatus){
-		int index = 0;
-		
-		for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
-			if(source.getScreenName().equals(entry.getKey()) && favoritedStatus.getText().indexOf("このツイートをいいねしてね") != -1){
-				gacha(source, favoritedStatus, index);
-				return;
-			}
-		}
-	}
-	
-	private void resetGacha(String entry){
-		userGachaMap.remove(entry);
-		nekoCore.getLogger().info("Gacha(" + entry + ") was reset.");
-	}
-	/* Gacha end */
-	
 	private boolean isIncludeWord(String str){
 		if(str.indexOf("「") != -1 && str.indexOf("」") != -1){
 			return true;
@@ -350,7 +272,7 @@ public class BotManager {
     	return msgNyanList.get(random.nextInt(msgNyanList.size()));
     }
     
-    private String getGachaMissMsg(){
+    public String getGachaMissMsg(){
     	return msgGachaMissList.get(random.nextInt(msgGachaMissList.size())).replace("{face}", getNekoFace());
     }
     

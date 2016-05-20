@@ -61,22 +61,35 @@ public class EconomyManager {
     	EconomyResponse r = null;
     	UUID uuid = config.getPlayerUUID(strPlayer);
     	OfflinePlayer player = null;
-    	String msgLog = null;
     	
     	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
     	
-    	if(uuid == null || player == null || !econ.hasAccount(player)) return false;
+    	if(uuid == null || player == null || !econ.hasAccount(player) || amount < 0) return false;
     	
-    	if(amount >= 0){
-    		r = econ.depositPlayer(player, amount);
-    		msgLog = "deposit " + econ.format(r.amount) + " to " + strPlayer;
+		r = econ.depositPlayer(player, amount);
+	
+    	if(r.transactionSuccess()) {
+    		nekoCore.getLogger().info("deposit " + econ.format(r.amount) + " to " + strPlayer);
+    		return true;
     	}else{
-    		r = econ.withdrawPlayer(player, Math.abs(amount));
-    		msgLog = "withdraw " + econ.format(r.amount) + " from " + strPlayer;
+    		nekoCore.getLogger().warning(r.errorMessage);
+    		return false;
     	}
+    }
+    
+    public boolean withdraw(String strPlayer, double amount){
+    	EconomyResponse r = null;
+    	UUID uuid = config.getPlayerUUID(strPlayer);
+    	OfflinePlayer player = null;
+    	
+    	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
+    	
+    	if(uuid == null || player == null || !econ.hasAccount(player) || amount < 0) return false;
+    	
+		r = econ.withdrawPlayer(player, amount);
     	
     	if(r.transactionSuccess()) {
-    		nekoCore.getLogger().info(msgLog);
+    		nekoCore.getLogger().info("withdraw " + econ.format(r.amount) + " from " + strPlayer);
     		return true;
     	}else{
     		nekoCore.getLogger().warning(r.errorMessage);

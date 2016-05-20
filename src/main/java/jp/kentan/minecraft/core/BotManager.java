@@ -15,7 +15,7 @@ import twitter4j.User;
 public class BotManager {
 	
 	private enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
-		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer, Detach}
+		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach}
 	
 	private NekoCore nekoCore = null;
 	private Twitter  tw       = null;
@@ -35,7 +35,7 @@ public class BotManager {
 	public static List<String> msgAskNoList         = new ArrayList<String>();
 	
 	/* Gacha */
-	private static Map<String, Integer> userGachaMap = new HashMap<String, Integer>();
+	private Map<String, Integer> userGachaMap = new HashMap<String, Integer>();
 	
 	public static int gachaSize   = 10,
 			          gachaCost   = 100,
@@ -92,7 +92,7 @@ public class BotManager {
 				isReadyReboot = true;
 				tw.reply(user, "ほんとにサーバー再起動するの" + getNekoFace() + "？", status.getId());
 			}else{
-				tw.reply(user, getRejectCommandMsg().replace("{face}", getNekoFace()), status.getId());
+				tw.reply(user, getRejectCommandMsg(), status.getId());
 			}
 			break;
 		case Trigger:
@@ -111,17 +111,20 @@ public class BotManager {
 				if(isReadyReboot){
 					isReadyReboot = false;
 					tw.reply(user, "サーバーの再起動を中止しました.", status.getId());
+				}else if(isReadyDetach){
+					isReadyDetach = false;
+					tw.reply(user, "NekoCoreの切り離しを中止しました.", status.getId());					
 				}
 			}
 			break;
 		case Lucky:
-			tw.reply(user, getLuckyMsg().replace("{face}", getNekoFace()), status.getId());
+			tw.reply(user, getLuckyMsg(), status.getId());
 			break;
 		case Thanks:					
-			tw.reply(user, getThanksMsg().replace("{face}", getNekoFace()), status.getId());
+			tw.reply(user, getThanksMsg(), status.getId());
 			break;
 		case Morning:
-			tw.reply(user, getMorningMsg().replace("{face}", getNekoFace()), status.getId());
+			tw.reply(user, getMorningMsg(), status.getId());
 			break;
 		case Weather:
 			String tweetMsg = getWeatherMsg();
@@ -139,8 +142,6 @@ public class BotManager {
 				tweetMsg = tweetMsg.replace("{weather}", "雨ときどき雷");
 				break;
 			}
-			
-			tweetMsg = tweetMsg.replace("{face}", getNekoFace());
 			
 			tw.reply(user, tweetMsg, status.getId());
 			break;
@@ -184,11 +185,11 @@ public class BotManager {
 				isReadyDetach = true;
 				tw.reply(user, "ほんとにNekoCoreをサーバーか切り離すの" + getNekoFace() + "？", status.getId());
 			}else{
-				tw.reply(user, getRejectCommandMsg().replace("{face}", getNekoFace()), status.getId());
+				tw.reply(user, getRejectCommandMsg(), status.getId());
 			}
 			break;
 		default:					
-			tw.reply(user, getUnkownCommandMsg().replace("{face}", getNekoFace()), status.getId());
+			tw.reply(user, getUnkownCommandMsg(), status.getId());
 			break;
 		}
 	}
@@ -250,11 +251,17 @@ public class BotManager {
 		
 		if(!nekoCore.config.isLinkedTwitterAccount(minecraftID, twitterID)){
 			tw.reply(twitterID, "うーん...そのアカウントはまだリンクされていないよ" + getNekoFace() + "\nサーバーにログインして「/nk account " + twitterID + "」と入力してね.", status.getId());		
-		}else if(nekoCore.economy.deposit(minecraftID, (double)(-gachaCost))){
+			
+			resetGacha(twitterID);
+			return;
+		}
+		
+		if(nekoCore.economy.withdraw(minecraftID, (double)(gachaCost))){
 			int gacha = random.nextInt(gachaSize);
 			
 			if(gacha == 0){
 				nekoCore.economy.deposit(minecraftID, (double)gachaReward);
+				
 				tw.reply(twitterID, "ぐふふ. あったりー" + getNekoFace() + "\nおめでとっ！" + minecraftID +"にこっそり" + gachaReward + "円を追加しといたよ" + getNekoFace(), status.getId());
 			}else{
 				tw.reply(twitterID, getGachaMissMsg() + "\nもう一度挑戦するならこのツイートをいいねしてね" + getNekoFace(), status.getId());
@@ -280,6 +287,7 @@ public class BotManager {
 		for(Map.Entry<String, Integer> entry : userGachaMap.entrySet()){
 			if(source.getScreenName().equals(entry.getKey()) && favoritedStatus.getText().indexOf("このツイートをいいねしてね") != -1){
 				gacha(source, favoritedStatus, index);
+				return;
 			}
 		}
 	}
@@ -315,27 +323,27 @@ public class BotManager {
     }
     
     private String getUnkownCommandMsg(){
-    	return msgUnkownCommandList.get(random.nextInt(msgUnkownCommandList.size()));
+    	return msgUnkownCommandList.get(random.nextInt(msgUnkownCommandList.size())).replace("{face}", getNekoFace());
     }
     
     private String getRejectCommandMsg(){
-    	return msgRejectCommandList.get(random.nextInt(msgRejectCommandList.size()));
+    	return msgRejectCommandList.get(random.nextInt(msgRejectCommandList.size())).replace("{face}", getNekoFace());
     }
     
     private String getThanksMsg(){
-    	return msgThanksList.get(random.nextInt(msgThanksList.size()));
+    	return msgThanksList.get(random.nextInt(msgThanksList.size())).replace("{face}", getNekoFace());
     }
     
     private String getLuckyMsg(){
-    	return msgLuckyList.get(random.nextInt(msgLuckyList.size()));
+    	return msgLuckyList.get(random.nextInt(msgLuckyList.size())).replace("{face}", getNekoFace());
     }
     
     private String getMorningMsg(){
-    	return msgMorningList.get(random.nextInt(msgMorningList.size()));
+    	return msgMorningList.get(random.nextInt(msgMorningList.size())).replace("{face}", getNekoFace());
     }
     
     private String getWeatherMsg(){
-    	return msgWeatherList.get(random.nextInt(msgWeatherList.size()));
+    	return msgWeatherList.get(random.nextInt(msgWeatherList.size())).replace("{face}", getNekoFace());
     }
     
     private String getNyanMsg(){

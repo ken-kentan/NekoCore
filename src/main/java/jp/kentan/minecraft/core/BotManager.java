@@ -11,7 +11,7 @@ import twitter4j.Status;
 
 public class BotManager {
 	
-	private enum Command{None, PlayerNum, ServerLoad, findStaff, Reboot, Trigger, Cancel,
+	private enum Command{None, Players, Staffs, ServerLoad, Reboot, Trigger, Cancel,
 		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach}
 	
 	private NekoCore nekoCore = null;
@@ -50,7 +50,7 @@ public class BotManager {
 		String user = status.getUser().getScreenName();
 		
 		switch(typeCommand(status.getText())){
-		case PlayerNum:
+		case Players:
 			tw.reply(user, "現在のプレイヤー数は" + Bukkit.getOnlinePlayers().size() + "人だよ" + getNekoFace(), status.getId());
 			break;
 		case ServerLoad:
@@ -61,7 +61,7 @@ public class BotManager {
 			
 			tw.reply(user, "現在のサーバー負荷率は" + str_per + "だよ" + getNekoFace(), status.getId());
 			break;
-		case findStaff:
+		case Staffs:
 			int cntOP = 0;
 			for(Player p : nekoCore.getServer().getOnlinePlayers()){
 				if(p.isOp()) cntOP++;
@@ -171,14 +171,15 @@ public class BotManager {
 	}
 	
 	private Command typeCommand(String str){
-    	if((str.indexOf("プレイヤー") != -1 || str.indexOf("ログイン") != -1) && (str.indexOf("数") != -1 || str.indexOf("何人") != -1)){
-    		return Command.PlayerNum;
-    	}
+		if(str.indexOf("数") != -1 || str.indexOf("何人") != -1){
+			if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1){
+				return Command.Staffs;
+			}else {
+				return Command.Players;
+			}
+		}
     	if(str.indexOf("サーバー") != -1 && (str.indexOf("負荷") != -1 || str.indexOf("重") != -1)){
     		return Command.ServerLoad;
-    	}
-    	if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1){
-    		return Command.findStaff;
     	}
     	if(str.indexOf("おみくじ") != -1 || str.indexOf("運勢") != -1){
     		return Command.Lucky;

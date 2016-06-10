@@ -1,6 +1,7 @@
 package jp.kentan.minecraft.core;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -36,7 +37,9 @@ public class NekoCore extends JavaPlugin implements Listener{
 		economy = new EconomyManager(this, config);
 		tw      = new Twitter(this);
 		
-		tw.tweet("@ken_kentan\nSuccessfully launched. " + getDescription().getName() + " v" +getDescription().getVersion());
+		Date date = new Date();
+		
+		tw.tweet("@ken_kentan\n[" + date.toString() + "]Successfully launched. " + getDescription().getName() + " v" +getDescription().getVersion());
 		
 		new BukkitRunnable()
 		{
@@ -63,7 +66,9 @@ public class NekoCore extends JavaPlugin implements Listener{
 
 	@Override
 	public void onDisable() {
-		tw.tweet("@ken_kentan\nShutdown... " + getDescription().getName() + " v" +getDescription().getVersion());
+		Date date = new Date();
+		
+		tw.tweet("@ken_kentan\n[" + date.toString() + "]Shutdown... " + getDescription().getName() + " v" +getDescription().getVersion());
 		tw.closeStream();
 		
 		getLogger().info("NekoCore was disabled.");

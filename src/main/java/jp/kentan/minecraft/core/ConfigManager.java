@@ -91,6 +91,7 @@ public class ConfigManager {
 			
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());
+			return;
 		}
 		
 		nekoCore.getLogger().info("Successfully read the config.yml file.");

@@ -179,6 +179,15 @@ public class NekoCore extends JavaPlugin implements Listener{
 						getLogger().info("雷雨");
 						break;
 					}
+				case "vote":
+					String tweet = tw.bot.getActionMsg();
+			        
+			        tweet = tweet.replace("{player}", args[2]);
+			        tweet = tweet.replace("{status}", args[3] + "で投票");
+			        tweet = tweet.replace("{face}", tw.bot.getNekoFace());
+			     
+			        tw.tweet(tweet);
+					break;
 				default:
 					break;
 				}

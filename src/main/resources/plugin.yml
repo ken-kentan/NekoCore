@@ -1,6 +1,6 @@
 name: NekoCore
 main: jp.kentan.minecraft.core.NekoCore
-version: 1.10.28
+version: 1.10.29
 author: ken_kentan
 website: http://ken.kentan.jp
 
@@ -15,3 +15,9 @@ commands:
         usage: /<command>
         permission: jp.kentan.minecraft.core
         permission-message: You don't have <permission>
+    vote:
+        description: 投票サイトを表示します。
+        usage: /<command>
+        permission: jp.kentan.minecraft.core
+        permission-message: You don't have <permission>
+        

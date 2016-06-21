@@ -192,7 +192,11 @@ public class NekoCore extends JavaPlugin implements Listener{
 					break;
 				}
 			}
-		}			
+		}
+		
+		if(cmd.getName().equals("vote")){
+			showURL(sender,"https://minecraft.jp/servers/minecraft.kentan.jp/vote");
+		}
 		return true;
 	}
 	

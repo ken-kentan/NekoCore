@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,6 +90,18 @@ public class ConfigManager {
 			GachaManager.rewardMap.put(GachaManager.Type.Money,       conf.getInt("Gacha.typeMoney.reward"));
 			GachaManager.rewardMap.put(GachaManager.Type.Diamond,     conf.getInt("Gacha.typeDiamond.reward"));
 			GachaManager.rewardMap.put(GachaManager.Type.EventTicket, conf.getInt("Gacha.typeEventTicket.reward"));
+			
+			
+			VoteManager.maxSuccession = conf.getInt("Vote.maxSuccession");
+			
+			VoteManager.rewardList.clear();
+			VoteManager.rewardDetailList.clear();
+			
+			VoteManager.rewardDetailList = conf.getStringList("Vote.Reward.Detail");
+			
+			for(int i=1; i <= VoteManager.maxSuccession; ++i){
+				VoteManager.rewardList.add(conf.getStringList("Vote.Reward.day" + i));
+			}
 			
 		}catch(Exception e){
 			nekoCore.getLogger().warning(e.toString());
@@ -244,5 +258,108 @@ public class ConfigManager {
 		}
 		
 		return;
+	}
+	
+	public boolean saveLastPlayerVotedDate(Player player){
+		try {
+			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
+			
+			if(configFile != null){
+				FileConfiguration conf = new YamlConfiguration();
+				conf.load(configFile);
+				
+				conf.set("Player." + player.getName() + ".Vote.LastDate", "2016-6-23");
+				
+				conf.save(configFile);
+			}
+		} catch (Exception e) {
+			nekoCore.getLogger().warning(e.getMessage());
+			return false;
+		}
+		
+		nekoCore.getLogger().info("Successfully saved " + player.getName() + " voted in " + "2016-6-23");
+		
+		return true;
+	}
+	
+	public Date getLastVotedDate(String strPlayer){
+		Date formatDate = null;
+
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerFilePath),CONFIG_CHAREST)){
+			
+			FileConfiguration conf = new YamlConfiguration();
+
+			conf.load(reader);
+			
+			String strDate = conf.getString("Player." + strPlayer + ".Vote.LastDate");
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+	        formatDate = sdf.parse(strDate);
+			
+		}catch(Exception e){
+			return null;
+		}
+		
+		return formatDate;
+	}
+	
+	public boolean writeLastVotedDate(String strPlayer, Date date){
+		try {
+			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
+			
+			if(configFile != null){
+				FileConfiguration conf = new YamlConfiguration();
+				conf.load(configFile);
+				
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				
+				conf.set("Player." + strPlayer + ".Vote.LastDate", sdf.format(date));
+				
+				conf.save(configFile);
+			}
+		} catch (Exception e) {
+			nekoCore.getLogger().warning(e.getMessage());
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public int getSuccessionVote(String strPlayer){
+		int succession = 1;
+		try(Reader reader = new InputStreamReader(new FileInputStream(playerFilePath),CONFIG_CHAREST)){
+			
+			FileConfiguration conf = new YamlConfiguration();
+
+			conf.load(reader);
+			
+			succession = conf.getInt("Player." + strPlayer + ".Vote.Succession");
+			
+		}catch(Exception e){
+			return 1;
+		}
+		
+		return succession;
+	}
+	
+	public boolean writeSuccessionVote(String strPlayer, int succession){
+		try {
+			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
+			
+			if(configFile != null){
+				FileConfiguration conf = new YamlConfiguration();
+				conf.load(configFile);
+				
+				conf.set("Player." + strPlayer + ".Vote.Succession", succession);
+				
+				conf.save(configFile);
+			}
+		} catch (Exception e) {
+			nekoCore.getLogger().warning(e.getMessage());
+			return false;
+		}
+		
+		return true;
 	}
 }

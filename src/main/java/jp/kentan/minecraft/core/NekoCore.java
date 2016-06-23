@@ -21,7 +21,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 	
 	public ConfigManager  config  = null;
 	public EconomyManager economy = null;
-	private Twitter       tw      = null;
+	public Twitter       tw      = null;
+	private VoteManager   vote    = null;
 	
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
@@ -34,6 +35,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 		getServer().getPluginManager().registerEvents(this, this);
 		
 		config  = new ConfigManager(this);
+		vote    = new VoteManager(this);
 		economy = new EconomyManager(this, config);
 		tw      = new Twitter(this);
 		
@@ -168,17 +170,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
-					switch(getWeather()){
-					case 0:
-						getLogger().info("晴れ");
-						break;
-					case 1:
-						getLogger().info("雨");
-						break;
-					case 2:
-						getLogger().info("雷雨");
-						break;
-					}
+					vote.voteThisServer(args[2]);
+					break;
 				case "vote":
 					String tweet = tw.bot.getActionMsg();
 			        

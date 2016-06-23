@@ -260,28 +260,6 @@ public class ConfigManager {
 		return;
 	}
 	
-	public boolean saveLastPlayerVotedDate(Player player){
-		try {
-			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
-			
-			if(configFile != null){
-				FileConfiguration conf = new YamlConfiguration();
-				conf.load(configFile);
-				
-				conf.set("Player." + player.getName() + ".Vote.LastDate", "2016-6-23");
-				
-				conf.save(configFile);
-			}
-		} catch (Exception e) {
-			nekoCore.getLogger().warning(e.getMessage());
-			return false;
-		}
-		
-		nekoCore.getLogger().info("Successfully saved " + player.getName() + " voted in " + "2016-6-23");
-		
-		return true;
-	}
-	
 	public Date getLastVotedDate(String strPlayer){
 		Date formatDate = null;
 
@@ -304,7 +282,7 @@ public class ConfigManager {
 		return formatDate;
 	}
 	
-	public boolean writeLastVotedDate(String strPlayer, Date date){
+	public boolean saveLastVotedDate(String strPlayer, Date date){
 		try {
 			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
 			
@@ -343,7 +321,7 @@ public class ConfigManager {
 		return succession;
 	}
 	
-	public boolean writeSuccessionVote(String strPlayer, int succession){
+	public boolean saveSuccessionVote(String strPlayer, int succession){
 		try {
 			File configFile = new File(nekoCore.getDataFolder(), "player.yml");
 			

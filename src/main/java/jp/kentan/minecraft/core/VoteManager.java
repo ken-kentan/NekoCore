@@ -1,6 +1,5 @@
 package jp.kentan.minecraft.core;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +14,6 @@ public class VoteManager {
 
 	public static int maxSuccession = 7;
 
-	int[] a = new int[5];
-
 	public static List<List<String>> rewardList = new ArrayList<List<String>>();
 	public static List<String> rewardDetailList = new ArrayList<String>();
 
@@ -26,18 +23,16 @@ public class VoteManager {
 		nekoCore.getLogger().info("Successfully initialized the VoteManager.");
 	}
 
-	public void test() {
-		nekoCore.getLogger().info("a");
-	}
-
 	public void voteThisServer(String strPlayer) {
 		Date dateLastVoted = null, dateNow = new Date();
 		Player player = null;
 		int currentSuccession = 1;
+		
+		tweet(strPlayer);
 
-		if ((player = getPlayerOnline(strPlayer)) == null) { //offline
-			nekoCore.config.writeLastVotedDate(strPlayer, dateNow);
-			nekoCore.config.writeSuccessionVote(strPlayer, currentSuccession);
+		if ((player = getPlayerOnline(strPlayer)) == null) { // offline
+			nekoCore.config.saveLastVotedDate(strPlayer, dateNow);
+			nekoCore.config.saveSuccessionVote(strPlayer, currentSuccession);
 			return;
 		}
 
@@ -50,15 +45,15 @@ public class VoteManager {
 
 		runRewardCommand(currentSuccession, strPlayer);
 
-		nekoCore.config.writeLastVotedDate(strPlayer, dateNow);
-		nekoCore.config.writeSuccessionVote(strPlayer, currentSuccession);
+		nekoCore.config.saveLastVotedDate(strPlayer, dateNow);
+		nekoCore.config.saveSuccessionVote(strPlayer, currentSuccession);
 
 		player.sendMessage(NekoCore.nc_tag + "投票ありがとにゃ" + nekoCore.tw.bot.getNekoFace() + ChatColor.AQUA + " "
 				+ currentSuccession + "day" + ChatColor.GOLD + "ボーナス" + ChatColor.WHITE + "をゲット！");
 		player.sendMessage(NekoCore.nc_tag + ChatColor.GOLD + "ボーナス" + ChatColor.WHITE + ": "
 				+ rewardDetailList.get(currentSuccession - 1));
 		player.sendMessage(NekoCore.nc_tag + "ステータス: " + generateSuccessionMessage(currentSuccession, maxSuccession));
-		player.sendMessage(NekoCore.nc_tag + ChatColor.GRAY + "1日1回、続けて投票するとステータスがたまります.");
+		player.sendMessage(NekoCore.nc_tag + ChatColor.GRAY + "1日1回、続けて投票するとステータスがたまり,ボーナスがアップグレードします.");
 	}
 
 	private void runRewardCommand(int day, String strPlayer) {
@@ -73,8 +68,6 @@ public class VoteManager {
 
 				return;
 			}
-
-			nekoCore.getLogger().info(i + " , " + day);
 		}
 	}
 
@@ -102,6 +95,16 @@ public class VoteManager {
 		}
 
 		return player;
+	}
+	
+	private void tweet(String strPlayer){
+		String tweet = nekoCore.tw.bot.getActionMsg();
+        
+        tweet = tweet.replace("{player}", strPlayer);
+        tweet = tweet.replace("{status}", " http://minecraft.jp で投票");
+        tweet = tweet.replace("{face}", nekoCore.tw.bot.getNekoFace());
+     
+        nekoCore.tw.tweet(tweet);
 	}
 
 	public static int differenceDays(Date date1, Date date2) {

@@ -170,16 +170,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
-					vote.voteThisServer(args[2]);
+//					vote.voteThisServer(args[2]);
 					break;
 				case "vote":
-					String tweet = tw.bot.getActionMsg();
-			        
-			        tweet = tweet.replace("{player}", args[2]);
-			        tweet = tweet.replace("{status}", args[3] + "で投票");
-			        tweet = tweet.replace("{face}", tw.bot.getNekoFace());
-			     
-			        tw.tweet(tweet);
+					vote.voteThisServer(args[2]);
 					break;
 				default:
 					break;

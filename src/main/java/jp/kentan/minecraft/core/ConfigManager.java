@@ -119,7 +119,6 @@ public class ConfigManager {
 
 			data = conf.getString(path);
 		} catch (Exception e) {
-			neko.getLogger().warning(e.getMessage());
 			return null;
 		}
 		
@@ -269,6 +268,11 @@ public class ConfigManager {
 	public Date getLastVotedDate(String strPlayer) {
 		String strDate = readPlayerData("Player." + strPlayer + ".Vote.LastDate");
 		Date formatDate = null;
+		
+		if(strDate == null){
+			neko.getLogger().info("Vote: " + strPlayer + " voted first time.");
+			return null;
+		}
 
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

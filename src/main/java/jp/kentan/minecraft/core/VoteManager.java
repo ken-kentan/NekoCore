@@ -34,12 +34,12 @@ public class VoteManager {
 
 		if ((player = getPlayerOnline(strPlayer)) == null) { // offline
 			config.saveLastVotedDate(strPlayer, dateNow);
-			config.saveSuccessionVote(strPlayer, currentSuccession);
+			
+			neko.getLogger().info("Vote: " + strPlayer + " has been processed as a offline.");
 			return;
 		}
 
-		if ((dateLastVoted = config.getLastVotedDate(strPlayer)) != null
-				&& differenceDays(dateNow, dateLastVoted) == 1) {
+		if ((dateLastVoted = config.getLastVotedDate(strPlayer)) != null && differenceDays(dateNow, dateLastVoted) == 1) {
 			currentSuccession = config.getSuccessionVote(strPlayer) + 1;
 		}
 
@@ -56,6 +56,8 @@ public class VoteManager {
 				+ rewardDetailList.get(currentSuccession - 1));
 		player.sendMessage(NekoCore.nc_tag + "ステータス: " + generateSuccessionMessage(currentSuccession, maxSuccession));
 		player.sendMessage(NekoCore.nc_tag + ChatColor.GRAY + "1日1回、続けて投票するとステータスがたまり,ボーナスがアップグレードします.");
+		
+		neko.getLogger().info("Vote: " + strPlayer + " has been processed as a online.");
 	}
 
 	private void runRewardCommand(int day, String strPlayer) {
@@ -67,7 +69,6 @@ public class VoteManager {
 				for (String command : dayRewardList) {
 					server.dispatchCommand(server.getConsoleSender(), command.replace("{player}", strPlayer));
 				}
-
 				return;
 			}
 		}
@@ -89,14 +90,14 @@ public class VoteManager {
 	}
 
 	public Player getPlayerOnline(String strPlayer) {
-		Player player = null;
-		try {
-			player = Bukkit.getServer().getPlayer(strPlayer);
-		} catch (Exception e) {
-			return null;
-		}
+		for(Player player : Bukkit.getServer().getOnlinePlayers())
+        {
+			if(strPlayer.equals(player.getName())){
+				return player;
+			}
+        }
 
-		return player;
+		return null;
 	}
 
 	private void tweet(String strPlayer) {

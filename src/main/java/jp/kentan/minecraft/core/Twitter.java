@@ -35,6 +35,7 @@ public class Twitter {
 	private boolean isBotEnable    = true;
 	
 	public Twitter(NekoCore neko, ConfigManager config, EconomyManager eco){
+		this.neko = neko;
 		bot = new BotManager(neko, config, this, eco);
 		
 		twitter = new AsyncTwitterFactory().getInstance();

@@ -97,7 +97,7 @@ public class ConfigManager {
 			VoteManager.rewardDetailList = conf.getStringList("Vote.Reward.Detail");
 
 			for (int i = 1; i <= VoteManager.maxSuccession; ++i) {
-				VoteManager.rewardList.add(conf.getStringList("Vote.Reward.day" + i));
+				VoteManager.rewardList.add(conf.getStringList("Vote.Reward." + i + "day"));
 			}
 
 		} catch (Exception e) {

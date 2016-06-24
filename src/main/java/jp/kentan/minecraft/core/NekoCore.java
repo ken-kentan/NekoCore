@@ -171,7 +171,6 @@ public class NekoCore extends JavaPlugin implements Listener{
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
-//					vote.voteThisServer(args[2]);
 					break;
 				case "vote":
 					vote.voteThisServer(args[2]);

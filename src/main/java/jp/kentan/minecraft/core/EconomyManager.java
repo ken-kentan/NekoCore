@@ -11,33 +11,33 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 
 public class EconomyManager {
-	private NekoCore nekoCore;
-	private ConfigManager config;
+	private NekoCore neko = null;
+	private ConfigManager config = null;
 	
 	private Economy econ = null;
 	private Permission perms = null;
 	private Chat chat = null;
 	
-    EconomyManager(NekoCore _neko, ConfigManager _config){
-		nekoCore = _neko;
-		config = _config;
-		
+    public EconomyManager(NekoCore neko, ConfigManager config){
+    	this.neko = neko;
+    	this.config = config;
+    	
 		if (!setupEconomy()) {
-			nekoCore.getLogger().warning("Failed link with Vault.");
+			neko.getLogger().warning("Failed link with Vault.");
             return;
         }
 		
         setupPermissions();
         setupChat();
         
-        nekoCore.getLogger().warning("Successfully linked with Vault.");
+        neko.getLogger().warning("Successfully linked with Vault.");
 	}
 	
 	private boolean setupEconomy() {
-        if (nekoCore.getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (neko.getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
-        RegisteredServiceProvider<Economy> rsp = nekoCore.getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> rsp = neko.getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
             return false;
         }
@@ -46,13 +46,13 @@ public class EconomyManager {
     }
 
     private boolean setupChat() {
-        RegisteredServiceProvider<Chat> rsp = nekoCore.getServer().getServicesManager().getRegistration(Chat.class);
+        RegisteredServiceProvider<Chat> rsp = neko.getServer().getServicesManager().getRegistration(Chat.class);
         chat = rsp.getProvider();
         return chat != null;
     }
 
     private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> rsp = nekoCore.getServer().getServicesManager().getRegistration(Permission.class);
+        RegisteredServiceProvider<Permission> rsp = neko.getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
         return perms != null;
     }
@@ -62,17 +62,17 @@ public class EconomyManager {
     	UUID uuid = config.getPlayerUUID(strPlayer);
     	OfflinePlayer player = null;
     	
-    	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
+    	if(uuid != null) player = neko.getServer().getOfflinePlayer(uuid);
     	
     	if(uuid == null || player == null || !econ.hasAccount(player) || amount < 0) return false;
     	
 		r = econ.depositPlayer(player, amount);
 	
     	if(r.transactionSuccess()) {
-    		nekoCore.getLogger().info("deposit " + econ.format(r.amount) + " to " + strPlayer);
+    		neko.getLogger().info("deposit " + econ.format(r.amount) + " to " + strPlayer);
     		return true;
     	}else{
-    		nekoCore.getLogger().warning(r.errorMessage);
+    		neko.getLogger().warning(r.errorMessage);
     		return false;
     	}
     }
@@ -82,17 +82,17 @@ public class EconomyManager {
     	UUID uuid = config.getPlayerUUID(strPlayer);
     	OfflinePlayer player = null;
     	
-    	if(uuid != null) player = nekoCore.getServer().getOfflinePlayer(uuid);
+    	if(uuid != null) player = neko.getServer().getOfflinePlayer(uuid);
     	
     	if(uuid == null || player == null || !econ.hasAccount(player) || amount < 0) return false;
     	
 		r = econ.withdrawPlayer(player, amount);
     	
     	if(r.transactionSuccess()) {
-    		nekoCore.getLogger().info("withdraw " + econ.format(r.amount) + " from " + strPlayer);
+    		neko.getLogger().info("withdraw " + econ.format(r.amount) + " from " + strPlayer);
     		return true;
     	}else{
-    		nekoCore.getLogger().warning(r.errorMessage);
+    		neko.getLogger().warning(r.errorMessage);
     		return false;
     	}
     }
@@ -102,7 +102,7 @@ public class EconomyManager {
     	OfflinePlayer player = null;
     	
     	if(uuid != null){
-    		player = nekoCore.getServer().getOfflinePlayer(uuid);
+    		player = neko.getServer().getOfflinePlayer(uuid);
     	}else{
     		return -1; //not linked
     	}

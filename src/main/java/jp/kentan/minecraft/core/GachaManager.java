@@ -14,22 +14,25 @@ import twitter4j.User;
 public class GachaManager {
 	public enum Type{Money, Diamond, EventTicket}
 	
-	private NekoCore nekoCore = null;
+	private NekoCore neko = null;
+	private ConfigManager config = null;
+	private EconomyManager eco = null;
 	private Twitter tw = null;
+	
 	private Random random = new Random();
 	
-	private Map<String, Integer> userMap = new HashMap<String, Integer>();
-	private Map<String, Type> userTypeMap = new HashMap<String, Type>();
+	private static Map<String, Integer> userMap = new HashMap<String, Integer>();
+	private static Map<String, Type> userTypeMap = new HashMap<String, Type>();
 	
 	public static Map<Type, Integer> sizeMap = new HashMap<Type, Integer>();
 	public static Map<Type, Integer> costMap = new HashMap<Type, Integer>();
 	public static Map<Type, Integer> rewardMap = new HashMap<Type, Integer>();
 	
-	public GachaManager(NekoCore nekoCore, Twitter tw) {
-		this.nekoCore = nekoCore;
+	public GachaManager(NekoCore neko, ConfigManager config, EconomyManager eco, Twitter tw){
+		this.neko = neko;
+		this.config = config;
+		this.eco = eco;
 		this.tw = tw;
-		
-		nekoCore.getLogger().info("Successfully initialized the Gacha Module.");
 	}
 	
 	public void EventHandler(){
@@ -47,17 +50,17 @@ public class GachaManager {
 	
 	private void gacha(User source, Status status){
 		String twitterID    = source.getScreenName();
-		String minecraftID  = nekoCore.config.getMinecraftID(twitterID);
+		String minecraftID  = config.getMinecraftID(twitterID);
 		Type type = userTypeMap.get(twitterID);
 		
-		if(!nekoCore.config.isLinkedTwitterAccount(minecraftID, twitterID)){
+		if(!config.isLinkedTwitter(minecraftID, twitterID)){
 			tw.reply(twitterID, "うーん...そのアカウントはまだリンクされていないよ" + tw.bot.getNekoFace() + "\nサーバーにログインして「/nk account " + twitterID + "」と入力してね.", status.getId());		
 			
 			reset(twitterID);
 			return;
 		}
 		
-		if(nekoCore.economy.withdraw(minecraftID, (double)(getCost(type)))){
+		if(eco.withdraw(minecraftID, (double)(getCost(type)))){
 			int gacha = random.nextInt(getProb(type));
 			
 			if(gacha == 0){
@@ -68,7 +71,7 @@ public class GachaManager {
 				
 				userMap.put(twitterID, 0);
 				
-				nekoCore.getLogger().info("Gacha result is " + gacha);
+				neko.getLogger().info("Gacha result is " + gacha);
 				return;
 			}
 			
@@ -82,20 +85,20 @@ public class GachaManager {
 	private void reward(Type type, String minecraftID){
 		switch (type) {
 		case Money:
-			nekoCore.economy.deposit(minecraftID, rewardMap.get(type).doubleValue());
+			eco.deposit(minecraftID, rewardMap.get(type).doubleValue());
 			break;
 		case Diamond:
-			nekoCore.config.addPlayerGachaRewards(minecraftID, "give " + minecraftID + " minecraft:diamond " + rewardMap.get(type) + " 0");
+			config.addPlayerGachaRewards(minecraftID, "give " + minecraftID + " minecraft:diamond " + rewardMap.get(type) + " 0");
 			break;
 		case EventTicket:
-			nekoCore.config.addPlayerGachaRewards(minecraftID, "event ticket " + minecraftID + " " + rewardMap.get(type));
+			config.addPlayerGachaRewards(minecraftID, "event ticket " + minecraftID + " " + rewardMap.get(type));
 			break;
 		default:
 			break;
 		}
 	}
 	
-	public Type setup(String user){
+	public Type create(String user){
 		Type type = null;
 		int rand = random.nextInt(3);
 		
@@ -116,7 +119,7 @@ public class GachaManager {
 		userMap.put(user, 0);
 		userTypeMap.put(user, type);
 		
-		nekoCore.getLogger().info("Gacha(" + user + "," + type + ") create.");
+		neko.getLogger().info("Gacha(" + user + "," + type + ") create.");
 		
 		return type;
 	}
@@ -124,7 +127,7 @@ public class GachaManager {
 	public void reset(String entry){
 		userMap.remove(entry);
 		userTypeMap.remove(entry);
-		nekoCore.getLogger().info("Gacha(" + entry + ") was reset.");
+		neko.getLogger().info("Gacha(" + entry + ") was reset.");
 	}
 	
 	public int getCost(Type type){
@@ -156,9 +159,9 @@ public class GachaManager {
 	}
 	
 	public void giveRewards(Player player){
-		Server server = nekoCore.getServer();
+		Server server = neko.getServer();
 		String strPlayer = player.getName();
-		List<String> rewardsList = nekoCore.config.getPlayerGachaRewards(strPlayer);
+		List<String> rewardsList = config.getPlayerGachaRewards(strPlayer);
 		
 		if(rewardsList == null || rewardsList.size() <= 0){
 			return;
@@ -170,7 +173,7 @@ public class GachaManager {
 		
 		player.sendMessage(NekoCore.nc_tag + "猫botガチャのリワードを入手しました！");
 
-		nekoCore.config.deletePlayerGachaRewards(strPlayer);
+		config.deletePlayerGachaRewards(strPlayer);
 	}
 	
 	public void checkFlag(String user){

@@ -21,21 +21,21 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class Twitter {
 	
-	private NekoCore       nekoCore;
-	public  BotManager     bot;
-	public GachaManager    gacha;
+	private NekoCore neko = null;
 	private AsyncTwitter twitter;
 	private TwitterStream twitterStream;
+	
+	public BotManager bot = null;
 	
 	public static String consumerKey       = "";
 	public static String consumerSecret    = "";
 	public static String accessToken       = "";
 	public static String accessTokenSecret = "";
 	
-	private static boolean isBotEnable    = true;
+	private boolean isBotEnable    = true;
 	
-	Twitter(NekoCore nekoCore){
-		this.nekoCore = nekoCore;
+	public Twitter(NekoCore neko, ConfigManager config, EconomyManager eco){
+		bot = new BotManager(neko, config, this, eco);
 		
 		twitter = new AsyncTwitterFactory().getInstance();
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
@@ -43,12 +43,12 @@ public class Twitter {
 		twitter.addListener(new TwitterAdapter() {
             @Override
             public void updatedStatus(Status status) {
-                nekoCore.getLogger().info("Async Tweet:" + status.getText());
+                neko.getLogger().info("Async Tweet:" + status.getText());
             }
 
             @Override
             public void onException(TwitterException e, TwitterMethod method) {
-            	nekoCore.getLogger().warning("Async Tweet Failed " + e.getMessage());
+            	neko.getLogger().warning("Async Tweet Failed " + e.getMessage());
             }
         });
 		
@@ -66,22 +66,19 @@ public class Twitter {
         //start user Stream
         twitterStream.user();
 		
-		nekoCore.getLogger().info("Successfully initialized the Twitter Module.");
-		
-		gacha = new GachaManager(nekoCore, this);
-		bot = new BotManager(nekoCore, this, gacha);
+		neko.getLogger().info("Successfully initialized the Twitter Module.");
 	}
 	
 	public void closeStream(){
 		twitterStream.shutdown();
-		nekoCore.getLogger().info("Shutdown the TwitterStream.");
+		neko.getLogger().info("Shutdown the TwitterStream.");
 	}
 	
 	private final UserStreamListener listener = new UserStreamListener() {
 		@Override
 	    public void onStatus(Status status) {
 	    	if(isReplay(status)){
-	    		nekoCore.getLogger().info("Twitter:Get replay from @" + status.getUser().getScreenName());
+	    		neko.getLogger().info("Twitter:Get replay from @" + status.getUser().getScreenName());
 	    		
 	    		bot.reaction(status);
 	    	}
@@ -90,9 +87,9 @@ public class Twitter {
 		@Override
 		public void onFavorite(User source, User target, Status favoritedStatus) {
 			if(isFavToMe(target)){
-				nekoCore.getLogger().info("Twitter:Get like from @" + source.getScreenName());
+				neko.getLogger().info("Twitter:Get like from @" + source.getScreenName());
 			
-				gacha.trigger(source, favoritedStatus);
+				bot.gacha.trigger(source, favoritedStatus);
 			}
 		}
 		
@@ -110,7 +107,7 @@ public class Twitter {
 
 		@Override
 		public void onException(Exception ex) {
-			nekoCore.getLogger().warning(ex.getMessage());
+			neko.getLogger().warning(ex.getMessage());
 		}
 
 		@Override
@@ -186,7 +183,7 @@ public class Twitter {
 		}else{
 			msg = "Successfully disabled the Twitter Bot.";
 		}
-		nekoCore.getLogger().info(msg);
+		neko.getLogger().info(msg);
 	}
 	
 	public void tweet(String str){
@@ -203,24 +200,27 @@ public class Twitter {
     
     public void sendDirectMessgae(String user, String str){
     	twitter.sendDirectMessage(user, str);
-    	nekoCore.getLogger().info("Twitter DM:Successfully sent to " + user);
+    	neko.getLogger().info("Twitter DM:Successfully sent to " + user);
     }
 	
 	private boolean isReplay(Status status){
-		if(status.getText().indexOf("@DekitateServer") != -1 && !status.getUser().getScreenName().equals("DekitateServer")) return true;
-		
+		if(status.getText().indexOf("@DekitateServer") != -1 && !status.getUser().getScreenName().equals("DekitateServer")){
+			return true;
+		}
 		return false;
 	}
 	
 	public boolean isOwner(Status status){
-		if(status.getUser().getScreenName().equals("ken_kentan")) return true;
-		
+		if(status.getUser().getScreenName().equals("ken_kentan")){
+			return true;
+		}
 		return false;
 	}
 	
 	private boolean isFavToMe(User targer){
-		if(targer.getScreenName().equals("DekitateServer")) return true;
-		
+		if(targer.getScreenName().equals("DekitateServer")){
+			return true;
+		}
 		return false;
 	}
 }

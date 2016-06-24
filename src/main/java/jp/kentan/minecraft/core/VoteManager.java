@@ -10,45 +10,47 @@ import org.bukkit.Server;
 import org.bukkit.entity.Player;
 
 public class VoteManager {
-	private NekoCore nekoCore = null;
+	private NekoCore neko = null;
+	private ConfigManager config = null;
+	private Twitter tw = null;
 
 	public static int maxSuccession = 7;
 
 	public static List<List<String>> rewardList = new ArrayList<List<String>>();
 	public static List<String> rewardDetailList = new ArrayList<String>();
 
-	public VoteManager(NekoCore nekoCore) {
-		this.nekoCore = nekoCore;
-
-		nekoCore.getLogger().info("Successfully initialized the VoteManager.");
+	public VoteManager(NekoCore neko, ConfigManager config, Twitter tw) {
+		this.neko = neko;
+		this.config = config;
+		this.tw = tw;
 	}
 
 	public void voteThisServer(String strPlayer) {
 		Date dateLastVoted = null, dateNow = new Date();
 		Player player = null;
 		int currentSuccession = 1;
-		
+
 		tweet(strPlayer);
 
 		if ((player = getPlayerOnline(strPlayer)) == null) { // offline
-			nekoCore.config.saveLastVotedDate(strPlayer, dateNow);
-			nekoCore.config.saveSuccessionVote(strPlayer, currentSuccession);
+			config.saveLastVotedDate(strPlayer, dateNow);
+			config.saveSuccessionVote(strPlayer, currentSuccession);
 			return;
 		}
 
-		if ((dateLastVoted = nekoCore.config.getLastVotedDate(strPlayer)) != null
+		if ((dateLastVoted = config.getLastVotedDate(strPlayer)) != null
 				&& differenceDays(dateNow, dateLastVoted) == 1) {
-			currentSuccession = nekoCore.config.getSuccessionVote(strPlayer) + 1;
+			currentSuccession = config.getSuccessionVote(strPlayer) + 1;
 		}
 
 		currentSuccession = Math.min(currentSuccession, maxSuccession);
 
 		runRewardCommand(currentSuccession, strPlayer);
 
-		nekoCore.config.saveLastVotedDate(strPlayer, dateNow);
-		nekoCore.config.saveSuccessionVote(strPlayer, currentSuccession);
+		config.saveLastVotedDate(strPlayer, dateNow);
+		config.saveSuccessionVote(strPlayer, currentSuccession);
 
-		player.sendMessage(NekoCore.nc_tag + "投票ありがとにゃ" + nekoCore.tw.bot.getNekoFace() + ChatColor.AQUA + " "
+		player.sendMessage(NekoCore.nc_tag + "投票ありがとにゃ" + tw.bot.getNekoFace() + ChatColor.AQUA + " "
 				+ currentSuccession + "day" + ChatColor.GOLD + "ボーナス" + ChatColor.WHITE + "をゲット！");
 		player.sendMessage(NekoCore.nc_tag + ChatColor.GOLD + "ボーナス" + ChatColor.WHITE + ": "
 				+ rewardDetailList.get(currentSuccession - 1));
@@ -57,7 +59,7 @@ public class VoteManager {
 	}
 
 	private void runRewardCommand(int day, String strPlayer) {
-		Server server = nekoCore.getServer();
+		Server server = neko.getServer();
 
 		int i = 0;
 		for (List<String> dayRewardList : rewardList) {
@@ -96,18 +98,18 @@ public class VoteManager {
 
 		return player;
 	}
-	
-	private void tweet(String strPlayer){
-		String tweet = nekoCore.tw.bot.getActionMsg();
-        
-        tweet = tweet.replace("{player}", strPlayer);
-        tweet = tweet.replace("{status}", " http://minecraft.jp で投票");
-        tweet = tweet.replace("{face}", nekoCore.tw.bot.getNekoFace());
-     
-        nekoCore.tw.tweet(tweet);
+
+	private void tweet(String strPlayer) {
+		String tweet = tw.bot.getActionMsg();
+
+		tweet = tweet.replace("{player}", strPlayer);
+		tweet = tweet.replace("{status}", " http://minecraft.jp で投票");
+		tweet = tweet.replace("{face}", tw.bot.getNekoFace());
+
+		tw.tweet(tweet);
 	}
 
-	public static int differenceDays(Date date1, Date date2) {
+	public int differenceDays(Date date1, Date date2) {
 		long datetime1 = date1.getTime();
 		long datetime2 = date2.getTime();
 		long one_date_time = 1000 * 60 * 60 * 24;

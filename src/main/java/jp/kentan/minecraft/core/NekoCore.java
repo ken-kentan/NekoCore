@@ -17,12 +17,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class NekoCore extends JavaPlugin implements Listener{
-	
-	public ConfigManager  config  = null;
-	public EconomyManager economy = null;
-	public Twitter       tw      = null;
-	private VoteManager   vote    = null;
+public class NekoCore extends JavaPlugin implements Listener{	
+	private Twitter tw = null;
+	private EconomyManager eco = null;
+	private VoteManager vote = null;
+	private ConfigManager config = null;
 	
 	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
 	private CommandSender cs_player[] = new CommandSender[100];
@@ -33,11 +32,13 @@ public class NekoCore extends JavaPlugin implements Listener{
 		voteReset();
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		getServer().getPluginManager().registerEvents(this, this);
+
+		config = new ConfigManager(this);
+		config.load();
 		
-		config  = new ConfigManager(this);
-		vote    = new VoteManager(this);
-		economy = new EconomyManager(this, config);
-		tw      = new Twitter(this);
+		eco = new EconomyManager(this, config);		
+		tw = new Twitter(this, config, eco);
+		vote = new VoteManager(this, config, tw);
 		
 		Date date = new Date();
 		
@@ -59,7 +60,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					voteReset();
 					sec_time = 0;
 				}
-				tw.gacha.EventHandler();
+				tw.bot.gacha.EventHandler();
 		    }
 		}.runTaskTimer(this, 20, 20);//20 1s
 		
@@ -166,7 +167,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 					tw.switchBotStatus();
 					break;
 				case "reload":
-					config.setTwitterBotData();
+					config.load();
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
@@ -219,7 +220,7 @@ public class NekoCore extends JavaPlugin implements Listener{
      
         tw.tweet(tweet);
 
-        tw.gacha.giveRewards(player);
+        tw.bot.gacha.giveRewards(player);
     }
 	
 	@EventHandler

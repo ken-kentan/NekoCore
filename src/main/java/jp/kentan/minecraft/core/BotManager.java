@@ -14,9 +14,12 @@ public class BotManager {
 	private enum Command{None, Players, Staffs, ServerLoad, Reboot, Trigger, Cancel,
 		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach}
 	
-	private NekoCore nekoCore = null;
-	private Twitter  tw       = null;
-	private GachaManager gacha = null;
+	private NekoCore neko = null;
+	private ConfigManager config = null;
+	private Twitter tw = null;
+	private EconomyManager eco = null;
+	
+	public GachaManager gacha = null;
 	
 	/* Bot Messages List */
 	public static List<String> nekoFaceList         = new ArrayList<String>();
@@ -35,15 +38,15 @@ public class BotManager {
 	
 	private Random random = new Random();
 	
-	private boolean isReadyReboot = false,
-			        isReadyDetach = false;
+	private boolean isReadyReboot = false, isReadyDetach = false;
 	
-	public BotManager(NekoCore nekoCore, Twitter tw, GachaManager gacha) {
-		this.nekoCore = nekoCore;
+	public BotManager(NekoCore neko, ConfigManager config, Twitter tw, EconomyManager eco){
+		this.neko = neko;
+		this.config = config;
 		this.tw = tw;
-		this.gacha = gacha;
+		this.eco = eco;
 		
-		nekoCore.getLogger().info("Successfully initialized the Bot Module.");
+		gacha = new GachaManager(neko, config, eco, tw);
 	}
 	
 	public void reaction(Status status){
@@ -63,7 +66,7 @@ public class BotManager {
 			break;
 		case Staffs:
 			int cntOP = 0;
-			for(Player p : nekoCore.getServer().getOnlinePlayers()){
+			for(Player p : neko.getServer().getOnlinePlayers()){
 				if(p.isOp()) cntOP++;
 			}
 			tw.reply(user, "現在、ログインしている運営は" + cntOP + "人だよ" + getNekoFace(), status.getId());
@@ -80,10 +83,10 @@ public class BotManager {
 			if(tw.isOwner(status)){
 				if(isReadyReboot){
 					tw.reply(user, "サーバーを再起動します.", status.getId());
-					nekoCore.rebootModule();
+					neko.rebootModule();
 				}else if(isReadyDetach){
 					tw.reply(user, "NekoCoreをサーバーから切り離します.\n再ロードはコンソールから行ってください.", status.getId());
-					nekoCore.getServer().dispatchCommand(nekoCore.getServer().getConsoleSender(), "plugman unload NekoCore");
+					neko.getServer().dispatchCommand(neko.getServer().getConsoleSender(), "plugman unload NekoCore");
 				}
 			}
 			break;
@@ -112,7 +115,7 @@ public class BotManager {
 			
 			tweetMsg = tweetMsg.replace("{world}", "猫ワールド");
 			
-			switch(nekoCore.getWeather()){
+			switch(neko.getWeather()){
 			case 0:
 				tweetMsg = tweetMsg.replace("{weather}", "晴れ");
 				break;
@@ -132,17 +135,17 @@ public class BotManager {
 		case Gacha:
 			gacha.checkFlag(user);
 			
-			GachaManager.Type type = gacha.setup(user);
+			GachaManager.Type type = gacha.create(user);
 			
 			tw.reply(user, "1回鯖ﾏﾈｰ" + gacha.getCost(type) + "円で猫ガチャするー" + getNekoFace() + "？" + "1/" + gacha.getProb(type) + "の確率で" + gacha.getRewardName(type) +
 					"がもらえるよ" + getNekoFace() + "\nプレイするにはこのツイートをいいねしてね！  #猫ガチャ", status.getId());
 			
 			break;
 		case GetBalance:
-			String minecraftID  = nekoCore.config.getMinecraftID(user);
+			String minecraftID  = config.getMinecraftID(user);
 			
 			if(minecraftID != null){
-				tw.reply(user, minecraftID + "の現在の所持金は" + nekoCore.economy.getBalance(minecraftID) + "円だよ" + getNekoFace(), status.getId());
+				tw.reply(user, minecraftID + "の現在の所持金は" + eco.getBalance(minecraftID) + "円だよ" + getNekoFace(), status.getId());
 			}else{
 				tw.reply(user, "うーん...そのアカウントはまだリンクされていないよ" + getNekoFace() + "\nサーバーにログインして「/nk account " + user + "」と入力してね.", status.getId());
 			}
@@ -150,7 +153,7 @@ public class BotManager {
 		case AskOnlinePlayer:
 			String mcID = getIncludeWord(status.getText());
 			
-			if(nekoCore.getServer().getPlayer(mcID) != null){
+			if(neko.getServer().getPlayer(mcID) != null){
 				tw.reply(user, getAskYesMsg().replace("{player}", mcID).replace("{status}", "ログイン"), status.getId());
 			}else{
 				tw.reply(user, getAskNoMsg().replace("{player}", mcID).replace("{status}", "ログイン"), status.getId());

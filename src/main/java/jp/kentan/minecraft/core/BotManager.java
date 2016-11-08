@@ -1,7 +1,9 @@
 package jp.kentan.minecraft.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -35,6 +37,9 @@ public class BotManager {
 	public static List<String> msgAskYesList        = new ArrayList<String>();
 	public static List<String> msgAskNoList         = new ArrayList<String>();
 	
+	/* Player logout timer */
+	private static Map<String, Integer> playerLogoutList = new HashMap<String, Integer>();
+	
 	
 	private Random random = new Random();
 	
@@ -47,6 +52,56 @@ public class BotManager {
 		this.eco = eco;
 		
 		gacha = new GachaManager(neko, config, eco, tw);
+	}
+	
+	public void EventHandler(){
+		for(Map.Entry<String, Integer> entry : playerLogoutList.entrySet()){
+			String player = entry.getKey();
+			int timer = entry.getValue();
+			
+			playerLogoutList.put(player, ++timer);
+			
+			if(timer > 15){
+				playerLogoutList.remove(player);
+				tweetPlayerLogout(player);
+			}
+		}
+	}
+	
+	public void tweetPlayerLogin(String player){
+		String status = "ログイン";
+		
+		for(Map.Entry<String, Integer> entry : playerLogoutList.entrySet()){
+			String _player = entry.getKey();
+			
+			if(_player.equals(player)){
+				status = "再ログイン";
+				playerLogoutList.remove(_player);
+				break;
+			}
+		}
+		
+		String tweet = tw.bot.getActionMsg();
+
+		tweet = tweet.replace("{player}", player);
+		tweet = tweet.replace("{status}", status);
+		tweet = tweet.replace("{face}", tw.bot.getNekoFace());
+
+		tw.tweet(tweet);
+	}
+	
+	public void addPlayerToLogoutList(String player){
+		playerLogoutList.put(player, 0);
+	}
+	
+	private void tweetPlayerLogout(String player){
+		String tweet = tw.bot.getActionMsg();
+
+		tweet = tweet.replace("{player}", player);
+		tweet = tweet.replace("{status}", "ログアウト");
+		tweet = tweet.replace("{face}", tw.bot.getNekoFace());
+
+		tw.tweet(tweet);
 	}
 	
 	public void reaction(Status status){

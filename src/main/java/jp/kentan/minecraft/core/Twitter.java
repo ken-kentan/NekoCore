@@ -107,8 +107,9 @@ public class Twitter {
 		public void onStallWarning(StallWarning warning) {}
 
 		@Override
-		public void onException(Exception ex) {
-			neko.getLogger().warning(ex.getMessage());
+		public void onException(Exception e) {
+			String msg = e.getMessage();
+			if(msg != null) neko.getLogger().warning(msg);
 		}
 
 		@Override
@@ -205,7 +206,7 @@ public class Twitter {
     }
 	
 	private boolean isReplay(Status status){
-		if(status.getText().indexOf("@DekitateServer") != -1 && !status.getUser().getScreenName().equals("DekitateServer")){
+		if(status.getInReplyToScreenName().equals("DekitateServer") && !status.getUser().getScreenName().equals("DekitateServer")){
 			return true;
 		}
 		return false;

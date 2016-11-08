@@ -33,6 +33,8 @@ public class GachaManager {
 		this.config = config;
 		this.eco = eco;
 		this.tw = tw;
+		
+		userMap.clear();
 	}
 	
 	public void EventHandler(){

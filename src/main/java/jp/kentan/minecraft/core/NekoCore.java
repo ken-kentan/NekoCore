@@ -50,17 +50,19 @@ public class NekoCore extends JavaPlugin implements Listener {
 			@Override
 			public void run() {
 				// run
-				if (voted_player > 0)
-					sec_time++;
+				if (voted_player > 0){
+					++sec_time;
+				}
 				if (sec_reboot >= 0) {
 					reboot();
-					sec_reboot--;
+					--sec_reboot;
 				}
 				if (sec_time > 300) { // 5m
 					voteResetMessage();
 					voteReset();
 					sec_time = 0;
 				}
+				tw.bot.EventHandler();
 				tw.bot.gacha.EventHandler();
 			}
 		}.runTaskTimer(this, 20, 20);// 20 1s
@@ -180,6 +182,8 @@ public class NekoCore extends JavaPlugin implements Listener {
 					sender.sendMessage(nc_tag + "設定ファルをリロードしました.");
 					break;
 				case "test":
+					Player player = (Player)sender;
+					player.setBedSpawnLocation(player.getLocation(),true);
 					break;
 				case "vote":
 					vote.voteThisServer(args[2]);
@@ -222,27 +226,13 @@ public class NekoCore extends JavaPlugin implements Listener {
 	@EventHandler
 	public void TweetLogin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		String tweet = tw.bot.getActionMsg();
-
-		tweet = tweet.replace("{player}", player.getName());
-		tweet = tweet.replace("{status}", "ログイン");
-		tweet = tweet.replace("{face}", tw.bot.getNekoFace());
-
-		tw.tweet(tweet);
-
+		tw.bot.tweetPlayerLogin(player.getName());
 		tw.bot.gacha.giveRewards(player);
 	}
 
 	@EventHandler
 	public void TweetLogout(PlayerQuitEvent event) {
-		Player player = event.getPlayer();
-		String tweet = tw.bot.getActionMsg();
-
-		tweet = tweet.replace("{player}", player.getName());
-		tweet = tweet.replace("{status}", "ログアウト");
-		tweet = tweet.replace("{face}", tw.bot.getNekoFace());
-
-		tw.tweet(tweet);
+		tw.bot.addPlayerToLogoutList(event.getPlayer().getName());
 	}
 
 	public void doError(CommandSender _sender, Exception _e) {

@@ -14,7 +14,7 @@ import twitter4j.Status;
 public class BotManager {
 	
 	private enum Command{None, Players, Staffs, ServerLoad, Reboot, Trigger, Cancel,
-		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach}
+		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach, Shiritori}
 	
 	private NekoCore neko = null;
 	private ConfigManager config = null;
@@ -39,6 +39,8 @@ public class BotManager {
 	
 	/* Player logout timer */
 	private static Map<String, Integer> playerLogoutList = new HashMap<String, Integer>();
+	
+	private List<Shiritori> shiritoriList = new ArrayList<Shiritori>();
 	
 	
 	private Random random = new Random();
@@ -217,7 +219,31 @@ public class BotManager {
 		case Detach:
 			if(tw.isOwner(status)){
 				isReadyDetach = true;
-				tw.reply(user, "ほんとにNekoCoreをサーバーか切り離すの" + getNekoFace() + "？", status.getId());
+				tw.reply(user, "ほんとにNekoCoreをサーバーから切り離すの" + getNekoFace() + "？", status.getId());
+			}else{
+				tw.reply(user, getRejectCommandMsg(), status.getId());
+			}
+			break;
+		case Shiritori:
+			if(tw.isOwner(status) || tw.isAquatan(status)){
+				for(Shiritori shiritori : shiritoriList){
+					if(shiritori.getUser().equals(user)){
+						shiritori.analyze(getIncludeWord(status.getText()));
+						tw.reply(user, shiritori.getResult(), status.getId());
+						
+						if(shiritori.isFinish()){
+							shiritoriList.remove(shiritori);
+							shiritori = null;
+						}
+						return;
+					}
+				}
+				
+				Shiritori newShiritori = new Shiritori(user);
+				shiritoriList.add(newShiritori);
+				if(!tw.isAquatan(status)){
+					tw.reply(user, newShiritori.getResult() + getNekoFace(), status.getId());
+				}
 			}else{
 				tw.reply(user, getRejectCommandMsg(), status.getId());
 			}
@@ -229,6 +255,10 @@ public class BotManager {
 	}
 	
 	private Command typeCommand(String str){
+    	if(str.indexOf("しりとり") != -1 || ( str.indexOf("「") != -1 && str.indexOf("」") != -1)){
+    		return Command.Shiritori;
+    	}
+    	
 		if(str.indexOf("数") != -1 || str.indexOf("何人") != -1){
 			if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1){
 				return Command.Staffs;
@@ -288,8 +318,8 @@ public class BotManager {
 	}
 	
 	private String getIncludeWord(String str){
-		int beginIndex = str.indexOf("「") + 1,
-			endIndex   = str.indexOf("」");
+		int beginIndex = str.lastIndexOf("「") + 1,
+			endIndex   = str.lastIndexOf("」");
 		
 		return str.substring(beginIndex, endIndex);
 	}

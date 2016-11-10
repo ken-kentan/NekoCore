@@ -219,6 +219,13 @@ public class Twitter {
 		return false;
 	}
 	
+	public boolean isAquatan(Status status){
+		if(status.getUser().getScreenName().equals("sel_aquarium")){
+			return true;
+		}
+		return false;
+	}
+	
 	private boolean isFavToMe(User targer){
 		if(targer.getScreenName().equals("DekitateServer")){
 			return true;

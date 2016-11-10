@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.kentan.minecraft</groupId>
 	<artifactId>NekoCore</artifactId>
-	<version>1.11.33</version>
+	<version>1.14.38</version>
 
 	<build>
 		<plugins>
@@ -56,6 +56,26 @@
 			<artifactId>twitter4j-async</artifactId>
 			<version>4.0.4</version>
 		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.35</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.atilika.kuromoji</groupId>
+			<artifactId>kuromoji</artifactId>
+			<version>0.7.7</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>58.1</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -71,6 +91,10 @@
 			<id>twitter4j.org</id>
 			<name>twitter4j.org Repository</name>
 			<url>http://twitter4j.org/maven2</url>
+		</repository>
+		<repository>
+			<id>Atilika Open Source repository</id>
+			<url>http://www.atilika.org/nexus/content/repositories/atilika</url>
 		</repository>
 	</repositories>
 </project>

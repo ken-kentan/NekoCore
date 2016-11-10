@@ -45,6 +45,10 @@ public class ConfigManager {
 			Twitter.consumerSecret = conf.getString("Twitter.consumerSecret");
 			Twitter.accessToken = conf.getString("Twitter.accessToken");
 			Twitter.accessTokenSecret = conf.getString("Twitter.accessTokenSecret");
+			
+			SQLManager.HOST = conf.getString("SQL.host");
+			SQLManager.ID = conf.getString("SQL.id");
+			SQLManager.PASS = conf.getString("SQL.pass");
 
 			// clear All List
 			BotManager.nekoFaceList.clear();

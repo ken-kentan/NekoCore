@@ -2,6 +2,7 @@ package jp.kentan.minecraft.core;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class NekoCore extends JavaPlugin implements Listener {
+	public static Logger LOG;
 	private Twitter tw = null;
 	private EconomyManager eco = null;
 	private VoteManager vote = null;
@@ -30,6 +32,8 @@ public class NekoCore extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		LOG = getLogger();
+		
 		voteReset();
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Lag(), 100L, 1L);
 		getServer().getPluginManager().registerEvents(this, this);
@@ -160,7 +164,7 @@ public class NekoCore extends JavaPlugin implements Listener {
 				break;
 			}
 
-			if (args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !checkInGame(sender))) {
+			if (args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !isOnline(sender))) {
 				if (args[1] == null)
 					args[1] = "null";
 
@@ -235,12 +239,7 @@ public class NekoCore extends JavaPlugin implements Listener {
 		tw.bot.addPlayerToLogoutList(event.getPlayer().getName());
 	}
 
-	public void doError(CommandSender _sender, Exception _e) {
-		_sender.sendMessage(ChatColor.RED + "コマンドを正常に実行できませんでした");
-		getLogger().info(_e.toString());
-	}
-
-	private boolean checkInGame(CommandSender _sender) {
+	private boolean isOnline(CommandSender _sender) {
 		if (!(_sender instanceof Player))
 			return false;
 		else

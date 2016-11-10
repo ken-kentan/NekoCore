@@ -178,13 +178,13 @@ public class Shiritori {
 		char firstChar = getFirstChar(reading);
 		char lastChar = getLastChar(reading);
 		
-		if(lastChar == 'ン'){
-			userWord = reading;
-			currentResult = RESULT.WIN_N;
-			return;
-		}else if(prevLastChar != '\0' && firstChar != prevLastChar){
+		if(prevLastChar != '\0' && firstChar != prevLastChar){
 			userWord = reading;
 			currentResult = RESULT.WIN_NOTMATCH;
+			return;
+		} else if(lastChar == 'ン'){
+			userWord = reading;
+			currentResult = RESULT.WIN_N;
 			return;
 		}
 		

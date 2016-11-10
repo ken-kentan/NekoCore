@@ -109,6 +109,8 @@ public class BotManager {
 	public void reaction(Status status){
 		String user = status.getUser().getScreenName();
 		
+		if(tw.isAquatan(status) && typeCommand(status.getText()) != Command.Shiritori) return;
+		
 		switch(typeCommand(status.getText())){
 		case Players:
 			tw.reply(user, "現在のプレイヤー数は" + Bukkit.getOnlinePlayers().size() + "人だよ" + getNekoFace(), status.getId());

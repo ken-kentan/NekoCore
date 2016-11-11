@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,8 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.atilika.kuromoji.Token;
-import org.atilika.kuromoji.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.codelibs.neologd.ipadic.lucene.analysis.ja.JapaneseTokenizer;
+import org.codelibs.neologd.ipadic.lucene.analysis.ja.tokenattributes.ReadingAttribute;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -23,9 +26,12 @@ public class Shiritori {
 //	private static final String MATCH_KATAKANA = "^[\\u30A0-\\u30FF]+$";
 	
 	private SQLManager sql;
-	private Tokenizer tokenizer = null;
+	private JapaneseTokenizer tokenizer = null;
+	private ReadingAttribute readingAttribute;
+	private CharTermAttribute charTermAttribute;
 	
 	private Map<String, String> dictionary = new HashMap<String, String>(); //word, reading
+	private Map<String, String> dictionaryLearned = new HashMap<String, String>(); //word, reading
 	private Map<Character, Character> lowerCharMap = new HashMap<Character, Character>();
 	
 	private List<String> usedWords = new ArrayList<String>();
@@ -38,10 +44,14 @@ public class Shiritori {
 	
 	public Shiritori(String user){
 		sql = new SQLManager();
-		tokenizer = Tokenizer.builder().build();
 		this.user = user;
 		
+		tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.NORMAL);
+		readingAttribute  = tokenizer.addAttribute(ReadingAttribute.class);
+		charTermAttribute = tokenizer.addAttribute(CharTermAttribute.class);
+		
 		initDictionary();
+		checkOverlap();
 		
 		//小文字
 		lowerCharMap.put('ァ', 'ア');
@@ -57,8 +67,6 @@ public class Shiritori {
 		lowerCharMap.put('ョ', 'ヨ');
 		lowerCharMap.put('ヮ', 'ワ');
 		lowerCharMap.put('ォ', 'オ');
-		
-		checkOverlap();
 	}
 	
 	public String getUser(){
@@ -94,6 +102,7 @@ public class Shiritori {
 	
 	private void initDictionary(){
 		dictionary.clear();
+		dictionaryLearned.clear();
 		ResultSet rs = sql.query("SELECT * FROM `shiritori_words`");
 		NekoCore.LOG.info("基礎辞書取得中...");
 
@@ -104,7 +113,7 @@ public class Shiritori {
 
 				dictionary.put(word, reading);
 			}
-			NekoCore.LOG.info("取得中完了.");
+			NekoCore.LOG.info("取得完了(" + dictionary.size() + "件).");
 		} catch (Exception e) {
 			NekoCore.LOG.info(e.getMessage());
 		} finally{
@@ -120,10 +129,10 @@ public class Shiritori {
 					String word = rs.getString("word");
 					String reading = rs.getString("reading");
 	
-					dictionary.put(word, reading);
+					dictionaryLearned.put(word, reading);
 				}
 			}
-			NekoCore.LOG.info("取得中完了.");
+			NekoCore.LOG.info("取得完了(" + dictionaryLearned.size() + "件).");
 		} catch (Exception e) {
 			NekoCore.LOG.info(e.getMessage());
 		} finally{
@@ -166,10 +175,16 @@ public class Shiritori {
 			}
 		}
 		
-		NekoCore.LOG.info("辞書取得完了(" + dictionary.size() + "件).");
+		NekoCore.LOG.info("辞書取得完了(" + (dictionary.size() + dictionaryLearned.size()) + "件).");
 	}
 	
 	public void analyze(String word){
+		if(word == null || word.equals("")){
+			word = "(null)";
+			currentResult = RESULT.WIN_NOTMATCH;
+			return;
+		}
+		
 		String reading = getReading(word);
 		
 		NekoCore.LOG.info("reading: " + reading);
@@ -190,6 +205,39 @@ public class Shiritori {
 		
 		if(isUnknown(word)){
 			learning(word, reading);
+		}
+
+		for(Entry<String, String> entry : dictionaryLearned.entrySet()){
+			String key = entry.getKey();
+			String value = entry.getValue();
+			
+			if(lastChar == getFirstChar(value)){				
+				if(usedWords.contains(word)){
+					userWord = reading;
+					currentResult = RESULT.WIN_USED;
+					return;
+				}
+				
+				if(usedWords.contains(key)){
+					continue;
+				}
+				
+				if(isMatches(MATCH_HIRAGANA, word)){
+					NekoCore.LOG.info("overwrite: " + word + " to " + reading);
+					word = reading;
+				}
+
+				matchWord = key;
+				
+				NekoCore.LOG.info("match: " + key);
+				prevLastChar = getLastChar(value);
+				
+				usedWords.add(word);
+				usedWords.add(key);
+				
+				currentResult = RESULT.CONTINUE;
+				return;
+			}
 		}
 		
 		for(Entry<String, String> entry : dictionary.entrySet()){
@@ -234,26 +282,49 @@ public class Shiritori {
 		NekoCore.LOG.info("使用単語数: " + usedWords.size());
 		NekoCore.LOG.info("未知単語数: " + unknownWords);
 	}
-
-	private String getReading(String str){
-		List<Token> tokens = tokenizer.tokenize(str);
+	
+	private String getReading(String word){
+		StringBuilder builder =  new StringBuilder();
 		
-		StringBuilder strBuilder = new StringBuilder();
-		for(Token token : tokens){
-			if(token.getPartOfSpeech().contains("記号")){
-				continue;
-			}
-			
-			String readingToken = token.getReading();
-			if(readingToken != null){//辞書語
-				strBuilder.append(readingToken);
-			}else{                   //未知語
-				strBuilder.append(token.getSurfaceForm());
-			}
-		}
+		try{
+            tokenizer.setReader(new StringReader(word));
+            tokenizer.reset();
+            while(tokenizer.incrementToken()){
+            	String reading = readingAttribute.getReading();
+            	
+            	if(reading == null) {
+            		reading = charTermAttribute.toString();
+            	}
+            	
+            	builder.append(reading);
+            }
+            tokenizer.close();
+        } catch (IOException e) {
+            NekoCore.LOG.warning(e.getMessage());
+        }
 		
-		return toKatakana(strBuilder.toString());
+		return toKatakana(builder.toString());
 	}
+
+//	private String getReading(String str){
+//		List<Token> tokens = tokenizer.tokenize(str);
+//		
+//		StringBuilder strBuilder = new StringBuilder();
+//		for(Token token : tokens){
+//			if(token.getPartOfSpeech().contains("記号")){
+//				continue;
+//			}
+//			
+//			String readingToken = token.getReading();
+//			if(readingToken != null){//辞書語
+//				strBuilder.append(readingToken);
+//			}else{                   //未知語
+//				strBuilder.append(token.getSurfaceForm());
+//			}
+//		}
+//		
+//		return toKatakana(strBuilder.toString());
+//	}
 	
 	private void learning(String word, String reading){		
 		if(isOffline){
@@ -318,6 +389,8 @@ public class Shiritori {
 
 			if (c != 'ー') break;
 		}
+		
+		if(c == 'ヂ') c = 'ジ';
 
 		return c;
 	}
@@ -334,6 +407,8 @@ public class Shiritori {
 
 			if (c != 'ー') break;
 		}
+		
+		if(c == 'ヂ') c = 'ジ';
 
 		return c;
 	}

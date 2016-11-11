@@ -25,7 +25,7 @@ public class NekoCore extends JavaPlugin implements Listener {
 	private VoteManager vote = null;
 	private ConfigManager config = null;
 
-	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1;
+	private int online_player = 0, voted_player = 0, sec_time = 0, sec_reboot = -1, secTw = 0;
 	private CommandSender cs_player[] = new CommandSender[100];
 	public static String nc_tag = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core"
 			+ ChatColor.GRAY + "] " + ChatColor.WHITE;
@@ -65,6 +65,10 @@ public class NekoCore extends JavaPlugin implements Listener {
 					voteResetMessage();
 					voteReset();
 					sec_time = 0;
+				}
+				if(++secTw > 10){
+					secTw = 0;
+					tw.timerHandler();
 				}
 				tw.bot.EventHandler();
 				tw.bot.gacha.EventHandler();

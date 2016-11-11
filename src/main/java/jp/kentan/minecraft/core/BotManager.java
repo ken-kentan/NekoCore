@@ -227,7 +227,7 @@ public class BotManager {
 			}
 			break;
 		case Shiritori:
-			if(tw.isOwner(status) || tw.isAquatan(status)){
+			if(tw.isOwner(status) || (tw.isAquatan(status) && status.getText().indexOf("#あくしり") != -1 && status.getText().indexOf("手に入れたよ！") == -1)){
 				for(Shiritori shiritori : shiritoriList){
 					if(shiritori.getUser().equals(user)){
 						shiritori.analyze(getIncludeWord(status.getText()));
@@ -245,6 +245,9 @@ public class BotManager {
 				shiritoriList.add(newShiritori);
 				if(!tw.isAquatan(status)){
 					tw.reply(user, newShiritori.getResult() + getNekoFace(), status.getId());
+				}else{
+					newShiritori.analyze(getIncludeWord(status.getText()));
+					tw.reply(user, newShiritori.getResult(), status.getId());
 				}
 			}else{
 				tw.reply(user, getRejectCommandMsg(), status.getId());

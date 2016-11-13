@@ -46,6 +46,8 @@ public class ConfigManager {
 			Twitter.accessToken = conf.getString("Twitter.accessToken");
 			Twitter.accessTokenSecret = conf.getString("Twitter.accessTokenSecret");
 			
+			Twitter.TWEET_INTERVAL_SEC = conf.getInt("Twitter.tweetInterval");
+			
 			SQLManager.HOST = conf.getString("SQL.host");
 			SQLManager.ID = conf.getString("SQL.id");
 			SQLManager.PASS = conf.getString("SQL.pass");
@@ -63,6 +65,12 @@ public class ConfigManager {
 			BotManager.msgGachaMissList.clear();
 			BotManager.msgAskYesList.clear();
 			BotManager.msgAskNoList.clear();
+			BotManager.msgShiritoriNewList.clear();
+			BotManager.msgShiritoriContinueList.clear();
+			BotManager.msgShiritoriWinNList.clear();
+			BotManager.msgShiritoriWinNotMatchList.clear();
+			BotManager.msgShiritoriWinUsedList.clear();
+			BotManager.msgShiritoriLoseList.clear();
 
 			BotManager.nekoFaceList = conf.getStringList("Bot.nekoFace");
 			BotManager.msgPlayerActionList = conf.getStringList("Bot.msgPlayerAction");
@@ -76,6 +84,13 @@ public class ConfigManager {
 			BotManager.msgGachaMissList = conf.getStringList("Bot.msgGachaMiss");
 			BotManager.msgAskYesList = conf.getStringList("Bot.msgAskYes");
 			BotManager.msgAskNoList = conf.getStringList("Bot.msgAskNo");
+			
+			BotManager.msgShiritoriNewList         = conf.getStringList("Bot.msgShiritoriNew");
+			BotManager.msgShiritoriContinueList    = conf.getStringList("Bot.msgShiritoriContinue");
+			BotManager.msgShiritoriWinNList        = conf.getStringList("Bot.msgShiritoriWinN");
+			BotManager.msgShiritoriWinNotMatchList = conf.getStringList("Bot.msgShiritoriWinNotMatch");
+			BotManager.msgShiritoriWinUsedList     = conf.getStringList("Bot.msgShiritoriWinUsed");
+			BotManager.msgShiritoriLoseList        = conf.getStringList("Bot.msgShiritoriLose");
 
 			GachaManager.sizeMap.clear();
 			GachaManager.costMap.clear();

@@ -20,7 +20,7 @@ import org.codelibs.neologd.ipadic.lucene.analysis.ja.tokenattributes.ReadingAtt
 import com.ibm.icu.text.Transliterator;
 
 public class Shiritori {
-	public enum RESULT{WIN_N, WIN_NOTMATCH, WIN_USED, LOSE, CONTINUE};
+	public enum RESULT{WIN_N, WIN_NOTMATCH, WIN_USED, LOSE, CONTINUE, NEW};
 	
 	private static final String MATCH_HIRAGANA = "^[\\u3040-\\u309F]+$";
 //	private static final String MATCH_KATAKANA = "^[\\u30A0-\\u30FF]+$";
@@ -30,21 +30,22 @@ public class Shiritori {
 	private ReadingAttribute readingAttribute;
 	private CharTermAttribute charTermAttribute;
 	
-	private Map<String, String> dictionary = new HashMap<String, String>(); //word, reading
-	private Map<String, String> dictionaryLearned = new HashMap<String, String>(); //word, reading
-	private Map<Character, Character> lowerCharMap = new HashMap<Character, Character>();
+	private Map<String, String> dictionary = new HashMap<>(); //word, reading
+	private Map<String, String> dictionaryLearned = new HashMap<>(); //word, reading
+	private Map<Character, Character> fixCharMap = new HashMap<>();
 	
-	private List<String> usedWords = new ArrayList<String>();
+	private List<String> usedWords = new ArrayList<>();
 	
-	private RESULT currentResult = RESULT.CONTINUE;
+	private RESULT currentResult;
 	private String user, matchWord = null, userWord = "";
 	private char prevLastChar = '\0';
 	private boolean isOffline = false , isFinishGame = false;
 	private int unknownWords = 0;
 	
-	public Shiritori(String user){
+	public Shiritori(RESULT result, String user){
 		sql = new SQLManager();
 		this.user = user;
+		this.currentResult = result;
 		
 		tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.NORMAL);
 		readingAttribute  = tokenizer.addAttribute(ReadingAttribute.class);
@@ -54,50 +55,60 @@ public class Shiritori {
 		checkOverlap();
 		
 		//小文字
-		lowerCharMap.put('ァ', 'ア');
-		lowerCharMap.put('ィ', 'イ');
-		lowerCharMap.put('ゥ', 'ウ');
-		lowerCharMap.put('ェ', 'エ');
-		lowerCharMap.put('ォ', 'オ');
-		lowerCharMap.put('ヵ', 'カ');
-		lowerCharMap.put('ヶ', 'ケ');
-		lowerCharMap.put('ッ', 'ツ');
-		lowerCharMap.put('ャ', 'ヤ');
-		lowerCharMap.put('ュ', 'ユ');
-		lowerCharMap.put('ョ', 'ヨ');
-		lowerCharMap.put('ヮ', 'ワ');
-		lowerCharMap.put('ォ', 'オ');
+		fixCharMap.put('ァ', 'ア');
+		fixCharMap.put('ィ', 'イ');
+		fixCharMap.put('ゥ', 'ウ');
+		fixCharMap.put('ェ', 'エ');
+		fixCharMap.put('ォ', 'オ');
+		fixCharMap.put('ヵ', 'カ');
+		fixCharMap.put('ヶ', 'ケ');
+		fixCharMap.put('ッ', 'ツ');
+		fixCharMap.put('ャ', 'ヤ');
+		fixCharMap.put('ュ', 'ユ');
+		fixCharMap.put('ョ', 'ヨ');
+		fixCharMap.put('ヮ', 'ワ');
+		fixCharMap.put('ォ', 'オ');
+		fixCharMap.put('ヂ', 'ジ');
+		fixCharMap.put('ヅ', 'ズ');
 	}
 	
 	public String getUser(){
 		return this.user;
 	}
 	
-	public String getResult(){
+	public RESULT getResultStatus() {
+		return currentResult;
+	}
+	
+	public String getResultWord(){
 		switch (currentResult) {
 		case WIN_N:
-			isFinishGame = true;
-			return userWord + "は「ン」が付いてるよ！ わーぃ！ぼくの勝ち！！";
 		case WIN_NOTMATCH:
-			isFinishGame = true;
-			return userWord + "は前の単語に繋がってないよ！ わーぃ！勝った！！";
 		case WIN_USED:
 			isFinishGame = true;
-			return userWord + "はもう使われてるよ！ いぇーい！勝った！！";
+			return userWord;
 		case LOSE:
 			isFinishGame = true;
-			return "負けたーぁ。強いね！";
+			return "";
+		case NEW:
+			prevLastChar = 'メ';
+			return "しりとりはじめ";
 		default:
-			if(matchWord == null){
-				prevLastChar = 'メ';
-				return "ぼくからね！ 「しりとりはじめ」";
-			}
-			return "「" + matchWord + "」";
+			return matchWord;
 		}
 	}
 	
 	public boolean isFinish(){
+		if(isFinishGame) destroy();
 		return isFinishGame;
+	}
+	
+	private void destroy() {
+		printResult();
+		dictionary.clear();
+		dictionaryLearned.clear();
+		fixCharMap.clear();
+		usedWords.clear();
 	}
 	
 	private void initDictionary(){
@@ -180,7 +191,7 @@ public class Shiritori {
 	
 	public void analyze(String word){
 		if(word == null || word.equals("")){
-			word = "(null)";
+			matchWord = word = "(null)";
 			currentResult = RESULT.WIN_NOTMATCH;
 			return;
 		}
@@ -276,11 +287,11 @@ public class Shiritori {
 		currentResult = RESULT.LOSE;
 	}
 	
-	public void printResult(){
+	private void printResult(){
 		NekoCore.LOG.info("------結果------");
-		NekoCore.LOG.info("辞書単語数: " + dictionary.size());
+		NekoCore.LOG.info("辞書単語数: " + (dictionary.size() + dictionaryLearned.size()));
 		NekoCore.LOG.info("使用単語数: " + usedWords.size());
-		NekoCore.LOG.info("未知単語数: " + unknownWords);
+		NekoCore.LOG.info("未知単語: " + unknownWords);
 	}
 	
 	private String getReading(String word){
@@ -305,26 +316,6 @@ public class Shiritori {
 		
 		return toKatakana(builder.toString());
 	}
-
-//	private String getReading(String str){
-//		List<Token> tokens = tokenizer.tokenize(str);
-//		
-//		StringBuilder strBuilder = new StringBuilder();
-//		for(Token token : tokens){
-//			if(token.getPartOfSpeech().contains("記号")){
-//				continue;
-//			}
-//			
-//			String readingToken = token.getReading();
-//			if(readingToken != null){//辞書語
-//				strBuilder.append(readingToken);
-//			}else{                   //未知語
-//				strBuilder.append(token.getSurfaceForm());
-//			}
-//		}
-//		
-//		return toKatakana(strBuilder.toString());
-//	}
 	
 	private void learning(String word, String reading){		
 		if(isOffline){
@@ -383,14 +374,12 @@ public class Shiritori {
 		for (int i = 0; i < str.length(); ++i) {
 			c = str.charAt(i);
 
-			if(lowerCharMap.get(c) != null){
-				c = lowerCharMap.get(c);
+			if(fixCharMap.get(c) != null){
+				c = fixCharMap.get(c);
 			}
 
 			if (c != 'ー') break;
 		}
-		
-		if(c == 'ヂ') c = 'ジ';
 
 		return c;
 	}
@@ -401,14 +390,12 @@ public class Shiritori {
 		for (int i = str.length() - 1; i >= 0; --i) {
 			c = str.charAt(i);
 
-			if(lowerCharMap.get(c) != null){
-				c = lowerCharMap.get(c);
+			if(fixCharMap.get(c) != null){
+				c = fixCharMap.get(c);
 			}
 
 			if (c != 'ー') break;
 		}
-		
-		if(c == 'ヂ') c = 'ジ';
 
 		return c;
 	}

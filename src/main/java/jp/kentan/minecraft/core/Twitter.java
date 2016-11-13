@@ -29,14 +29,16 @@ public class Twitter {
 	private TwitterStream twitterStream;
 
 	public BotManager bot = null;
+	
+	public static int TWEET_INTERVAL_SEC = 10;
 
 	public static String consumerKey = "";
 	public static String consumerSecret = "";
 	public static String accessToken = "";
 	public static String accessTokenSecret = "";
 
-	private List<StatusUpdate> standbyStatusList = new ArrayList<StatusUpdate>();
-	private List<StatusUpdate> failedStatusList = new ArrayList<StatusUpdate>();
+	private List<StatusUpdate> standbyStatusList = new ArrayList<>();
+	private List<StatusUpdate> failedStatusList = new ArrayList<>();
 	private StatusUpdate statusUpdate = null;
 	private boolean isBotEnable = true;
 	private int cntTimer = 0;
@@ -61,7 +63,7 @@ public class Twitter {
 				int errCode = e.getErrorCode();
 				neko.getLogger().warning("Async Tweet Failed " + e.getMessage());
 
-				if ((errCode == 88 || errCode == 185) && statusUpdate != null) {
+				if ((errCode == 88 || errCode == 131 || errCode == 185) && statusUpdate != null) {
 					for (StatusUpdate status : failedStatusList) {
 						if (status.equals(statusUpdate)) {
 							NekoCore.LOG.warning("再度updateStatusに失敗しました.");
@@ -91,7 +93,7 @@ public class Twitter {
 		neko.getLogger().info("Successfully initialized the Twitter Module.");
 	}
 	
-	public void timerHandler(){ //10s
+	public void timerHandler(){
 		if(failedStatusList.size() > 0 && ++cntTimer >= 6){
 			cntTimer = 0;
 			twitter.updateStatus(statusUpdate = failedStatusList.get(0));
@@ -259,8 +261,6 @@ public class Twitter {
 	public void reply(String user, String message, long statusId) {
 		if (isBotEnable) {
 			standbyStatusList.add(new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId));
-//			statusUpdate = new StatusUpdate("@" + user + " " + message).inReplyToStatusId(statusId);
-//			twitter.updateStatus(statusUpdate);
 		}
 	}
 

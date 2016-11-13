@@ -66,7 +66,7 @@ public class NekoCore extends JavaPlugin implements Listener {
 					voteReset();
 					sec_time = 0;
 				}
-				if(++secTw > 10){
+				if(++secTw > Twitter.TWEET_INTERVAL_SEC){
 					secTw = 0;
 					tw.timerHandler();
 				}
@@ -244,10 +244,7 @@ public class NekoCore extends JavaPlugin implements Listener {
 	}
 
 	private boolean isOnline(CommandSender _sender) {
-		if (!(_sender instanceof Player))
-			return false;
-		else
-			return true;
+		return (_sender instanceof Player);
 	}
 
 	private void showHelp(CommandSender _sender) {

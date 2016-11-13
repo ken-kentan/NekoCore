@@ -21,12 +21,12 @@ public class GachaManager {
 	
 	private Random random = new Random();
 	
-	private static Map<String, Integer> userMap = new HashMap<String, Integer>();
-	private static Map<String, Type> userTypeMap = new HashMap<String, Type>();
+	private static Map<String, Integer> userMap = new HashMap<>();
+	private static Map<String, Type> userTypeMap = new HashMap<>();
 	
-	public static Map<Type, Integer> sizeMap = new HashMap<Type, Integer>();
-	public static Map<Type, Integer> costMap = new HashMap<Type, Integer>();
-	public static Map<Type, Integer> rewardMap = new HashMap<Type, Integer>();
+	public static Map<Type, Integer> sizeMap = new HashMap<>();
+	public static Map<Type, Integer> costMap = new HashMap<>();
+	public static Map<Type, Integer> rewardMap = new HashMap<>();
 	
 	public GachaManager(NekoCore neko, ConfigManager config, EconomyManager eco, Twitter tw){
 		this.neko = neko;
@@ -189,7 +189,7 @@ public class GachaManager {
 	
 	public void trigger(User source, Status favoritedStatus){
 		for(Map.Entry<String, Integer> entry : userMap.entrySet()){
-			if(source.getScreenName().equals(entry.getKey()) && favoritedStatus.getText().indexOf("このツイートをいいねしてね") != -1){
+			if(source.getScreenName().equals(entry.getKey()) && favoritedStatus.getText().contains("このツイートをいいねしてね")){
 				gacha(source, favoritedStatus);
 				return;
 			}

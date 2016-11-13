@@ -9,12 +9,13 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import jp.kentan.minecraft.core.Shiritori.RESULT;
 import twitter4j.Status;
 
 public class BotManager {
 	
 	private enum Command{None, Players, Staffs, ServerLoad, Reboot, Trigger, Cancel,
-		Lucky, Thanks, Morning, Weather, Nyan, Gacha, RareGacha, GetBalance, AskOnlinePlayer, Detach, Shiritori}
+		Lucky, Thanks, Morning, Weather, Nyan, Gacha, GetBalance, AskOnlinePlayer, Detach, Shiritori}
 	
 	private NekoCore neko = null;
 	private ConfigManager config = null;
@@ -24,18 +25,24 @@ public class BotManager {
 	public GachaManager gacha = null;
 	
 	/* Bot Messages List */
-	public static List<String> nekoFaceList         = new ArrayList<String>();
-	public static List<String> msgPlayerActionList  = new ArrayList<String>();
-	public static List<String> msgUnkownCommandList = new ArrayList<String>();
-	public static List<String> msgRejectCommandList = new ArrayList<String>();
-	public static List<String> msgThanksList        = new ArrayList<String>();
-	public static List<String> msgLuckyList         = new ArrayList<String>();
-	public static List<String> msgMorningList       = new ArrayList<String>();
-	public static List<String> msgWeatherList       = new ArrayList<String>();
-	public static List<String> msgNyanList          = new ArrayList<String>();
-	public static List<String> msgGachaMissList     = new ArrayList<String>();
-	public static List<String> msgAskYesList        = new ArrayList<String>();
-	public static List<String> msgAskNoList         = new ArrayList<String>();
+	public static List<String> nekoFaceList         = new ArrayList<>();
+	public static List<String> msgPlayerActionList  = new ArrayList<>();
+	public static List<String> msgUnkownCommandList = new ArrayList<>();
+	public static List<String> msgRejectCommandList = new ArrayList<>();
+	public static List<String> msgThanksList        = new ArrayList<>();
+	public static List<String> msgLuckyList         = new ArrayList<>();
+	public static List<String> msgMorningList       = new ArrayList<>();
+	public static List<String> msgWeatherList       = new ArrayList<>();
+	public static List<String> msgNyanList          = new ArrayList<>();
+	public static List<String> msgGachaMissList     = new ArrayList<>();
+	public static List<String> msgAskYesList        = new ArrayList<>();
+	public static List<String> msgAskNoList         = new ArrayList<>();
+	public static List<String> msgShiritoriNewList         = new ArrayList<>();
+	public static List<String> msgShiritoriContinueList    = new ArrayList<>();
+	public static List<String> msgShiritoriWinNList        = new ArrayList<>();
+	public static List<String> msgShiritoriWinNotMatchList = new ArrayList<>();
+	public static List<String> msgShiritoriWinUsedList     = new ArrayList<>();
+	public static List<String> msgShiritoriLoseList        = new ArrayList<>();
 	
 	/* Player logout timer */
 	private static Map<String, Integer> playerLogoutList = new HashMap<String, Integer>();
@@ -227,11 +234,11 @@ public class BotManager {
 			}
 			break;
 		case Shiritori:
-			if(tw.isOwner(status) || (tw.isAquatan(status) && status.getText().indexOf("#あくしり") != -1 && status.getText().indexOf("手に入れたよ！") == -1)){
+			if(!tw.isAquatan(status) || (tw.isAquatan(status) && status.getText().contains("#あくしり") && !status.getText().contains("手に入れたよ！"))){
 				for(Shiritori shiritori : shiritoriList){
 					if(shiritori.getUser().equals(user)){
 						shiritori.analyze(getIncludeWord(status.getText()));
-						tw.reply(user, shiritori.getResult(), status.getId());
+						tw.reply(user, getShiritoriMsg(shiritori.getResultStatus(), shiritori.getResultWord()), status.getId());
 						
 						if(shiritori.isFinish()){
 							shiritoriList.remove(shiritori);
@@ -241,14 +248,16 @@ public class BotManager {
 					}
 				}
 				
-				Shiritori newShiritori = new Shiritori(user);
-				shiritoriList.add(newShiritori);
+				Shiritori newShiritori;
 				if(!tw.isAquatan(status)){
-					tw.reply(user, newShiritori.getResult() + getNekoFace(), status.getId());
-				}else{
+					newShiritori = new Shiritori(RESULT.NEW, user);
+					tw.reply(user, getShiritoriMsg(RESULT.NEW, newShiritori.getResultWord()), status.getId());
+				}else{//あくあたんなど、相手からスタート用
+					newShiritori = new Shiritori(RESULT.CONTINUE, user);
 					newShiritori.analyze(getIncludeWord(status.getText()));
-					tw.reply(user, newShiritori.getResult(), status.getId());
+					tw.reply(user, getShiritoriMsg(RESULT.CONTINUE, newShiritori.getResultWord()), status.getId());
 				}
+				shiritoriList.add(newShiritori);
 			}else{
 				tw.reply(user, getRejectCommandMsg(), status.getId());
 			}
@@ -260,54 +269,54 @@ public class BotManager {
 	}
 	
 	private Command typeCommand(String str){
-    	if(str.indexOf("しりとり") != -1 || ( str.indexOf("「") != -1 && str.indexOf("」") != -1)){
+    	if(str.contains("しりとり") || ( str.contains("「") && str.contains("」"))){
     		return Command.Shiritori;
     	}
     	
-		if(str.indexOf("数") != -1 || str.indexOf("何人") != -1){
-			if(str.indexOf("スタッフ") != -1 || str.indexOf("運営") != -1){
+		if(str.contains("数") || str.contains("何人")){
+			if(str.contains("スタッフ") || str.contains("運営")){
 				return Command.Staffs;
 			}else {
 				return Command.Players;
 			}
 		}
-    	if(str.indexOf("サーバー") != -1 && (str.indexOf("負荷") != -1 || str.indexOf("重") != -1)){
+    	if(str.contains("サーバー") && (str.contains("負荷") || str.contains("重"))){
     		return Command.ServerLoad;
     	}
-    	if(str.indexOf("おみくじ") != -1 || str.indexOf("運勢") != -1){
+    	if(str.contains("おみくじ") || str.contains("運勢")){
     		return Command.Lucky;
     	}
-    	if(str.indexOf("再起動") != -1){
+    	if(str.contains("再起動")){
     		return Command.Reboot;
     	}
-    	if(str.indexOf("やれ") != -1 || str.indexOf("おｋ") != -1 || str.indexOf("いいよ") != -1){
+    	if(str.contains("やれ") || str.contains("おｋ") || str.contains("いいよ")){
     		return Command.Trigger;
     	}
-    	if(str.indexOf("なし") != -1 || str.indexOf("嘘") != -1 || str.indexOf("中止") != -1){
+    	if(str.contains("なし") || str.contains("嘘") || str.contains("中止")){
     		return Command.Cancel;
     	}
-    	if(str.indexOf("えらい") != -1 || str.indexOf("あり") != -1 || str.indexOf("かしこい") != -1 || str.indexOf("かわいい") != -1){
+    	if(str.contains("えらい") || str.contains("あり") || str.contains("かしこい") || str.contains("かわいい")){
     		return Command.Thanks;
     	}
-    	if(str.indexOf("おは") != -1){
+    	if(str.contains("おは")){
     		return Command.Morning;
     	}
-    	if(str.indexOf("天気") != -1 || str.indexOf("雨") != -1 || str.indexOf("晴れ") != -1){
+    	if(str.contains("天気") || str.contains("雨") || str.contains("晴れ")){
     		return Command.Weather;
     	}
-    	if(str.indexOf("にゃ") != -1 || str.indexOf("猫") != -1){
+    	if(str.contains("にゃ") || str.contains("猫")){
     		return Command.Nyan;
     	}
-    	if(str.indexOf("ガチャ") != -1){
+    	if(str.contains("ガチャ")){
     		return Command.Gacha;
     	}
-    	if(str.indexOf("所持金") != -1){
+    	if(str.contains("所持金")){
     		return Command.GetBalance;
     	}
-    	if(isIncludeWord(str) && (str.indexOf("いる") != -1 || str.indexOf("ログイン") != -1)){
+    	if(isIncludeWord(str) && (str.contains("いる") || str.contains("ログイン"))){
     		return Command.AskOnlinePlayer;
     	}
-    	if(str.indexOf("切り離し") != -1){
+    	if(str.contains("切り離し")){
     		return Command.Detach;
     	}
     	
@@ -315,11 +324,7 @@ public class BotManager {
     }
 	
 	private boolean isIncludeWord(String str){
-		if(str.indexOf("「") != -1 && str.indexOf("」") != -1){
-			return true;
-		}
-		
-		return false;
+		return (str.contains("「") && str.contains("」"));
 	}
 	
 	private String getIncludeWord(String str){
@@ -377,5 +382,21 @@ public class BotManager {
     private String getAskNoMsg(){
     	return msgAskNoList.get(random.nextInt(msgAskNoList.size())).replace("{face}", getNekoFace());
     }
-
+    
+    private String getShiritoriMsg(Shiritori.RESULT result, String retWord){
+    	switch (result) {
+		case WIN_N:
+			return msgShiritoriWinNList.get(random.nextInt(msgShiritoriWinNList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		case WIN_NOTMATCH:
+			return msgShiritoriWinNotMatchList.get(random.nextInt(msgShiritoriWinNotMatchList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		case WIN_USED:
+			return msgShiritoriWinUsedList.get(random.nextInt(msgShiritoriWinUsedList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		case LOSE:
+			return msgShiritoriLoseList.get(random.nextInt(msgShiritoriLoseList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		case NEW:
+			return msgShiritoriNewList.get(random.nextInt(msgShiritoriNewList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		default:
+			return msgShiritoriContinueList.get(random.nextInt(msgShiritoriContinueList.size())).replace("{face}", getNekoFace()).replace("{word}", "「" + retWord + "」");
+		}
+    }
 }

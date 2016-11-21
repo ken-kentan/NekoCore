@@ -234,36 +234,34 @@ public class BotManager {
 			}
 			break;
 		case Shiritori:
-			if(!tw.isAquatan(status) || (tw.isAquatan(status) && status.getText().contains("#あくしり") && !status.getText().contains("手に入れたよ！"))){
-				for(Shiritori shiritori : shiritoriList){
-					if(shiritori.getUser().equals(user)){
+			if(!tw.isAquatan(status) || (tw.isAquatan(status) && status.getText().contains("#あくしり") && !status.getText().contains("手に入れたよ！"))) {
+				for (Shiritori shiritori : shiritoriList) {
+					if (shiritori.getUser().equals(user)) {
 						shiritori.analyze(getIncludeWord(status.getText()));
 						tw.reply(user, getShiritoriMsg(shiritori.getResultStatus(), shiritori.getResultWord()), status.getId());
-						
-						if(shiritori.isFinish()){
+
+						if (shiritori.isFinish()) {
 							shiritoriList.remove(shiritori);
 							shiritori = null;
 						}
 						return;
 					}
 				}
-				
+
 				Shiritori newShiritori;
-				if(!tw.isAquatan(status)){
+				if (!tw.isAquatan(status)) {
 					newShiritori = new Shiritori(RESULT.NEW, user);
 					tw.reply(user, getShiritoriMsg(RESULT.NEW, newShiritori.getResultWord()), status.getId());
-				}else{//あくあたんなど、相手からスタート用
+				} else {//あくあたんなど、相手からスタート用
 					newShiritori = new Shiritori(RESULT.CONTINUE, user);
 					newShiritori.analyze(getIncludeWord(status.getText()));
 					tw.reply(user, getShiritoriMsg(RESULT.CONTINUE, newShiritori.getResultWord()), status.getId());
 				}
 				shiritoriList.add(newShiritori);
-			}else{
-				tw.reply(user, getRejectCommandMsg(), status.getId());
 			}
 			break;
 		default:					
-			tw.reply(user, getUnkownCommandMsg(), status.getId());
+			tw.reply(user, getUnknownCommandMsg(), status.getId());
 			break;
 		}
 	}
@@ -343,7 +341,7 @@ public class BotManager {
     	return msgPlayerActionList.get(random.nextInt(msgPlayerActionList.size()));
     }
     
-    private String getUnkownCommandMsg(){
+    private String getUnknownCommandMsg(){
     	return msgUnkownCommandList.get(random.nextInt(msgUnkownCommandList.size())).replace("{face}", getNekoFace());
     }
     

@@ -211,8 +211,8 @@ class Shiritori {
 		for(Entry<String, String> entry : dictionary.entrySet()){
 			String key = entry.getKey();
 			String value = entry.getValue();
-			String compare = key;
-			
+			String keyCompare = key;
+
 			if(lastChar == getFirstChar(value)){
 				if(usedWords.contains(word)){
 					userWord = reading;
@@ -222,25 +222,25 @@ class Shiritori {
 
 				if(isMatches(MATCH_HIRAGANA, key)){
 					NekoCore.LOG.info("overwrite key: " + key + " to " + value);
-					compare = value;
+					keyCompare = value;
 				}
 
 				if(isMatches(MATCH_HIRAGANA, word)){
 					NekoCore.LOG.info("overwrite word: " + word + " to " + reading);
 					word = reading;
 				}
-				
-				if(usedWords.contains(compare)){
+
+				if(usedWords.contains(keyCompare)){
 					continue;
 				}
 
 				matchWord = key;
-				
+
 				NekoCore.LOG.info("match: " + key);
 				prevLastChar = getLastChar(value);
-				
+
 				usedWords.add(word);
-				usedWords.add(key);
+				usedWords.add(keyCompare);
 				
 				currentResult = RESULT.CONTINUE;
 				return;

@@ -50,7 +50,7 @@ public class WeatherVote {
             final String broadcastMsg = NekoCore.TAG + ChatColor.AQUA + "投票の結果、天候を晴れにしました。";
             mServer.getOnlinePlayers().forEach(p -> p.sendMessage(broadcastMsg));
 
-            cancel();
+            stopTimer();
         }else{
             player.sendMessage(NekoCore.TAG + ChatColor.AQUA + "天候投票に成功しました！");
             printStatus(player);
@@ -66,7 +66,7 @@ public class WeatherVote {
 
         mTaskId = mServer.getScheduler().runTaskTimer(mPlugin, () -> {
             if(--mCountSec < 0){
-                cancel();
+                stopTimer();
             }
         }, 20L, 20L).getTaskId(); //20ticks = 1sec
 
@@ -81,12 +81,12 @@ public class WeatherVote {
         Log.print("WeatherVote start.");
     }
 
-    private void cancel(){
+    private void stopTimer(){
         mServer.getScheduler().cancelTask(mTaskId);
 
         mVotedPlayers.clear();
 
-        Log.print("WeatherVote canceled.");
+        Log.print("WeatherVote stopped.");
     }
 
     private void printStatus(Player player){

@@ -188,13 +188,13 @@ public class TwitterProvider {
     }
 
     private void startTimer(Plugin plugin){
-        mServer.getScheduler().runTaskTimer(plugin, () -> {
+        mServer.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if(mStatusQueue.size() > 0){
                 mTwitter.updateStatus(mStatusQueue.peek());
             }
 
             mBotHandler.timeHandler();
-        }, 0L, 20*30L); //20ticks = 1sec
+        }, 20*30L, 20*30L); //20ticks = 1sec
     }
 
     public void disable() {

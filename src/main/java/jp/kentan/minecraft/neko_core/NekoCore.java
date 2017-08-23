@@ -47,6 +47,7 @@ public class NekoCore extends JavaPlugin implements Listener{
     @Override
     public void onDisable() {
         mTwitter.disable();
+        getServer().getScheduler().cancelTasks(this);
         Log.print("onDisable");
     }
 

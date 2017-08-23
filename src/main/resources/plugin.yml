@@ -1,23 +1,22 @@
 name: NekoCore
-main: jp.kentan.minecraft.core.NekoCore
-version: 1.17.43
+main: jp.kentan.minecraft.neko_core.NekoCore
+version: 2.0.0
 author: ken_kentan
-website: http://ken.kentan.jp
+website: https://ken.kentan.jp
 
 commands:
     neko:
         description: NekoCoreのヘルプを表示します。
         usage: /<command>
-        permission: jp.kentan.minecraft.core
+        permission: neko.core
         permission-message: You don't have <permission>
     nk:
         description: NekoCoreのヘルプを表示します。
         usage: /<command>
-        permission: jp.kentan.minecraft.core
+        permission: neko.core
         permission-message: You don't have <permission>
     vote:
         description: 投票サイトを表示します。
         usage: /<command>
-        permission: jp.kentan.minecraft.core
+        permission: neko.core.vote
         permission-message: You don't have <permission>
-        

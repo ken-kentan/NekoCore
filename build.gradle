@@ -34,7 +34,7 @@ dependencies {
 
     compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
 
-    compile "mysql:mysql-connector-java:5.1.43"
+    compileOnly "mysql:mysql-connector-java:5.1.43"
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.5'
 

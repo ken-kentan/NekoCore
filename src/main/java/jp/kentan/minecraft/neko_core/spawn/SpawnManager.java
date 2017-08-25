@@ -53,6 +53,12 @@ public class SpawnManager implements CancelListener {
         mPlayerSpawnTaskMap.put(player, taskId);
     }
 
+    void saveSpawn(Player player, String spawnName){
+        mConfig.save(spawnName, player.getLocation());
+
+        player.sendMessage(NekoCore.TAG + "スポーン(" + spawnName + ")を、ここにセットしました.");
+    }
+
     @Override
     public void onCancel(Player player) {
         if(mPlayerSpawnTaskMap.containsKey(player)) {

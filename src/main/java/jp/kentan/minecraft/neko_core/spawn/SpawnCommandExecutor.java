@@ -35,7 +35,7 @@ public class SpawnCommandExecutor implements CommandExecutor {
         if(command.getName().equals("spawn")){
             mManager.addSpawnTask(player, locationName);
         }else{
-
+            mManager.saveSpawn(player, locationName);
         }
 
         return true;

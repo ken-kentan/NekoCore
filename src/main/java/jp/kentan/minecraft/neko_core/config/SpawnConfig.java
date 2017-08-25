@@ -46,12 +46,17 @@ public class SpawnConfig {
         }
     }
 
-    public boolean save(String path, Object data) {
+    public boolean save(String spawnName, Location location) {
         try {
             FileConfiguration config = new YamlConfiguration();
             config.load(mFile);
 
-            config.set(path, data);
+            config.set(spawnName + ".world", location.getWorld().getName());
+            config.set(spawnName + ".x", location.getX());
+            config.set(spawnName + ".y", location.getY());
+            config.set(spawnName + ".z", location.getZ());
+            config.set(spawnName + ".yaw", location.getYaw());
+            config.set(spawnName + ".pitch", location.getPitch());
 
             config.save(mFile);
         } catch (Exception e) {

@@ -5,7 +5,6 @@ import jp.kentan.minecraft.neko_core.sql.SqlProvider;
 import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
 import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
 import jp.kentan.minecraft.neko_core.utils.Log;
-import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -16,9 +15,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class ConfigManager {

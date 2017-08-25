@@ -2,6 +2,8 @@ package jp.kentan.minecraft.neko_core;
 
 
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
+import jp.kentan.minecraft.neko_core.spawn.SpawnCommandExecutor;
+import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.vote.RewardManager;
 import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
 import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
@@ -38,6 +40,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 
         mWeatherVote = new WeatherVote(this);
         RewardManager rewardManager = new RewardManager(mConfig.getRewardConfig());
+
+        new SpawnCommandExecutor(this, new SpawnManager(this, mConfig.getSpawnConfig()));
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
 

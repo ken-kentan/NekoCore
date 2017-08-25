@@ -20,3 +20,12 @@ commands:
         usage: /<command>
         permission: neko.core.vote
         permission-message: You don't have <permission>
+    spawn:
+        description: スポーンにテレポートします.
+        permission: neko.spawn
+        aliases: [sapwn, s]
+        usage: spawn
+    setspawn:
+        description: Set spawn
+        permission: neko.setspawn
+        usage: setspawn

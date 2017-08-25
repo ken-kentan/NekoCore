@@ -5,6 +5,7 @@ import jp.kentan.minecraft.neko_core.sql.SqlProvider;
 import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
 import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
 import jp.kentan.minecraft.neko_core.utils.Log;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -15,7 +16,9 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ConfigManager {
@@ -25,6 +28,7 @@ public class ConfigManager {
     private String mConfigFilePath;
 
     private PlayerConfig mPlayerConfig;
+    private SpawnConfig mSpawnConfig;
 
     private TwitterProvider.Config mTwitterConfig;
     private TwitterBot.Messages mBotMessages;
@@ -35,6 +39,7 @@ public class ConfigManager {
 
     public ConfigManager(File folder){
         mPlayerConfig = new PlayerConfig(folder);
+        mSpawnConfig = new SpawnConfig(folder);
 
         mConfigFilePath = folder + File.separator + "config.yml";
     }
@@ -124,6 +129,10 @@ public class ConfigManager {
         return mRewardConfig;
     }
 
+    public SpawnConfig getSpawnConfig()
+    {
+        return mSpawnConfig;
+    }
     public static SqlProvider.Config getSqlConfig(){
         return sSqlConfig;
     }

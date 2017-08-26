@@ -26,7 +26,7 @@ public class TwitterBot implements Listener, TimeHandler {
     private TwitterProvider mTwitter;
     private Messages mMessages;
 
-    private Map<String, Integer> mLogoutPlayerList = Collections.synchronizedMap(new HashMap<>());
+    private Map<String, Integer> mQuitPlayerList = Collections.synchronizedMap(new HashMap<>());
     private Map<String, Shiritori> mUserShiritoriMap = Collections.synchronizedMap(new HashMap<>());
 
     public TwitterBot(TwitterProvider twitter, Messages messages){
@@ -43,27 +43,29 @@ public class TwitterBot implements Listener, TimeHandler {
 
     @Override
     public void timeHandler() { //will call @ 30sec
-        mLogoutPlayerList.replaceAll((key, val) -> val -= 30);
-        mLogoutPlayerList.values().removeAll(Collections.singleton(0));
+        mQuitPlayerList.replaceAll((key, val) -> val -= 30);
+        mQuitPlayerList.values().removeAll(Collections.singleton(0));
     }
 
     @EventHandler
-    public void loginHandler(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         String playerName = event.getPlayer().getName();
 
-        if(!mLogoutPlayerList.containsKey(playerName)) {
+        if(mQuitPlayerList.containsKey(playerName)) {
+            mQuitPlayerList.remove(playerName);
+        }else{
             tweetActionMessage(playerName, "ログイン");
         }
     }
 
     @EventHandler
-    public void logoutHandler(PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         String playerName = event.getPlayer().getName();
 
-        if(!mLogoutPlayerList.containsKey(playerName)) {
+        if(!mQuitPlayerList.containsKey(playerName)) {
             tweetActionMessage(playerName, "ログアウト");
         }
-        mLogoutPlayerList.put(event.getPlayer().getName(), IGNORE_RELOGIN_SEC);
+        mQuitPlayerList.put(event.getPlayer().getName(), IGNORE_RELOGIN_SEC);
     }
 
     public void action(Status status){

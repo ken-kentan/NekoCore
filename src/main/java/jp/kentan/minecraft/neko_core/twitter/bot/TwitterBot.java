@@ -47,25 +47,23 @@ public class TwitterBot implements Listener, TimeHandler {
         mQuitPlayerList.values().removeAll(Collections.singleton(0));
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        String playerName = event.getPlayer().getName();
-
-        if(mQuitPlayerList.containsKey(playerName)) {
-            mQuitPlayerList.remove(playerName);
-        }else{
-            tweetActionMessage(playerName, "ログイン");
-        }
+        tweetIfNotReJoin(event.getPlayer().getName(), true);
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        String playerName = event.getPlayer().getName();
+        tweetIfNotReJoin(event.getPlayer().getName(), false);
+    }
 
-        if(!mQuitPlayerList.containsKey(playerName)) {
-            tweetActionMessage(playerName, "ログアウト");
+    private void tweetIfNotReJoin(String playerName, boolean isJoin){
+        if(mQuitPlayerList.containsKey(playerName)) {
+            mQuitPlayerList.replace(playerName, IGNORE_RELOGIN_SEC);
+        }else{
+            mQuitPlayerList.put(playerName, IGNORE_RELOGIN_SEC);
+            tweetActionMessage(playerName, isJoin ? "ログイン" : "ログアウト");
         }
-        mQuitPlayerList.put(event.getPlayer().getName(), IGNORE_RELOGIN_SEC);
     }
 
     public void action(Status status){

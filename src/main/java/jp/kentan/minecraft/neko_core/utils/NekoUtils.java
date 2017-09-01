@@ -42,6 +42,10 @@ public class NekoUtils {
         return null;
     }
 
+    public static void broadcast(String message, Player without){
+        NekoUtils.broadcast(new String[]{message}, without);
+    }
+
     public static void broadcast(String[] messages, Player without){
         SERVER.getOnlinePlayers().forEach(player -> {
             if(player != without){

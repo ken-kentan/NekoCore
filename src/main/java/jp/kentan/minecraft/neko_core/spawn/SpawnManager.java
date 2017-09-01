@@ -28,6 +28,17 @@ public class SpawnManager implements CancelListener {
         mConfig = config;
     }
 
+    public boolean spawn(Player player, String locationName){
+        Location location = mConfig.load(locationName);
+
+        if(location == null){
+            return false;
+        }
+
+        player.teleport(location);
+        return true;
+    }
+
     void addSpawnTask(Player player, String locationName){
         Location location = mConfig.load(locationName);
         if(location != null){

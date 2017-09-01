@@ -32,6 +32,8 @@ public class ConfigManager {
 
     private RewardManager.Config mRewardConfig;
 
+    private String mTutorialKeyword;
+
     private static SqlProvider.Config sSqlConfig;
 
     public ConfigManager(File folder){
@@ -51,6 +53,8 @@ public class ConfigManager {
             loadBotMessages(config);
             loadRewardConfig(config);
             loadSqlConfig(config);
+
+            mTutorialKeyword = config.getString("Tutorial.keyword");
 
             reader.close();
         }catch (Exception e){
@@ -130,6 +134,11 @@ public class ConfigManager {
     {
         return mSpawnConfig;
     }
+
+    public String getTutorialKeyword(){
+        return mTutorialKeyword;
+    }
+
     public static SqlProvider.Config getSqlConfig(){
         return sSqlConfig;
     }

@@ -27,6 +27,11 @@ repositories {
         name 'bintray-nuvotifier-repo'
         url 'https://dl.bintray.com/nuvotifier/maven/'
     }
+
+    maven {
+        name 'pex-repo'
+        url 'http://pex-repo.aoeu.xyz'
+    }
 }
 
 dependencies {
@@ -39,6 +44,8 @@ dependencies {
     compileOnly 'net.milkbowl.vault:VaultAPI:1.5'
 
     compileOnly 'com.vexsoftware:nuvotifier-bukkit:2.3.4'
+
+    compileOnly 'ru.tehkode:PermissionsEx:1.23.1'
 
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.twitter4j:twitter4j-stream:4.0.4'

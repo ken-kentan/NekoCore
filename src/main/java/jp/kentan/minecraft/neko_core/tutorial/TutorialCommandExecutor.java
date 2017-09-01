@@ -1,7 +1,5 @@
 package jp.kentan.minecraft.neko_core.tutorial;
 
-import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
-import jp.kentan.minecraft.neko_core.spawn.listener.SpawnCancelListener;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -33,26 +31,16 @@ public class TutorialCommandExecutor implements CommandExecutor {
 
         Player player = (Player)sender;
 
-        switch (args[0]){
-            case "agree":
-                mManager.agree(player);
-                break;
-            case "disagree":
-                mManager.disagree(player);
-                break;
-            default:
-                printHelp(sender);
-                break;
-        }
+        mManager.agree(player, args[0]);
 
         return true;
     }
 
     private void printHelp(CommandSender sender){
         sender.sendMessage(ChatColor.GOLD + "******************************************");
-        sender.sendMessage(ChatColor.GOLD + "サーバーのルールに同意しますか？");
-        sender.sendMessage(ChatColor.GOLD + "同意する場合は　 /tutorial agree");
-        sender.sendMessage(ChatColor.GOLD + "同意しない場合は /tutorial disagree");
+        sender.sendMessage(ChatColor.GOLD + "サーバールールのキーワードを入力してください.");
+        sender.sendMessage(ChatColor.GOLD + "例 キーワードが cat の場合は");
+        sender.sendMessage(ChatColor.GOLD + "/tutorial cat");
         sender.sendMessage(ChatColor.GOLD + "とチャットに入力してください.");
         sender.sendMessage(ChatColor.GOLD + "******************************************");
     }

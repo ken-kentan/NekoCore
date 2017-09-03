@@ -34,6 +34,7 @@ public class TutorialManager implements Listener {
 
         if(user.inGroup("Guest")){
             mSpawn.spawn(player, "tutorial");
+            NekoUtils.broadcast(NekoCore.TAG + player + "が" + ChatColor.GOLD + "ゲスト" + ChatColor.WHITE + "としてログインしました.", player);
         }
     }
 

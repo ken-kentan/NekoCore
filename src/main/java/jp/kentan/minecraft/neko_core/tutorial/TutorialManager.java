@@ -4,6 +4,7 @@ import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,13 +38,19 @@ public class TutorialManager implements Listener {
     }
 
     void agree(Player player, String keyword){
-        if(keyword != null && keyword.equals(mKeyword)){
-            PermissionUser user = PermissionsEx.getUser(player);
+        PermissionUser user = PermissionsEx.getUser(player);
 
+        if(!user.inGroup("Guest")){
+            return;
+        }
+
+        if(keyword != null && keyword.equals(mKeyword)){
             user.removeGroup("Guest");
             user.addGroup("Citizen");
 
             mSpawn.spawn(player, "default");
+
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
 
             player.sendMessage(NekoCore.TAG + "できたてサーバー(猫)へようこそ！");
             NekoUtils.broadcast(NekoCore.TAG + player + "がチュートリアルを完了しました！", player);

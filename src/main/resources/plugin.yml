@@ -24,8 +24,12 @@ commands:
         description: スポーンにテレポートします.
         permission: neko.spawn
         aliases: [sapwn, s]
-        usage: spawn
+        usage: /<command>
     setspawn:
         description: Set spawn
         permission: neko.setspawn
-        usage: setspawn
+        usage: /<command>
+    tutorial:
+        description: チュートリアル
+        permission: neko.tutorial
+        usage: /<command>

@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.tehkode.permissions.PermissionUser;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 
 public class TutorialCommandExecutor implements CommandExecutor {
@@ -30,8 +32,11 @@ public class TutorialCommandExecutor implements CommandExecutor {
         }
 
         Player player = (Player)sender;
+        PermissionUser user = PermissionsEx.getUser(player);
 
-        mManager.agree(player, args[0]);
+        if(user.inGroup("Guest")){
+            mManager.agree(player, args[0]);
+        }
 
         return true;
     }

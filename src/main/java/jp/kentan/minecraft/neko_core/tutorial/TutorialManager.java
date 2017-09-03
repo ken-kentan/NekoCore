@@ -39,13 +39,9 @@ public class TutorialManager implements Listener {
     }
 
     void agree(Player player, String keyword){
-        PermissionUser user = PermissionsEx.getUser(player);
-
-        if(!user.inGroup("Guest")){
-            return;
-        }
-
         if(keyword != null && keyword.equals(mKeyword)){
+            PermissionUser user = PermissionsEx.getUser(player);
+
             user.removeGroup("Guest");
             user.addGroup("Citizen");
 

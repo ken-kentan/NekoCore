@@ -34,7 +34,7 @@ public class TutorialManager implements Listener {
 
         if(user.inGroup("Guest")){
             mSpawn.spawn(player, "tutorial");
-            NekoUtils.broadcast(NekoCore.TAG + player + "が" + ChatColor.GOLD + "ゲスト" + ChatColor.WHITE + "としてログインしました.", player);
+            NekoUtils.broadcast(NekoCore.TAG + player.getName() + "が" + ChatColor.GOLD + "ゲスト" + ChatColor.WHITE + "としてログインしました.", player);
         }
     }
 
@@ -50,7 +50,7 @@ public class TutorialManager implements Listener {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
 
             player.sendMessage(NekoCore.TAG + "できたてサーバー(猫)へようこそ！");
-            NekoUtils.broadcast(NekoCore.TAG + player + "がチュートリアルを完了しました！", player);
+            NekoUtils.broadcast(NekoCore.TAG + player.getName() + "がチュートリアルを完了しました！", player);
         }else{
             player.sendMessage(NekoCore.TAG + ChatColor.YELLOW + "キーワードが間違っています. ルールを確認してください.");
         }

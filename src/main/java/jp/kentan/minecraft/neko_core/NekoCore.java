@@ -78,17 +78,14 @@ public class NekoCore extends JavaPlugin implements Listener{
             case "nyan":
                 sender.sendMessage("にゃーん" + TwitterBot.getInstance().getNeko());
                 break;
-            case "wiki":
-                printUrl(sender, "http://www27.atwiki.jp/dekitateserver_neko/");
+            case "hp":
+                printUrl(sender, "https://minecraft.kentan.jp");
                 break;
             case "map":
                 printUrl(sender, "http://minecraft.kentan.jp:8123/");
                 break;
-            case "blog":
-                printUrl(sender, "http://blog.kentan.jp/category/minecraft/");
-                break;
-            case "hp":
-                printUrl(sender, "http://minecraft.kentan.jp/");
+            case "discord":
+                printUrl(sender, "https://discord.gg/j3a6trZ");
                 break;
             case "twitter":
             case "tw":
@@ -169,21 +166,20 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     private void printHelp(CommandSender sender) {
         sender.sendMessage("---------- NekoCoreコマンドヘルプ ----------");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko nyan" + ChatColor.WHITE + " にゃーん。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko wiki" + ChatColor.WHITE + " wikiのURLを表示します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko map" + ChatColor.WHITE + " DynmapのURLを表示します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko blog" + ChatColor.WHITE + " BlogのURLを表示します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko hp" + ChatColor.WHITE + " ホームページのURLを表示します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.WHITE + " ServerのTwitterURLを表示します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.WHITE + " 運営に<報告文>を送信します。");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います。");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko nyan" + ChatColor.WHITE + " にゃーん.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko hp" + ChatColor.WHITE + " ホームページのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko map" + ChatColor.WHITE + " WebMapのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko discord" + ChatColor.WHITE + " DiscordのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.WHITE + " TwitterのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.WHITE + " 運営に<報告文>を送信します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います.");
 //        sender.sendMessage("| " + ChatColor.GOLD + "/neko account <Twitter ID>" + ChatColor.WHITE + " MinecraftIDとTwitterIDをリンクします。");
-        sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です。");
+        sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です.");
         sender.sendMessage("---------------------------------------");
     }
 
     private void printUrl(CommandSender sender, String url){
         sender.sendMessage(TAG + ChatColor.AQUA + ChatColor.UNDERLINE + url);
-        sender.sendMessage(TAG + ChatColor.GRAY + "↑のアドレスをクリックして下さい。");
+        sender.sendMessage(TAG + ChatColor.GRAY + "↑のアドレスをクリックして下さい.");
     }
 }

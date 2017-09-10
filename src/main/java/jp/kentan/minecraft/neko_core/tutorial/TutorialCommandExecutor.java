@@ -31,7 +31,7 @@ public class TutorialCommandExecutor implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (player.hasPermission("group.default")) {
+        if (mManager.isGuest(player)) {
 
             if (params < 1) {
                 printHelp(player);

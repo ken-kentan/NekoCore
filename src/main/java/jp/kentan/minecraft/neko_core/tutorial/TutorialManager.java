@@ -49,7 +49,7 @@ public class TutorialManager implements Listener {
     }
 
     private void joinTutorialIfNeed(Player player){
-        if(player.hasPermission("group.default")){
+        if(isGuest(player)){
             NekoUtils.broadcast(NekoCore.TAG + player.getName() + GUEST_LOGIN_MSG, player);
 
             mServer.getScheduler().scheduleSyncDelayedTask(mPlugin, () -> mSpawn.spawn(player, "tutorial"), 10L);
@@ -80,6 +80,12 @@ public class TutorialManager implements Listener {
         }
     }
 
+    boolean isGuest(Player player){
+        User user = mPermsApi.getUser(player.getUniqueId());
+
+        return (user == null) || user.getPrimaryGroup().equals("default");
+    }
+
     void agree(Player player, String keyword){
         if(keyword != null && keyword.equals(mKeyword)){
             User user = mPermsApi.getUser(player.getUniqueId());
@@ -90,6 +96,10 @@ public class TutorialManager implements Listener {
             }
 
             try {
+                if(player.hasPermission("group.default")){
+                    user.unsetPermission(mGuestNode);
+                }
+
                 user.setPermission(mCitizenNode);
                 user.setPrimaryGroup("citizen");
             } catch (Exception e){

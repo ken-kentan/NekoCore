@@ -8,8 +8,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 
 public class TutorialCommandExecutor implements CommandExecutor {
@@ -32,9 +30,8 @@ public class TutorialCommandExecutor implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        PermissionUser user = PermissionsEx.getUser(player);
 
-        if (user.inGroup("Guest")) {
+        if (player.hasPermission("group.default")) {
 
             if (params < 1) {
                 printHelp(player);
@@ -48,11 +45,10 @@ public class TutorialCommandExecutor implements CommandExecutor {
     }
 
     private void printHelp(Player player){
-
         player.sendMessage(ChatColor.GOLD + "****************************************************");
         Bukkit.getServer().dispatchCommand(
                 Bukkit.getConsoleSender(),
-                "tellraw " + player.getName() + " [\"\",{\"text\":\"サーバールール\",\"underlined\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"を確認して、キーワードを入力してください.\",\"color\":\"gold\"}]");
+                "tellraw " + player.getName() + " [\"\",{\"text\":\"[サーバールール]\",\"bold\":true,\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"を確認して、キーワードを入力してください.\",\"color\":\"gold\"}]");
         player.sendMessage(ChatColor.GOLD + "例 キーワードが cat の場合は");
         player.sendMessage(ChatColor.GOLD + "/tutorial cat");
         player.sendMessage(ChatColor.GOLD + "とチャットに入力してください.");

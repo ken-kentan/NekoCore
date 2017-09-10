@@ -46,7 +46,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         final SpawnManager spawnManager = new SpawnManager(this, mConfig.getSpawnConfig());
 
         new SpawnCommandExecutor(this, spawnManager);
-        new TutorialCommandExecutor(this, new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
+        new TutorialCommandExecutor(this, new TutorialManager(this, spawnManager, mConfig.getTutorialKeyword()));
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
 

@@ -29,8 +29,8 @@ repositories {
     }
 
     maven {
-        name 'pex-repo'
-        url 'http://pex-repo.aoeu.xyz'
+        name "luck-repo"
+        url "https://repo.lucko.me/"
     }
 }
 
@@ -45,7 +45,7 @@ dependencies {
 
     compileOnly 'com.vexsoftware:nuvotifier-bukkit:2.3.4'
 
-    compileOnly 'ru.tehkode:PermissionsEx:1.23.1'
+    compileOnly 'me.lucko.luckperms:luckperms-api:3.3'
 
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.twitter4j:twitter4j-stream:4.0.4'

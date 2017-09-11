@@ -61,12 +61,9 @@ public class Area {
             return INF_PRICE;
         }
 
-        if(totalNum > 0){
-            //所有上限の場合はレートゲインを上限に上書き
-            if(totalNum >= ownerLimit){
-                totalNum = --ownerLimit;
-            }
+        totalNum = Math.min(totalNum, --ownerLimit);
 
+        if(totalNum > 0){
             rate *= rateGain * totalNum;
         }
 

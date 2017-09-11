@@ -46,7 +46,7 @@ public class RewardManager {
             Log.print(playerName + " voted as a OFFLINE.");
 
             Bukkit.getScheduler().runTaskAsynchronously(NekoCore.getPlugin(), () -> {
-                UUID uuid = NekoUtils.getPlayerUuid(playerName);
+                UUID uuid = NekoUtils.getOfflinePlayerUuid(playerName);
 
                 if(uuid != null){
                     mConfig.save(uuid, mConfig.getContinuous(uuid));

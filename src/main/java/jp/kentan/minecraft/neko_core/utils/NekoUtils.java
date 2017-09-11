@@ -62,7 +62,7 @@ public class NekoUtils {
         });
     }
 
-    public static UUID getPlayerUuid(String playerName){
+    public static UUID getOfflinePlayerUuid(String playerName){
         try{
             JSONObject json = new JSONObject(IOUtils.toString(new URL(MOJANG_PROFILES_API + playerName), StandardCharsets.UTF_8));
 

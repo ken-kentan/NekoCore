@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,6 +45,22 @@ public class PlayerConfigProvider {
         return get(uuid, path, def);
     }
 
+    public static int getOwnerAreaTotalNumber(UUID uuid, String nameWorld) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), UTF_8)) {
+
+            FileConfiguration config = new YamlConfiguration();
+
+            config.load(reader);
+
+            reader.close();
+
+            return config.getStringList("OwnerArea." + nameWorld).size();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static boolean save(UUID uuid, Map<String, Object> dataList) {
         final File file = new File(sFolderPath + uuid + ".yml");
 
@@ -61,7 +79,7 @@ public class PlayerConfigProvider {
         return true;
     }
 
-    public static boolean save(UUID uuid, String path, Object data) {
+    static boolean save(UUID uuid, String path, Object data) {
         final File file = new File(sFolderPath + uuid + ".yml");
 
         try {
@@ -81,5 +99,27 @@ public class PlayerConfigProvider {
         }
 
         return true;
+    }
+
+    static boolean addToArray(UUID uuid, String path, String data) {
+        final List<String> list = new ArrayList<>();
+
+        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), UTF_8)) {
+
+            FileConfiguration config = new YamlConfiguration();
+
+            config.load(reader);
+
+            reader.close();
+
+            list.addAll(config.getStringList(path));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        list.add(data);
+
+        return save(uuid, path, list);
     }
 }

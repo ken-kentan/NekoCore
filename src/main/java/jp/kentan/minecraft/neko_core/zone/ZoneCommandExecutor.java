@@ -22,20 +22,21 @@ class ZoneCommandExecutor implements CommandExecutor {
         final int params = args.length;
 
         if(params < 1 || !NekoUtils.isPlayer(sender)){
+            printHelp(sender);
             return true;
         }
 
-        if(sender.hasPermission("neko.zone.admin")){
-            final Player player = NekoUtils.toPlayer(sender);
+        final Player player = NekoUtils.toPlayer(sender);
 
+        if(sender.hasPermission("neko.zone.admin")){
             switch (args[0]){
-                case "rate":
-                    if(params < 2) {
+                case "world":
+                    if(params < 4) {
                         return true;
                     }
 
                     try {
-                        mManager.setRate(player, Float.parseFloat(args[1]));
+                        mManager.setWorldConfig(player, Double.parseDouble(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]));
                     } catch (Exception e){
                         e.printStackTrace();
                     }
@@ -57,11 +58,22 @@ class ZoneCommandExecutor implements CommandExecutor {
         }
 
         switch (args[0]){
-            case "price":
-                break;
             case "info":
+                if(params < 2){
+                    return true;
+                }
+
+                mManager.info(player, args[1]);
                 break;
             case "buy":
+                if(params < 2){
+                    return true;
+                }
+
+                mManager.preBuy(player, args[1]);
+                break;
+            case "confirm":
+                mManager.confirm(player);
                 break;
             default:
                 break;
@@ -69,7 +81,7 @@ class ZoneCommandExecutor implements CommandExecutor {
         return true;
     }
 
-    private void printHelp(Player player){
-        player.sendMessage("help");
+    private void printHelp(CommandSender sender){
+        sender.sendMessage("help");
     }
 }

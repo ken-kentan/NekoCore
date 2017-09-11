@@ -62,7 +62,10 @@ public class Area {
         }
 
         if(totalNum > 0){
-            totalNum = Math.min(totalNum, ownerLimit);
+            //所有上限の場合はレートゲインを上限に上書き
+            if(totalNum >= ownerLimit){
+                totalNum = --ownerLimit;
+            }
 
             rate *= rateGain * totalNum;
         }

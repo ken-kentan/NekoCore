@@ -13,6 +13,7 @@ import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import jp.kentan.minecraft.neko_core.vote.ServerVoteListener;
 import jp.kentan.minecraft.neko_core.vote.WeatherVote;
+import jp.kentan.minecraft.neko_core.zone.ZoneManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -52,6 +53,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
         new SpawnCommandExecutor(spawnManager);
         new TutorialCommandExecutor(new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
+        new ZoneManager();
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
 

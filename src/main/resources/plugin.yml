@@ -33,3 +33,7 @@ commands:
         description: チュートリアル
         permission: neko.tutorial
         usage: /<command>
+    zone:
+        description: 区画管理
+        permission: neko.zone
+        usage: /<command>

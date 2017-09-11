@@ -19,12 +19,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class NekoCore extends JavaPlugin implements Listener{
 
     public static final String TAG = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
+
+    private static Plugin sPlugin;
 
     private ConfigManager mConfig;
 
@@ -33,6 +36,8 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     @Override
     public void onEnable() {
+        sPlugin = this;
+
         new Log(getLogger());
 
         mConfig = new ConfigManager(getDataFolder());
@@ -123,6 +128,10 @@ public class NekoCore extends JavaPlugin implements Listener{
         }
 
         return true;
+    }
+
+    public static Plugin getPlugin(){
+        return sPlugin;
     }
 
     private void sendReport(Player player, String[] details){

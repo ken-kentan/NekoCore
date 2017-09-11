@@ -24,7 +24,6 @@ public class ConfigManager {
 
     private String mConfigFilePath;
 
-    private PlayerConfig mPlayerConfig;
     private SpawnConfig mSpawnConfig;
 
     private TwitterProvider.Config mTwitterConfig;
@@ -37,7 +36,8 @@ public class ConfigManager {
     private static SqlProvider.Config sSqlConfig;
 
     public ConfigManager(File folder){
-        mPlayerConfig = new PlayerConfig(folder);
+        PlayerConfigProvider.setup(folder);
+
         mSpawnConfig = new SpawnConfig(folder);
 
         mConfigFilePath = folder + File.separator + "config.yml";
@@ -107,7 +107,7 @@ public class ConfigManager {
             rewardList.add(config.getStringList("Vote.Reward." + i + "day"));
         }
 
-        mRewardConfig = new RewardManager.Config(mPlayerConfig, maxSuccession, rewardList, rewardDetailList);
+        mRewardConfig = new RewardManager.Config(maxSuccession, rewardList, rewardDetailList);
     }
 
     private void loadSqlConfig(FileConfiguration config){

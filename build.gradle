@@ -53,6 +53,9 @@ dependencies {
 
     compile 'org.codelibs:elasticsearch-analysis-kuromoji-neologd:5.4.1'
     compile 'com.ibm.icu:icu4j:59.1'
+
+    compile 'commons-io:commons-io:2.5'
+    compile 'org.json:json:20170516'
 }
 
 jar {

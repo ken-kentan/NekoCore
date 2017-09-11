@@ -1,5 +1,6 @@
 package jp.kentan.minecraft.neko_core.tutorial;
 
+import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,8 +14,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TutorialCommandExecutor implements CommandExecutor {
     private TutorialManager mManager;
 
-    public TutorialCommandExecutor(JavaPlugin plugin, TutorialManager manager){
+    public TutorialCommandExecutor(TutorialManager manager){
         mManager = manager;
+
+        JavaPlugin plugin = NekoCore.getPlugin();
 
         plugin.getServer().getPluginManager().registerEvents(mManager, plugin);
 

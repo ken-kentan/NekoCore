@@ -3,6 +3,7 @@ package jp.kentan.minecraft.neko_core.spawn;
 import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.config.SpawnConfig;
 import jp.kentan.minecraft.neko_core.spawn.listener.CancelListener;
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -16,14 +17,13 @@ import java.util.Map;
 public class SpawnManager implements CancelListener {
 
     private Plugin mPlugin;
-    private BukkitScheduler mScheduler;
+    private BukkitScheduler mScheduler = Bukkit.getScheduler();
 
     private SpawnConfig mConfig;
     private Map<Player, Integer> mPlayerSpawnTaskMap = new HashMap<>();
 
-    public SpawnManager(Plugin plugin, SpawnConfig config){
-        mPlugin = plugin;
-        mScheduler = plugin.getServer().getScheduler();
+    public SpawnManager(SpawnConfig config){
+        mPlugin = NekoCore.getPlugin();
 
         mConfig = config;
     }

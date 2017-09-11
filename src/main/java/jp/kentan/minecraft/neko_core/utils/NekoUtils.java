@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class NekoUtils {
 
-    public final static Server SERVER = Bukkit.getServer();
+    private final static Server SERVER = Bukkit.getServer();
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy MM/dd HH:mm:ss", Locale.JAPAN);
 
     private final static String MOJANG_PROFILES_API = "https://api.mojang.com/users/profiles/minecraft/";

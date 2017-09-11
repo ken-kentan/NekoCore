@@ -1,19 +1,23 @@
 package jp.kentan.minecraft.neko_core.spawn;
 
+import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.spawn.listener.SpawnCancelListener;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class SpawnCommandExecutor implements CommandExecutor {
     private SpawnManager mManager;
 
-    public SpawnCommandExecutor(JavaPlugin plugin, SpawnManager manager){
+    public SpawnCommandExecutor(SpawnManager manager){
         mManager = manager;
+
+        JavaPlugin plugin = NekoCore.getPlugin();
 
         plugin.getServer().getPluginManager().registerEvents(new SpawnCancelListener(mManager), plugin);
 

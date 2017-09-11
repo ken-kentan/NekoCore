@@ -1,10 +1,11 @@
 package jp.kentan.minecraft.neko_core.twitter;
 
 
+import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.TimeHandler;
 import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
 import jp.kentan.minecraft.neko_core.utils.Log;
-import jp.kentan.minecraft.neko_core.utils.NekoUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 import twitter4j.*;
@@ -19,16 +20,14 @@ public class TwitterProvider {
     private AsyncTwitter mTwitter;
     private TwitterStream mStream;
 
-    private Server mServer;
+    private Server mServer = Bukkit.getServer();
 
     private ConcurrentLinkedQueue<StatusUpdate> mStatusQueue = new ConcurrentLinkedQueue<>();
 
     private TwitterBot mBot;
     private TimeHandler mBotHandler;
 
-    public TwitterProvider(Plugin plugin, Config config, TwitterBot.Messages messages){
-        mServer = plugin.getServer();
-
+    public TwitterProvider(Config config, TwitterBot.Messages messages){
         mTwitter = new AsyncTwitterFactory().getInstance();
         mTwitter.setOAuthConsumer(config.mConsumerKey, config.mConsumerSecret);
         mTwitter.setOAuthAccessToken(new AccessToken(config.mAccessToken, config.mAccessTokenSecret));
@@ -46,10 +45,10 @@ public class TwitterProvider {
         });
 
         mBot = new TwitterBot(this, messages);
-        NekoUtils.SERVER.getPluginManager().registerEvents(mBot, plugin);
+        Bukkit.getServer().getPluginManager().registerEvents(mBot, NekoCore.getPlugin());
         mBotHandler = mBot;
 
-        startTimer(plugin);
+        startTimer(NekoCore.getPlugin());
 
         // Stream configuration
         ConfigurationBuilder builder = new ConfigurationBuilder();

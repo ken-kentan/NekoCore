@@ -6,7 +6,6 @@ import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.*;
-import me.lucko.luckperms.exceptions.ObjectLacksException;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.Sound;
@@ -33,9 +32,9 @@ public class TutorialManager implements Listener {
     private SpawnManager mSpawn;
     private String mKeyword;
 
-    public TutorialManager(Plugin plugin, SpawnManager spawn, String keyword){
-        mPlugin = plugin;
-        mServer = plugin.getServer();
+    public TutorialManager(SpawnManager spawn, String keyword){
+        mPlugin = NekoCore.getPlugin();
+        mServer = mPlugin.getServer();
 
         mSpawn = spawn;
         mKeyword = keyword;

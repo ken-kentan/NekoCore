@@ -36,7 +36,7 @@ public class RewardManager {
                 NekoCore.TAG + ChatColor.AQUA + "ｸﾘｯｸ！ https://minecraft.kentan.jp/vote"
         };
 
-//        mBot.tweetActionMessage(playerName, " http://minecraft.jp で投票");
+        mBot.tweetActionMessage(playerName, " http://minecraft.jp で投票");
 
         final Player player = NekoUtils.getOnlinePlayer(playerName);
 
@@ -74,7 +74,7 @@ public class RewardManager {
     }
 
     private void runRewardCommand(String playerName, int succession) {
-        final Server server = NekoUtils.SERVER;
+        final Server server = Bukkit.getServer();
         final ConsoleCommandSender console = server.getConsoleSender();
 
         List<String> rewardList = mConfig.mRewardList.get(succession - 1);

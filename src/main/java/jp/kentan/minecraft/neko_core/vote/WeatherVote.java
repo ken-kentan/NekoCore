@@ -21,9 +21,9 @@ public class WeatherVote {
     private Server mServer;
     private List<Player> mVotedPlayers =  Collections.synchronizedList(new ArrayList<>());
 
-    public WeatherVote(Plugin plugin){
-        mPlugin = plugin;
-        mServer = plugin.getServer();
+    public WeatherVote(){
+        mPlugin = NekoCore.getPlugin();
+        mServer = mPlugin.getServer();
     }
 
 

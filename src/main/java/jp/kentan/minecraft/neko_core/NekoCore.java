@@ -27,7 +27,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     public static final String TAG = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
-    private static Plugin sPlugin;
+    private static JavaPlugin sPlugin;
 
     private ConfigManager mConfig;
 
@@ -43,15 +43,15 @@ public class NekoCore extends JavaPlugin implements Listener{
         mConfig = new ConfigManager(getDataFolder());
         mConfig.load();
 
-        mTwitter = new TwitterProvider(this, mConfig.getTwitterConfig(), mConfig.getBotMessages());
+        mTwitter = new TwitterProvider(mConfig.getTwitterConfig(), mConfig.getBotMessages());
 
-        mWeatherVote = new WeatherVote(this);
+        mWeatherVote = new WeatherVote();
         RewardManager rewardManager = new RewardManager(mConfig.getRewardConfig());
 
-        final SpawnManager spawnManager = new SpawnManager(this, mConfig.getSpawnConfig());
+        final SpawnManager spawnManager = new SpawnManager(mConfig.getSpawnConfig());
 
-        new SpawnCommandExecutor(this, spawnManager);
-        new TutorialCommandExecutor(this, new TutorialManager(this, spawnManager, mConfig.getTutorialKeyword()));
+        new SpawnCommandExecutor(spawnManager);
+        new TutorialCommandExecutor(new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
 
@@ -130,7 +130,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         return true;
     }
 
-    public static Plugin getPlugin(){
+    public static JavaPlugin getPlugin(){
         return sPlugin;
     }
 

@@ -23,17 +23,16 @@ import java.util.Map;
 
 public class ZoneManager {
 
-    private WorldGuardPlugin mWorldGuard;
     private RegionContainer mRegionContainer;
 
     private Map<Player, AreaProcessInfo> mWaitingAreaProcessMap = Collections.synchronizedMap(new HashMap<>());
 
 
     public ZoneManager(){
-        mWorldGuard = detectWorldGuard();
+        WorldGuardPlugin worldGuard = detectWorldGuard();
 
-        if(mWorldGuard != null) {
-            mRegionContainer = mWorldGuard.getRegionContainer();
+        if(worldGuard != null) {
+            mRegionContainer = worldGuard.getRegionContainer();
         }
 
         NekoCore.getPlugin().getCommand("zone").setExecutor(new ZoneCommandExecutor(this));
@@ -161,7 +160,7 @@ public class ZoneManager {
         player.sendMessage("" + processInfo.getType());
     }
 
-    void buy(Player player, Area area){
+    private void buy(Player player, Area area){
         double price = area.getPrice(player.getUniqueId());
         double balance = EconomyProvider.getBalance(player);
 

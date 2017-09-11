@@ -2,7 +2,6 @@ package jp.kentan.minecraft.neko_core.zone.component;
 
 import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
 import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
-import jp.kentan.minecraft.neko_core.utils.Log;
 import org.bukkit.Bukkit;
 
 import java.util.Arrays;

@@ -1,13 +1,10 @@
 package jp.kentan.minecraft.neko_core.zone;
 
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 class ZoneCommandExecutor implements CommandExecutor {
 

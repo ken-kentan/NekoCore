@@ -1,9 +1,7 @@
 package jp.kentan.minecraft.neko_core.config;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
-import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;

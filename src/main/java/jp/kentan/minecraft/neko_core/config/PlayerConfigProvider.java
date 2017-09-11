@@ -19,7 +19,7 @@ public class PlayerConfigProvider {
 
     private static String sFolderPath;
 
-    public static void setup(File dataFolder){
+    static void setup(File dataFolder){
         sFolderPath = dataFolder + File.separator + "players" + File.separator;
     }
 
@@ -47,24 +47,6 @@ public class PlayerConfigProvider {
         final File file = new File(sFolderPath + uuid + ".yml");
 
         try {
-            FileConfiguration config = new YamlConfiguration();
-            config.load(file);
-
-            dataList.forEach(config::set);
-
-            config.save(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
-    public static boolean save(UUID uuid, String path, Object data) {
-        final File file = new File(sFolderPath + uuid + ".yml");
-
-        try {
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -72,7 +54,7 @@ public class PlayerConfigProvider {
             FileConfiguration config = new YamlConfiguration();
             config.load(file);
 
-            config.set(path, data);
+            dataList.forEach(config::set);
 
             config.save(file);
         } catch (Exception e) {

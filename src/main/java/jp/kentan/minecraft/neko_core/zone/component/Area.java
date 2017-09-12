@@ -2,7 +2,6 @@ package jp.kentan.minecraft.neko_core.zone.component;
 
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
 import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
 import jp.kentan.minecraft.neko_core.utils.Log;
 import org.bukkit.*;
@@ -25,13 +24,18 @@ public class Area {
 
     private final static double INF_PRICE = 99999999999D;
 
-    private String mWorld, mName, mId;
+    private AreaUpdateListener mListener;
+
+    private World mWorld;
+    private String mName, mId;
     private UUID mOwnerUuid;
     private int mSize;
     private boolean mOnSale;
     private Location mSignLocation;
 
-    public Area(String world, String name, String id, UUID owner, int size, boolean onSale, Location signLocation){
+    public Area(AreaUpdateListener listener, World world, String name, String id, UUID owner, int size, boolean onSale, Location signLocation){
+        mListener = listener;
+
         mWorld = world;
         mName = name;
         mId = id;
@@ -43,12 +47,16 @@ public class Area {
         mSignLocation = signLocation;
     }
 
+    public void save(){
+        mListener.onUpdate(this);
+    }
+
     public void updateSign(){
         if(mSignLocation == null){
             return;
         }
 
-        BlockState blockState = Bukkit.getWorld(mWorld).getBlockAt(mSignLocation).getState();
+        BlockState blockState = mWorld.getBlockAt(mSignLocation).getState();
 
         if(blockState instanceof Sign){
             Sign sign = (Sign)blockState;
@@ -65,18 +73,26 @@ public class Area {
 
             if(!sign.update()){
                 Log.warn("failed to set Area sing at " + mSignLocation.toString());
-            }else{
-                ZoneConfigProvider.setSign(mWorld, mName, mSignLocation);
             }
-        }else{
+        }else{ //看板が見つからなかった場合
+            Log.warn("failed to find Area sing at " + mSignLocation.toString());
+
             mSignLocation = null;
-            Log.warn("failed to found Area sing.");
-            ZoneConfigProvider.setSign(mWorld, mName, null);
+
+            mListener.onUpdate(this);
         }
+    }
+
+    public void breakSign(){
+        mSignLocation = null;
+
+        mListener.onUpdate(this);
     }
 
     public void createSign(SignChangeEvent event){
         event.setLine(0, SIGN_INDEX_TEXT);
+
+        mSignLocation = event.getBlock().getLocation();
 
         if(mOwnerUuid != null){
             event.setLine(2, ChatColor.DARK_GRAY + getOwner().getName());
@@ -85,12 +101,10 @@ public class Area {
             event.setLine(3, mOnSale ? ON_SALE_TEXT : PROCESSING_TEXT);
         }
 
-        ZoneConfigProvider.setSign(mWorld, mName, mSignLocation = event.getBlock().getLocation());
+        mListener.onUpdate(this);
     }
 
     public void buy(UUID ownerUuid, ProtectedRegion region){
-        ZoneConfigProvider.registerOwner(mWorld, ownerUuid, mName);
-
         DefaultDomain members = new DefaultDomain();
         members.addPlayer(ownerUuid);
 
@@ -100,35 +114,55 @@ public class Area {
         mOnSale = false;
 
         updateSign();
+
+        mListener.onUpdate(this);
     }
 
     public void sell(ProtectedRegion region){
         region.setMembers(new DefaultDomain());
 
-        ZoneConfigProvider.removeOwner(mWorld, mOwnerUuid, mName);
-
         mOwnerUuid = null;
         mOnSale = false;
 
         updateSign();
+
+        mListener.onUpdate(this);
     }
 
-    public boolean setLock(boolean hasLock){
+    public boolean setSaleStatus(boolean onSale){
         if(mOwnerUuid != null){
             return false;
         }
 
-        mOnSale = !hasLock;
+        mOnSale = onSale;
 
         updateSign();
 
-        ZoneConfigProvider.setOnSale(mWorld, mName, mOnSale);
+        mListener.onUpdate(this);
 
         return true;
     }
 
-    public String getName(){ return mName; }
-    public String getId(){ return mId; }
+    public World getWorld() {
+        return mWorld;
+    }
+
+    public String getWorldName(){
+        return mWorld.getName();
+    }
+
+    public String getName(){
+        return mName;
+    }
+
+    public String getId(){
+        return mId;
+    }
+
+    public int getSize(){
+        return mSize;
+    }
+
     public OfflinePlayer getOwner(){
         if(mOwnerUuid == null){
             return null;
@@ -139,10 +173,8 @@ public class Area {
 
     public UUID getOwnerUuid(){ return mOwnerUuid; }
 
-    public double getPrice(UUID uuid){
-        int totalNum = PlayerConfigProvider.getOwnerAreaTotalNumber(uuid, mWorld);
-
-        Map<String, Object> dataMap = ZoneConfigProvider.get(mWorld, Arrays.asList("rate", "rateGain", "ownerLimit"));
+    public double getPrice(int total){ //ToDo レートをキャッシュ化
+        Map<String, Object> dataMap = ZoneConfigProvider.get(mWorld.getName(), Arrays.asList("rate", "rateGain", "ownerLimit"));
 
         int ownerLimit;
         double rate, rateGain;
@@ -161,10 +193,10 @@ public class Area {
             return INF_PRICE;
         }
 
-        totalNum = Math.min(totalNum, --ownerLimit);
+        total = Math.min(total, --ownerLimit);
 
-        if(totalNum > 0){
-            rate *= rateGain * totalNum;
+        if(total > 0){
+            rate *= rateGain * total;
         }
 
         return rate * mSize;
@@ -187,8 +219,10 @@ public class Area {
             return mSignLocation;
         }
 
-        ZoneConfigProvider.setSign(mWorld, mName, null);
+        mSignLocation = null;
 
-        return mSignLocation = null;
+        mListener.onUpdate(this);
+
+        return null;
     }
 }

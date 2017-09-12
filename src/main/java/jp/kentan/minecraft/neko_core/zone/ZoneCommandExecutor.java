@@ -53,12 +53,12 @@ class ZoneCommandExecutor implements CommandExecutor {
                     break;
                 case "lock":
                     if(params >= 2) {
-                        mManager.setLock(true, player, args[1]);
+                        mManager.setSaleStatus(false, player, args[1]);
                     }
                     break;
                 case "unlock":
                     if(params >= 2) {
-                        mManager.setLock(false, player, args[1]);
+                        mManager.setSaleStatus(true, player, args[1]);
                     }
                     break;
                 case "refresh":
@@ -70,8 +70,11 @@ class ZoneCommandExecutor implements CommandExecutor {
         switch (args[0]){
             case "info":
                 if(params >= 2){
-                    mManager.info(player, args[1]);
+                    mManager.sendInfo(player, args[1]);
                 }
+                break;
+            case "limits":
+                mManager.sendLimits(player);
                 break;
             case "buy":
                 if(params >= 2){

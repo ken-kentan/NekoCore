@@ -37,7 +37,6 @@ public class ConfigManager {
 
     public ConfigManager(File folder){
         PlayerConfigProvider.setup(folder);
-        ZoneConfigProvider.setup(folder);
 
         mSpawnConfig = new SpawnConfig(folder);
 

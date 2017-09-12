@@ -35,7 +35,9 @@ public class SignEventListener implements Listener {
         if(blockState instanceof Sign && event.getPlayer().hasPermission("neko.zone.moderator")){
             Sign sign = (Sign)blockState;
 
-            mListener.onSignBreak(event.getPlayer(), sign);
+            if(sign.getLine(0).contains("SIGN_INDEX_TEXT")) {
+                mListener.onSignBreak(event.getPlayer(), sign);
+            }
         }
     }
 

@@ -2,6 +2,8 @@ package jp.kentan.minecraft.neko_core.config;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -34,26 +36,63 @@ public class ZoneConfigProvider {
         });
     }
     
-    public static void registerOwner(String nameWorld, Player player, String nameArea){
-        PlayerConfigProvider.addToArray(player.getUniqueId(), "OwnerArea." + nameWorld, nameArea);
+    public static void registerOwner(String nameWorld, UUID owner, String nameArea){
+        PlayerConfigProvider.addToArray(owner, "OwnerArea." + nameWorld, nameArea);
+
+        final String PATH = "Area." + nameArea;
 
         save(nameWorld, new HashMap<String, Object>(){
             {
-                put("Area." + nameArea + ".owner", player.getUniqueId().toString());
-                put("Area." + nameArea + ".onSale", false);
+                put(PATH + ".owner", owner.toString());
+                put(PATH + ".onSale", false);
+            }
+        });
+    }
+
+    public static void removeOwner(String nameWorld, UUID owner, String nameArea){
+        PlayerConfigProvider.removeFromArray(owner, "OwnerArea." + nameWorld, nameArea);
+
+        final String PATH = "Area." + nameArea;
+
+        save(nameWorld, new HashMap<String, Object>(){
+            {
+                put(PATH + ".owner", null);
+                put(PATH + ".onSale", false);
             }
         });
     }
 
     public static boolean register(String nameWorld, String nameArea, ProtectedRegion area, int size) {
+        final String PATH = "Area." + nameArea;
+
         return save(nameWorld, new HashMap<String, Object>(){
             {
-                put("Area." + nameArea + ".id", area.getId());
-                put("Area." + nameArea + ".size", size);
-                put("Area." + nameArea + ".owner", null);
-                put("Area." + nameArea + ".onSale", true);
+                put(PATH + ".id", area.getId());
+                put(PATH + ".size", size);
+                put(PATH + ".owner", null);
+                put(PATH + ".onSale", true);
             }
         });
+    }
+
+    public static boolean setSign(String nameWorld, String nameArea, Location location) {
+        final String PATH = "Area." + nameArea;
+
+        return save(nameWorld, new HashMap<String, Object>(){
+            {
+                if(location == null){
+                    put(PATH + ".sign", null);
+                }else {
+                    put(PATH + ".sign.x", location.getX());
+                    put(PATH + ".sign.y", location.getY());
+                    put(PATH + ".sign.z", location.getZ());
+                }
+            }
+        });
+    }
+
+    public static void setOnSale(String nameWorld, String nameArea, boolean onSale){
+        save(nameWorld, "Area." + nameArea + ".onSale", onSale);
     }
 
     private static boolean save(String nameWorld, String path, Object data) {
@@ -147,18 +186,84 @@ public class ZoneConfigProvider {
 
             reader.close();
 
-            if(config.contains("Area." + nameArea)) {
-                String strUuid = config.getString("Area." + nameArea + ".owner");
+            final String PATH = "Area." + nameArea;
+
+            if(config.contains(PATH)) {
+                String strUuid = config.getString(PATH + ".owner");
+
+                Location signLocation = null;
+
+                if(config.contains(PATH + ".sign")){
+                    signLocation = new Location(Bukkit.getWorld(nameWorld),
+                            config.getDouble(PATH + ".sign.x", 0D),
+                            config.getDouble(PATH + ".sign.y", 0D),
+                            config.getDouble(PATH + ".sign.z", 0D)
+                    );
+                }
 
                 return new Area(
                         nameWorld,
                         nameArea,
-                        config.getString("Area." + nameArea + ".id"),
+                        config.getString(PATH + ".id"),
                         (strUuid != null) ? UUID.fromString(strUuid) : null,
-                        config.getInt("Area." + nameArea + ".size"),
-                        config.getBoolean("Area." + nameArea + ".onSale")
+                        config.getInt(PATH + ".size"),
+                        config.getBoolean(PATH + ".onSale"),
+                        signLocation
                 );
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static List<Area> getAreaList(String nameWorld) {
+        final File file = new File(sFolderPath + nameWorld + ".yml");
+
+        if(!file.exists()){
+            return null;
+        }
+
+        try (Reader reader = new InputStreamReader(new FileInputStream(file), UTF_8)) {
+
+            FileConfiguration config = new YamlConfiguration();
+
+            config.load(reader);
+
+            reader.close();
+
+            List<Area> areaList = new ArrayList<>();
+
+            Set<String> areaSet = config.getConfigurationSection("Area").getKeys(false);
+
+            areaSet.forEach(nameArea -> {
+                final String PATH = "Area." + nameArea;
+
+                String strUuid = config.getString(PATH + ".owner");
+
+                Location signLocation = null;
+
+                if(config.contains(PATH + ".sign")){
+                    signLocation = new Location(Bukkit.getWorld(nameWorld),
+                            config.getDouble(PATH + ".sign.x", 0D),
+                            config.getDouble(PATH + ".sign.y", 0D),
+                            config.getDouble(PATH + ".sign.z", 0D)
+                    );
+                }
+
+                areaList.add(new Area(
+                        nameWorld,
+                        nameArea,
+                        config.getString(PATH + ".id"),
+                        (strUuid != null) ? UUID.fromString(strUuid) : null,
+                        config.getInt(PATH + ".size"),
+                        config.getBoolean(PATH + ".onSale"),
+                        signLocation
+                ));
+            });
+
+            return areaList;
         } catch (Exception e) {
             e.printStackTrace();
         }

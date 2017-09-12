@@ -21,7 +21,7 @@ public class PlayerConfigProvider {
 
     private static String sFolderPath;
 
-    public static void setup(File dataFolder){
+    static void setup(File dataFolder){
         sFolderPath = dataFolder + File.separator + "players" + File.separator;
     }
 
@@ -45,8 +45,29 @@ public class PlayerConfigProvider {
         return get(uuid, path, def);
     }
 
-    public static int getOwnerAreaTotalNumber(UUID uuid, String nameWorld) {
+    private static List<String> getStringList(UUID uuid, String path) {
         try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), UTF_8)) {
+
+            FileConfiguration config = new YamlConfiguration();
+
+            config.load(reader);
+
+            reader.close();
+
+            return config.getStringList(path);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static int getOwnerAreaTotalNumber(UUID uuid, String nameWorld) {
+        final File file = new File(sFolderPath + uuid + ".yml");
+
+        if(!file.exists()){
+            return 0;
+        }
+
+        try (Reader reader = new InputStreamReader(new FileInputStream(file), UTF_8)) {
 
             FileConfiguration config = new YamlConfiguration();
 
@@ -65,6 +86,10 @@ public class PlayerConfigProvider {
         final File file = new File(sFolderPath + uuid + ".yml");
 
         try {
+            if(!file.exists()){
+                file.createNewFile();
+            }
+
             FileConfiguration config = new YamlConfiguration();
             config.load(file);
 
@@ -102,24 +127,26 @@ public class PlayerConfigProvider {
     }
 
     static boolean addToArray(UUID uuid, String path, String data) {
-        final List<String> list = new ArrayList<>();
+        final List<String> oldList = getStringList(uuid, path);
+        final List<String> newList = new ArrayList<>();
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), UTF_8)) {
-
-            FileConfiguration config = new YamlConfiguration();
-
-            config.load(reader);
-
-            reader.close();
-
-            list.addAll(config.getStringList(path));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        if(oldList != null){
+            newList.addAll(oldList);
         }
+        newList.add(data);
 
-        list.add(data);
+        return save(uuid, path, newList);
+    }
 
-        return save(uuid, path, list);
+    static boolean removeFromArray(UUID uuid, String path, String data) {
+        final List<String> oldList = getStringList(uuid, path);
+        final List<String> newList = new ArrayList<>();
+
+        if(oldList != null){
+            newList.addAll(oldList);
+        }
+        newList.remove(data);
+
+        return save(uuid, path, newList);
     }
 }

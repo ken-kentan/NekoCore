@@ -11,17 +11,24 @@ import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
 import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
 import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
+import jp.kentan.minecraft.neko_core.zone.listener.SignEventListener;
+import jp.kentan.minecraft.neko_core.zone.listener.ZoneSignEventListener;
+import org.bukkit.*;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
-public class ZoneManager {
+public class ZoneManager implements ZoneSignEventListener {
+
+    private final static String TAG = ChatColor.GRAY + "[" + ChatColor.BLUE + "区画" + ChatColor.GRAY  + "] " + ChatColor.RESET;
 
     private RegionContainer mRegionContainer;
 
@@ -35,7 +42,12 @@ public class ZoneManager {
             mRegionContainer = worldGuard.getRegionContainer();
         }
 
-        NekoCore.getPlugin().getCommand("zone").setExecutor(new ZoneCommandExecutor(this));
+        refresh();
+
+        JavaPlugin plugin = NekoCore.getPlugin();
+
+        plugin.getCommand("zone").setExecutor(new ZoneCommandExecutor(this));
+        plugin.getServer().getPluginManager().registerEvents(new SignEventListener(this), plugin);
     }
 
     private WorldGuardPlugin detectWorldGuard(){
@@ -50,6 +62,16 @@ public class ZoneManager {
         Log.print("WorldGuard detected.");
 
         return (WorldGuardPlugin) plugin;
+    }
+
+    void refresh(){
+        Bukkit.getWorlds().forEach(world -> {
+            List<Area> areaList = ZoneConfigProvider.getAreaList(world.getName());
+
+            if(areaList != null && areaList.size() > 0){
+                areaList.forEach(Area::updateSign);
+            }
+        });
     }
 
     void setWorldConfig(Player player, double rate, double rateGain, int ownerLimit){
@@ -93,27 +115,46 @@ public class ZoneManager {
         }
     }
 
-    void info(Player player, String areaName){
+    Area info(Player player, String areaName){
         Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), areaName);
 
         if(area != null){
+            OfflinePlayer owner = area.getOwner();
             player.sendMessage(new String[]{
-                    "名前:" + areaName,
-                    "ID: " + area.getId(),
-                    "価格: \u00A5" + area.getPrice(player.getUniqueId()),
-                    "所有者:" + area.getOwner(),
-                    "販売中:" + (area.onSale() ? "はい" : "いいえ")
+                    ChatColor.GRAY + "***************" + ChatColor.BLUE + " 区画情報 " + ChatColor.GRAY + "***************",
+                    " 名前: " + areaName,
+                    " ID: " + area.getId(),
+                    " 価格: " + ChatColor.YELLOW + "\u00A5" + area.getPrice(player.getUniqueId()),
+                    " 所有者: " + ((owner != null) ? ChatColor.DARK_GRAY + owner.getName() : ""),
+                    " ステータス: " + (area.onSale() ? Area.ON_SALE_TEXT : ((owner != null) ? Area.SOLD_TEXT : Area.PROCESSING_TEXT))
             });
         }else{
-            player.sendMessage("{name}は存在しません.".replace("{name}", areaName));
+            player.sendMessage(TAG + ChatColor.YELLOW + areaName + "は存在しません.");
+        }
+
+        return area;
+    }
+
+    void setLock(boolean hasLock, Player player, String nameArea){
+        Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), nameArea);
+
+        if(area == null){
+            player.sendMessage(TAG + ChatColor.YELLOW + nameArea + "は存在しません.");
+            return;
+        }
+
+        if(area.setLock(hasLock)){
+            player.sendMessage(TAG + nameArea + "のロックを" + (hasLock ? "設定" : "解除") + "しました.");
+        }else{
+            player.sendMessage(TAG + ChatColor.YELLOW + nameArea + "には所有者がいます.");
         }
     }
 
-    void preBuy(Player player, String areaName){
-        Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), areaName);
+    void preBuy(Player player, String nameArea){
+        Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), nameArea);
 
         if(area == null){
-            player.sendMessage("{name}は存在しません.".replace("{name}", areaName));
+            player.sendMessage(TAG + ChatColor.YELLOW + nameArea + "は存在しません.");
             return;
         }
 
@@ -121,29 +162,51 @@ public class ZoneManager {
         int ownerAreaLimit = (int)ZoneConfigProvider.get(player.getWorld().getName(), "ownerLimit", 1);
 
         if(ownerAreaNum >= ownerAreaLimit){
-            player.sendMessage("所有数が上限に達しています.");
+            player.sendMessage(TAG + ChatColor.YELLOW + "このワールドにおける区画の所有数が上限に達しています.");
             return;
         }
 
 
         if(area.onSale()){
-            player.sendMessage("区画" + areaName + "を\u00A5" + area.getPrice(player.getUniqueId()) + "で購入しますか？");
-            player.sendMessage("購入を確定するには /zone confirm と入力して下さい.");
+            player.sendMessage(TAG + nameArea + "を" + ChatColor.YELLOW + "\u00A5" + area.getPrice(player.getUniqueId()) + ChatColor.RESET + "で購入しますか？");
+            player.sendMessage(TAG + ChatColor.GRAY + "購入を確定するには " + ChatColor.RED + "/zone confirm" + ChatColor.GRAY + " と入力して下さい.");
 
             mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.BUY, area));
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
                     () -> mWaitingAreaProcessMap.remove(player), 20L * 15);
         }else{
-            player.sendMessage("現在、この区画は購入できません.");
+            player.sendMessage(TAG + ChatColor.YELLOW + "現在、この区画は購入できません.");
         }
+    }
+
+    void preSell(Player player, String areaName){
+        Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), areaName);
+
+        if(area == null){
+            player.sendMessage(TAG + ChatColor.YELLOW + areaName + "は存在しません.");
+            return;
+        }
+
+        if(!area.isOwner(player.getUniqueId())){
+            player.sendMessage(TAG + ChatColor.YELLOW + "あなたの区画ではありません.");
+            return;
+        }
+
+        player.sendMessage(TAG + areaName + "を" + ChatColor.YELLOW + "\u00A5" + 0 + ChatColor.RESET + "で売却しますか？");
+        player.sendMessage(TAG + ChatColor.GRAY + "売却を確定するには " + ChatColor.RED + "/zone confirm" + ChatColor.GRAY + " と入力して下さい.");
+
+        mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.SALE, area));
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
+                () -> mWaitingAreaProcessMap.remove(player), 20L * 15);
     }
 
     void confirm(Player player){
         AreaProcessInfo processInfo = mWaitingAreaProcessMap.get(player);
 
         if(processInfo == null){
-            player.sendMessage("現在、あなたに認証が必要な処理はありません.");
+            player.sendMessage(TAG + ChatColor.YELLOW + "現在、あなたに認証が必要な処理はありません.");
             return;
         }
 
@@ -154,10 +217,11 @@ public class ZoneManager {
                 buy(player, processInfo.getArea());
                 break;
             case SALE:
+                sell(player, processInfo.getArea());
+                break;
+            default:
                 break;
         }
-
-        player.sendMessage("" + processInfo.getType());
     }
 
     private void buy(Player player, Area area){
@@ -165,31 +229,37 @@ public class ZoneManager {
         double balance = EconomyProvider.getBalance(player);
 
         if(balance < price){
-            player.sendMessage("所持金が\u00A5" + (price - balance) + "不足しています.");
+            player.sendMessage(TAG + ChatColor.YELLOW + "所持金が\u00A5" + (price - balance) + "不足しています.");
             return;
         }
 
 
         final ProtectedRegion region = getProtectedRegion(player.getWorld(), area.getId());
         if(region == null){
+            player.sendMessage(TAG + ChatColor.RED + "IDエラーです. 運営に連絡して下さい.");
             return;
         }
 
         if(!EconomyProvider.withdraw(player, price)){
-            player.sendMessage("購入処理に失敗しました.");
+            player.sendMessage(TAG + ChatColor.RED + "購入処理に失敗しました. 運営に連絡して下さい.");
             return;
         }
 
-        DefaultDomain members = new DefaultDomain();
-        members.addPlayer(player.getUniqueId());
+        area.buy(player.getUniqueId(), region);
 
-        region.setMembers(members);
+        player.sendMessage(TAG + area.getName() + "を " + ChatColor.YELLOW + "\u00A5" + price + ChatColor.RESET + " で購入しました！");
+    }
 
+    private void sell(Player player, Area area){
+        final ProtectedRegion region = getProtectedRegion(player.getWorld(), area.getId());
+        if(region == null){
+            player.sendMessage(TAG + ChatColor.RED + "IDエラーです. 運営に連絡して下さい.");
+            return;
+        }
 
-        //保存
-        ZoneConfigProvider.registerOwner(player.getWorld().getName(), player, area.getName());
+        area.sell(region);
 
-        player.sendMessage("区画" + area.getName() + "を\u00A5" + price + "で購入しました！");
+        player.sendMessage(TAG + area.getName() + "を " + ChatColor.YELLOW + "\u00A5" + 0 + ChatColor.RESET + " で売却しました！");
     }
 
     private ProtectedRegion getProtectedRegion(World world, String id){
@@ -200,6 +270,60 @@ public class ZoneManager {
         }
 
         return regions.getRegion(id);
+    }
+
+    @Override
+    public void onSignPlace(SignChangeEvent event) {
+        Player player = event.getPlayer();
+
+        if(event.getLine(1).length() < 1){
+            player.sendMessage(TAG + ChatColor.YELLOW + "区画名を入力して下さい.");
+            return;
+        }
+
+        final Area area = ZoneConfigProvider.getArea(player.getWorld().getName(), event.getLine(1));
+
+        if(area == null){
+            player.sendMessage(TAG + ChatColor.YELLOW + event.getLine(1) + "は存在しません.");
+            return;
+        }
+
+        Location signLocation = area.getSignLocation();
+        if(signLocation != null){
+            player.sendMessage(TAG + ChatColor.YELLOW + "この区画の看板はすでに" + signLocation.toString() + "に設置されています!");
+            return;
+        }
+
+        area.createSign(event);
+    }
+
+    @Override
+    public void onSignBreak(Player player, Sign sign) {
+        Area area = ZoneConfigProvider.getArea(sign.getWorld().getName(), sign.getLine(1));
+
+        if(area == null || !sign.getLocation().equals(area.getSignLocation())){
+            return;
+        }
+
+        ZoneConfigProvider.setSign(player.getWorld().getName(), area.getName(), null);
+        player.sendMessage(TAG + ChatColor.YELLOW + area.getName() + "の看板を消去しました!");
+    }
+
+    @Override
+    public void onSignClick(Player player, Sign sign) {
+        String nameArea = sign.getLine(1);
+        String statusText = sign.getLine(3);
+
+        Area area = info(player, nameArea);
+
+        if(area != null && area.isOwner(player.getUniqueId())){
+            player.sendMessage(ChatColor.GRAY + "この区画を売却するには " + ChatColor.RESET + "/zone sell " + nameArea + ChatColor.GRAY + " と入力して下さい.");
+            return;
+        }
+
+        if(statusText.contains("販売中")){
+            player.sendMessage(ChatColor.GRAY + "この区画を購入するには " + ChatColor.RESET + "/zone buy " + nameArea + ChatColor.GRAY + " と入力して下さい.");
+        }
     }
 
 

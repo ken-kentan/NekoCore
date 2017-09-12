@@ -51,23 +51,37 @@ class ZoneCommandExecutor implements CommandExecutor {
                     }
 
                     break;
+                case "lock":
+                    if(params >= 2) {
+                        mManager.setLock(true, player, args[1]);
+                    }
+                    break;
+                case "unlock":
+                    if(params >= 2) {
+                        mManager.setLock(false, player, args[1]);
+                    }
+                    break;
+                case "refresh":
+                    mManager.refresh();
+                    break;
             }
         }
 
         switch (args[0]){
             case "info":
-                if(params < 2){
-                    return true;
+                if(params >= 2){
+                    mManager.info(player, args[1]);
                 }
-
-                mManager.info(player, args[1]);
                 break;
             case "buy":
-                if(params < 2){
-                    return true;
+                if(params >= 2){
+                    mManager.preBuy(player, args[1]);
                 }
-
-                mManager.preBuy(player, args[1]);
+                break;
+            case "sell":
+                if(params >= 2){
+                    mManager.preSell(player, args[1]);
+                }
                 break;
             case "confirm":
                 mManager.confirm(player);

@@ -12,29 +12,28 @@ public class WorldParam {
     private World mWorld;
 
     private int mOwnerLimit;
-    private double mBuyRate, mBuyRateGain;
-    private double mSellRate, mSellRateGain;
+    private double mPurchaseRate, mPurchaseRateGain;
+    private double mSellRate;
 
-    private List<String> mBuyRuleMessage, mSellRuleMessage;
+    private List<String> mPurchaseRuleMessage, mSellRuleMessage;
 
     public WorldParam(WorldParamUpdateListener listener, World world, int ownerLimit,
-                      double buyRate, double buyRateGain, List<String> buyRuleMessage,
-                      double sellRate, double sellRateGain, List<String> sellRuleMessage){
+                      double purchaseRate, double purchaseRateGain, List<String> PurchaseRuleMessage,
+                      double sellRate, List<String> sellRuleMessage){
         mListener = listener;
 
         mWorld = world;
 
         mOwnerLimit = ownerLimit;
 
-        mBuyRate = buyRate;
-        mBuyRateGain = buyRateGain;
-        mBuyRuleMessage = buyRuleMessage;
+        mPurchaseRate = purchaseRate;
+        mPurchaseRateGain = purchaseRateGain;
+        mPurchaseRuleMessage = PurchaseRuleMessage;
 
         mSellRate = sellRate;
-        mSellRateGain = sellRateGain;
         mSellRuleMessage = sellRuleMessage;
 
-        translateAlternateColorCodes(mBuyRuleMessage);
+        translateAlternateColorCodes(mPurchaseRuleMessage);
         translateAlternateColorCodes(mSellRuleMessage);
     }
 
@@ -42,14 +41,13 @@ public class WorldParam {
         mListener.onUpdate(this);
     }
 
-    public void update(int ownerLimit, double buyRate, double buyRateGain, double sellRate, double sellRateGain){
+    public void update(int ownerLimit, double PurchaseRate, double PurchaseRateGain, double sellRate){
         mOwnerLimit = ownerLimit;
 
-        mBuyRate = buyRate;
-        mBuyRateGain = buyRateGain;
+        mPurchaseRate = PurchaseRate;
+        mPurchaseRateGain = PurchaseRateGain;
 
         mSellRate = sellRate;
-        mSellRateGain = sellRateGain;
 
         mListener.onUpdate(this);
     }
@@ -66,24 +64,20 @@ public class WorldParam {
         return  mOwnerLimit;
     }
 
-    public double getBuyRate(){
-        return mBuyRate;
+    public double getPurchaseRate(){
+        return mPurchaseRate;
     }
 
-    public double getBuyRateGain(){
-        return mBuyRateGain;
+    public double getPurchaseRateGain(){
+        return mPurchaseRateGain;
     }
 
-    public List<String> getBuyRuleMessage(){
-        return mBuyRuleMessage;
+    public List<String> getPurchaseRuleMessage(){
+        return mPurchaseRuleMessage;
     }
 
     public double getSellRate(){
         return mSellRate;
-    }
-
-    public double getSellRateGain(){
-        return mSellRateGain;
     }
 
     public List<String> getSellRuleMessage(){

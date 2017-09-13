@@ -11,6 +11,7 @@ import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
 import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
 import jp.kentan.minecraft.neko_core.zone.component.WorldParam;
+import jp.kentan.minecraft.neko_core.zone.component.WorldParamComparator;
 import jp.kentan.minecraft.neko_core.zone.listener.SignEventListener;
 import jp.kentan.minecraft.neko_core.zone.listener.ZoneSignEventListener;
 import org.bukkit.*;
@@ -119,23 +120,23 @@ public class ZoneManager implements ZoneSignEventListener {
         }
 
         if(statusText.contains("販売中")){
-            player.sendMessage(ChatColor.GRAY + "この区画を購入するには " + ChatColor.RESET + "/zone buy " + nameArea + ChatColor.GRAY + " と入力して下さい.");
+            player.sendMessage(ChatColor.GRAY + "この区画を購入するには " + ChatColor.RESET + "/zone purchase " + nameArea + ChatColor.GRAY + " と入力して下さい.");
         }
     }
 
 
-    void setWorldParam(Player player, int ownerLimit, double buyRate, double buyRateGain, double sellRate, double sellRateGain){
+    void setWorldParam(Player player, int ownerLimit, double purchaseRate, double purchaseRateGain, double sellRate, double sellRateGain){
         if(ownerLimit < 0){
             sendWarn(player, "所有者上限は0以上に設定して下さい.");
             return;
         }
 
-        if(buyRate < 0D || sellRate < 0D){
+        if(purchaseRate < 0D || sellRate < 0D){
             sendWarn(player, "レートは0以上に設定して下さい.");
             return;
         }
 
-        if(buyRateGain < 1D || sellRateGain < 1D){
+        if(purchaseRateGain < 1D || sellRateGain < 1D){
             sendWarn(player, "レートゲインは1以上に設定して下さい.");
             return;
         }
@@ -143,9 +144,9 @@ public class ZoneManager implements ZoneSignEventListener {
         WorldParam param = mConfigProvider.getWorldParam(player.getWorld());
 
         if(param == null){
-            new WorldParam(mConfigProvider, player.getWorld(), ownerLimit, buyRate, buyRateGain, null, sellRate, sellRateGain, null).save();
+            new WorldParam(mConfigProvider, player.getWorld(), ownerLimit, purchaseRate, purchaseRateGain, null, sellRate, null).save();
         }else{
-            param.update(ownerLimit, buyRate, buyRateGain, sellRate, sellRateGain);
+            param.update(ownerLimit, purchaseRate, purchaseRateGain, sellRate);
         }
 
         player.sendMessage(TAG + "ワールドパラメータを設定しました.");
@@ -174,7 +175,7 @@ public class ZoneManager implements ZoneSignEventListener {
         final Area area = mConfigProvider.getArea(player.getWorld(), nameArea);
 
         if(area != null){
-            double price = area.getBuyPrice(ZoneConfigProvider.getTotalOwnerNumber(player), mConfigProvider.getWorldParam(player.getWorld()));
+            double price = area.getPurchasePrice(ZoneConfigProvider.getTotalOwnerNumber(player), mConfigProvider.getWorldParam(player.getWorld()));
             OfflinePlayer owner = area.getOwner();
 
             player.sendMessage(new String[]{
@@ -194,7 +195,19 @@ public class ZoneManager implements ZoneSignEventListener {
 
 
     void sendLimits(Player player){
+        List<WorldParam> paramList = ZoneConfigProvider.getWorldParamList();
+        if(paramList.size() < 1){
+            sendWarn(player, "区画が存在するワールドがありません.");
+            return;
+        }
 
+        player.sendMessage(ChatColor.GRAY + "**********" + ChatColor.GOLD + " 区画上限 " + ChatColor.GRAY + "**********");
+
+        paramList.sort(WorldParamComparator.getInstance());
+        UUID uuid = player.getUniqueId();
+
+        paramList.forEach(param -> player.sendMessage(ChatColor.GRAY + " - " + ChatColor.RESET + param.getWorldName() + ": " +
+                ChatColor.YELLOW + ZoneConfigProvider.getTotalOwnerNumber(uuid, param.getWorld()) + "/" + param.getOwnerLimit()));
     }
 
 
@@ -215,7 +228,7 @@ public class ZoneManager implements ZoneSignEventListener {
     }
 
 
-    void preBuy(Player player, String nameArea){
+    void prePurchase(Player player, String nameArea){
         Area area = mConfigProvider.getArea(player.getWorld(), nameArea);
 
         if(area == null){
@@ -224,10 +237,10 @@ public class ZoneManager implements ZoneSignEventListener {
         }
 
 
-        int ownerAreaNum = PlayerConfigProvider.getOwnerAreaTotalNumber(player.getUniqueId(), player.getWorld().getName());
-        int ownerAreaLimit = (int)ZoneConfigProvider.get(player.getWorld().getName(), "ownerLimit", 1);
+        int ownerAreaTotal = PlayerConfigProvider.getOwnerAreaTotalNumber(player.getUniqueId(), player.getWorld().getName());
+        int ownerAreaLimit = mConfigProvider.getWorldParam(player.getWorld()).getOwnerLimit();
 
-        if(ownerAreaNum >= ownerAreaLimit){
+        if(ownerAreaTotal >= ownerAreaLimit){
             sendWarn(player, "このワールドにおける区画の所有数が上限に達しています.");
             return;
         }
@@ -235,16 +248,18 @@ public class ZoneManager implements ZoneSignEventListener {
         mWaitingAreaProcessMap.remove(player); //前回の認証処理を消去
 
         if(area.onSale()){
-            double price = area.getBuyPrice(ZoneConfigProvider.getTotalOwnerNumber(player), mConfigProvider.getWorldParam(player.getWorld()));
+            double price = area.getPurchasePrice(ZoneConfigProvider.getTotalOwnerNumber(player), mConfigProvider.getWorldParam(player.getWorld()));
+            List<String> ruleMessage = mConfigProvider.getWorldParam(player.getWorld()).getPurchaseRuleMessage();
 
-            List<String> ruleMessage = mConfigProvider.getWorldParam(player.getWorld()).getBuyRuleMessage();
+            if(ruleMessage != null){
+                player.sendMessage(ChatColor.GRAY + "***************" + ChatColor.RED + " 区画購入規約 " + ChatColor.GRAY + "***************");
+                player.sendMessage(ruleMessage.toArray(new String[ruleMessage.size()]));
+            }
 
-            player.sendMessage(ChatColor.GRAY + "***************" + ChatColor.BLUE + " 区画購入規約 " + ChatColor.GRAY + "***************");
-            player.sendMessage(ruleMessage.toArray(new String[ruleMessage.size()]));
             player.sendMessage(TAG + nameArea + "を" + ChatColor.YELLOW + "\u00A5" + price + ChatColor.RESET + "で購入しますか？");
             player.sendMessage(TAG + ChatColor.GRAY + "購入を確定するには " + ChatColor.RED + "/zone confirm" + ChatColor.GRAY + " と入力して下さい.");
 
-            mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.BUY, area, price));
+            mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.PURCHASE, area, price));
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
                     () -> mWaitingAreaProcessMap.remove(player), 20L * 15);
@@ -268,10 +283,18 @@ public class ZoneManager implements ZoneSignEventListener {
 
         mWaitingAreaProcessMap.remove(player); //前回の認証処理を消去
 
-        player.sendMessage(TAG + nameArea + "を" + ChatColor.YELLOW + "\u00A5" + 0 + ChatColor.RESET + "で売却しますか？");
+        double price = area.getSellPrice(mConfigProvider.getWorldParam(player.getWorld()));
+        List<String> ruleMessage = mConfigProvider.getWorldParam(player.getWorld()).getSellRuleMessage();
+
+        if(ruleMessage != null){
+            player.sendMessage(ChatColor.GRAY + "***************" + ChatColor.DARK_RED + " 区画売却規約 " + ChatColor.GRAY + "***************");
+            player.sendMessage(ruleMessage.toArray(new String[ruleMessage.size()]));
+        }
+
+        player.sendMessage(TAG + nameArea + "を " + ChatColor.YELLOW + "\u00A5" + price + ChatColor.RESET + " で売却しますか？");
         player.sendMessage(TAG + ChatColor.GRAY + "売却を確定するには " + ChatColor.RED + "/zone confirm" + ChatColor.GRAY + " と入力して下さい.");
 
-        mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.SALE, area, 0D));//ToDo 売値計算
+        mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.SELL, area, price));
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
                 () -> mWaitingAreaProcessMap.remove(player), 20L * 15);
@@ -289,10 +312,10 @@ public class ZoneManager implements ZoneSignEventListener {
         mWaitingAreaProcessMap.remove(player);
 
         switch (processInfo.getType()){
-            case BUY:
-                buy(player, processInfo.getArea(), processInfo.getPrice());
+            case PURCHASE:
+                purchase(player, processInfo.getArea(), processInfo.getPrice());
                 break;
-            case SALE:
+            case SELL:
                 sell(player, processInfo.getArea(), processInfo.getPrice());
                 break;
             default:
@@ -300,7 +323,7 @@ public class ZoneManager implements ZoneSignEventListener {
         }
     }
 
-    private void buy(Player player, Area area, double price){
+    private void purchase(Player player, Area area, double price){
         double balance = EconomyProvider.getBalance(player);
 
         if(balance < price){
@@ -320,7 +343,7 @@ public class ZoneManager implements ZoneSignEventListener {
             return;
         }
 
-        area.buy(player.getUniqueId(), region);
+        area.purchase(player.getUniqueId(), region, price);
 
         player.sendMessage(TAG + area.getName() + "を " + ChatColor.YELLOW + "\u00A5" + price + ChatColor.RESET + " で購入しました！");
     }
@@ -358,7 +381,7 @@ public class ZoneManager implements ZoneSignEventListener {
 
 
     private static class AreaProcessInfo{
-        enum Type {BUY, SALE}
+        enum Type {PURCHASE, SELL}
 
         private Type mType;
         private Area mArea;

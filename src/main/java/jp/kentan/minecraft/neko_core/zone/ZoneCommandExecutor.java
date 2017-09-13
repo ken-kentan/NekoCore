@@ -78,9 +78,9 @@ class ZoneCommandExecutor implements CommandExecutor {
             case "limits":
                 mManager.sendLimits(player);
                 break;
-            case "buy":
+            case "purchase":
                 if(params >= 2){
-                    mManager.preBuy(player, args[1]);
+                    mManager.prePurchase(player, args[1]);
                 }
                 break;
             case "sell":

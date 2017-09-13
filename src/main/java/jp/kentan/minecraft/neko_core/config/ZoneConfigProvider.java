@@ -72,24 +72,24 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                                 name,
                                 config.getString(PATH + ".id"),
                                 (strUuid != null) ? UUID.fromString(strUuid) : null,
+                                config.getDouble(PATH + ".purchasedPrice", -1D),
                                 config.getInt(PATH + ".size"),
                                 config.getBoolean(PATH + ".onSale"),
                                 signLocation
                         ));
                     });
 
-                    boolean enableBuyRuleMessage = config.getBoolean("Buy.ruleMessageEnabled", false);
-                    boolean enableSellRuleMessage = config.getBoolean("Sell.ruleMessageEnabled", false);
+                    boolean enablePurchaseRuleMessage = config.getBoolean("Purchase.ruleMessageEnabled", false);
+                    boolean enableSellRuleMessage     = config.getBoolean("Sell.ruleMessageEnabled", false);
 
                     sWorldParamCacheMap.put(world, new WorldParam(
                             this,
                             world,
                             config.getInt("ownerLimit"),
-                            config.getDouble("Buy.rate"),
-                            config.getDouble("Buy.rateGain"),
-                            enableBuyRuleMessage ? config.getStringList("Buy.ruleMessage") : null,
+                            config.getDouble("Purchase.rate"),
+                            config.getDouble("Purchase.rateGain"),
+                            enablePurchaseRuleMessage ? config.getStringList("Purchase.ruleMessage") : null,
                             config.getDouble("Sell.rate"),
-                            config.getDouble("Sell.rateGain"),
                             enableSellRuleMessage ? config.getStringList("Sell.ruleMessage") : null
                     ));
 
@@ -118,11 +118,14 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             final Location SIGN = area.getSignLocation();
             final UUID OWNER = area.getOwnerUuid();
 
+            sWorldAreaCacheMap.get(area.getWorld()).put(area.getName(), area);
+
             save(area.getWorldName(), new HashMap<String, Object>(){
                 {
                     put(PATH + ".id", area.getId());
                     put(PATH + ".size", area.getSize());
                     put(PATH + ".owner", (OWNER != null) ? OWNER.toString() : null);
+                    put(PATH + ".purchasedPrice", area.getPurchasedPrice());
                     put(PATH + ".onSale", area.onSale());
 
                     if(SIGN == null){
@@ -141,13 +144,14 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
     public void onUpdate(WorldParam param) {
         //非同期で保存
         Bukkit.getScheduler().runTaskAsynchronously(NekoCore.getPlugin(), () -> {
-            save(param.getWorldName(), new HashMap<String, Object>(){
+            sWorldParamCacheMap.put(param.getWorld(), param);
+
+            save(param.getWorldName(), new HashMap<String, Object>() {
                 {
                     put("ownerLimit", param.getOwnerLimit());
-                    put("Buy.rate",        param.getBuyRate());
-                    put("Buy.rateGain",    param.getBuyRateGain());
-                    put("Sell.rate",        param.getSellRate());
-                    put("Sell.rateGain",    param.getSellRateGain());
+                    put("Purchase.rate", param.getPurchaseRate());
+                    put("Purchase.rateGain", param.getPurchaseRateGain());
+                    put("Sell.rate", param.getSellRate());
                 }
             });
         });
@@ -193,6 +197,7 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                     name,
                     config.getString(PATH + ".id"),
                     (strUuid != null) ? UUID.fromString(strUuid) : null,
+                    config.getDouble(PATH + ".purchasedPrice", -1D),
                     config.getInt(PATH + ".size"),
                     config.getBoolean(PATH + ".onSale"),
                     signLocation
@@ -228,18 +233,17 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             config.load(reader);
             reader.close();
 
-            boolean enableBuyRuleMessage = config.getBoolean("Buy.ruleMessageEnabled", false);
+            boolean enablePurchaseRuleMessage = config.getBoolean("Purchase.ruleMessageEnabled", false);
             boolean enableSellRuleMessage = config.getBoolean("Sell.ruleMessageEnabled", false);
 
             param = new WorldParam(
                     this,
                     world,
                     config.getInt("ownerLimit"),
-                    config.getDouble("Buy.rate"),
-                    config.getDouble("Buy.rateGain"),
-                    enableBuyRuleMessage ? config.getStringList("Buy.ruleMessage") : null,
+                    config.getDouble("Purchase.rate"),
+                    config.getDouble("Purchase.rateGain"),
+                    enablePurchaseRuleMessage ? config.getStringList("Purchase.ruleMessage") : null,
                     config.getDouble("Sell.rate"),
-                    config.getDouble("Sell.rateGain"),
                     enableSellRuleMessage ? config.getStringList("Sell.ruleMessage") : null
             );
         } catch (Exception e) {
@@ -253,11 +257,17 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
         return param;
     }
 
-    public static int getTotalOwnerNumber(Player owner){
-        final UUID OWNER = owner.getUniqueId();
+    public static List<WorldParam> getWorldParamList(){
+        return new ArrayList<>(sWorldParamCacheMap.values());
+    }
 
+    public static int getTotalOwnerNumber(Player owner){
+        return getTotalOwnerNumber(owner.getUniqueId(), owner.getWorld());
+    }
+
+    public static int getTotalOwnerNumber(UUID owner, World world){
         try {
-            return  (int) sWorldAreaCacheMap.get(owner.getWorld()).entrySet().parallelStream().filter(map -> map.getValue().isOwner(OWNER)).count();
+            return  (int) sWorldAreaCacheMap.get(world).entrySet().parallelStream().filter(map -> map.getValue().isOwner(owner)).count();
         }catch (Exception e){
             return 0;
         }
@@ -270,13 +280,14 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                 name,
                 id,
                 null,
+                -1D,
                 size,
                 true,
                 null
         ).save();
     }
 
-    private boolean save(String nameWorld, Map<String, Object> dataList) {
+    private void save(String nameWorld, Map<String, Object> dataList) {
         final File file = new File(sFolderPath + nameWorld + ".yml");
 
         try {
@@ -292,47 +303,6 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             config.save(file);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
-
-        return true;
-    }
-
-    public static Object get(String nameWorld, String path, Object def) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + nameWorld + ".yml"), UTF_8)) {
-
-            FileConfiguration config = new YamlConfiguration();
-
-            config.load(reader);
-
-            reader.close();
-
-            return config.get(path, def);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public static Map<String, Object> get(String nameWorld, List<String> pathList) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + nameWorld + ".yml"), UTF_8)) {
-
-            FileConfiguration config = new YamlConfiguration();
-
-            config.load(reader);
-
-            reader.close();
-
-            Map<String, Object> dataMap = new HashMap<>();
-
-            pathList.forEach(p -> dataMap.put(p, config.get(p)));
-
-            return dataMap;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

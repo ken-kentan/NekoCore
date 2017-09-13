@@ -2,7 +2,6 @@ package jp.kentan.minecraft.neko_core.zone.component;
 
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
 import jp.kentan.minecraft.neko_core.utils.Log;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -10,8 +9,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 
 public class Area {
@@ -22,8 +19,6 @@ public class Area {
     public final static String SOLD_TEXT = ChatColor.GOLD + "契約済み";
     public final static String PROCESSING_TEXT = ChatColor.DARK_GRAY + "手続き中...";
 
-    private final static double INF_PRICE = 99999999999D;
-
     private AreaUpdateListener mListener;
 
     private World mWorld;
@@ -31,16 +26,17 @@ public class Area {
     private UUID mOwnerUuid;
     private int mSize;
     private boolean mOnSale;
+    private double mPurchasedPrice;
     private Location mSignLocation;
 
-    public Area(AreaUpdateListener listener, World world, String name, String id, UUID owner, int size, boolean onSale, Location signLocation){
+    public Area(AreaUpdateListener listener, World world, String name, String id, UUID owner, double purchasedPrice, int size, boolean onSale, Location signLocation){
         mListener = listener;
 
         mWorld = world;
         mName = name;
         mId = id;
         mOwnerUuid = owner;
-
+        mPurchasedPrice = purchasedPrice;
         mSize = size;
         mOnSale = onSale;
 
@@ -104,7 +100,7 @@ public class Area {
         mListener.onUpdate(this);
     }
 
-    public void buy(UUID ownerUuid, ProtectedRegion region){
+    public void purchase(UUID ownerUuid, ProtectedRegion region, double price){
         DefaultDomain members = new DefaultDomain();
         members.addPlayer(ownerUuid);
 
@@ -112,6 +108,7 @@ public class Area {
 
         mOwnerUuid = ownerUuid;
         mOnSale = false;
+        mPurchasedPrice = price;
 
         updateSign();
 
@@ -143,7 +140,7 @@ public class Area {
         return true;
     }
 
-    public World getWorld() {
+    public World getWorld(){
         return mWorld;
     }
 
@@ -173,16 +170,28 @@ public class Area {
 
     public UUID getOwnerUuid(){ return mOwnerUuid; }
 
-    public double getBuyPrice(int total, WorldParam param){
-        double rate = param.getBuyRate();
+    public double getPurchasePrice(int total, WorldParam param){
+        double rate = param.getPurchaseRate();
 
         total = Math.min(total, param.getOwnerLimit() - 1);
 
         if(total > 0){
-            rate *= param.getBuyRateGain() * total;
+            rate *= param.getPurchaseRateGain() * total;
         }
 
         return rate * mSize;
+    }
+
+    public double getPurchasedPrice(){
+        return mPurchasedPrice;
+    }
+
+    public double getSellPrice(WorldParam param){
+        if(mPurchasedPrice < 0D){
+            return 0D;
+        }
+
+        return mPurchasedPrice * param.getSellRate();
     }
 
     public boolean onSale(){ return mOnSale; }

@@ -1,9 +1,11 @@
 package jp.kentan.minecraft.neko_core.zone;
 
+import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 class ZoneCommandExecutor implements CommandExecutor {
@@ -18,17 +20,17 @@ class ZoneCommandExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         final int params = args.length;
 
-        if(params < 1 || !NekoUtils.isPlayer(sender)){
+        if(params < 1){
             printHelp(sender);
             return true;
         }
 
         final Player player = NekoUtils.toPlayer(sender);
 
-        if(sender.hasPermission("neko.zone.admin")){
+        if(sender.hasPermission("neko.zone.admin") || sender instanceof ConsoleCommandSender){
             switch (args[0]){
                 case "param":
-                    if(params < 6) {
+                    if(params < 5 || player == null) {
                         return true;
                     }
 
@@ -42,7 +44,7 @@ class ZoneCommandExecutor implements CommandExecutor {
                     break;
                 case "register":
                 case "rg":
-                    if(params < 4) {
+                    if(params < 4 || player == null) {
                         return true;
                     }
 
@@ -53,20 +55,31 @@ class ZoneCommandExecutor implements CommandExecutor {
                     }
 
                     break;
-                case "lock":
+                case "remove":
+                case "rm":
                     if(params >= 2) {
+                        mManager.remove(player, args[1]);
+                    }
+                    break;
+                case "lock":
+                    if(params >= 2 || player == null) {
                         mManager.setSaleStatus(false, player, args[1]);
                     }
                     break;
                 case "unlock":
-                    if(params >= 2) {
+                    if(params >= 2 || player == null) {
                         mManager.setSaleStatus(true, player, args[1]);
                     }
                     break;
                 case "refresh":
                     mManager.refresh();
-                    break;
+                    return true;
             }
+        }
+
+        if(player == null){
+            Log.warn("This command is not support in console.");
+            return true;
         }
 
         switch (args[0]){

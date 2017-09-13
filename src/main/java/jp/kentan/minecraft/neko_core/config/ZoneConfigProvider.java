@@ -49,35 +49,38 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                     reader.close();
 
                     Map<String, Area> areaMap = Collections.synchronizedMap(new HashMap<>());
-                    Set<String> areaSet = config.getConfigurationSection("Area").getKeys(false);
 
-                    areaSet.forEach(name -> {
-                        final String PATH = "Area." + name;
+                    if(config.isConfigurationSection("Area")) {
+                        Set<String> areaSet = config.getConfigurationSection("Area").getKeys(false);
 
-                        String strUuid = config.getString(PATH + ".owner");
+                        areaSet.forEach(name -> {
+                            final String PATH = "Area." + name;
 
-                        Location signLocation = null;
+                            String strUuid = config.getString(PATH + ".owner");
 
-                        if(config.contains(PATH + ".sign")){
-                            signLocation = new Location(world,
-                                    config.getDouble(PATH + ".sign.x"),
-                                    config.getDouble(PATH + ".sign.y"),
-                                    config.getDouble(PATH + ".sign.z")
-                            );
-                        }
+                            Location signLocation = null;
 
-                        areaMap.put(name, new Area(
-                                this,
-                                world,
-                                name,
-                                config.getString(PATH + ".id"),
-                                (strUuid != null) ? UUID.fromString(strUuid) : null,
-                                config.getDouble(PATH + ".purchasedPrice", -1D),
-                                config.getInt(PATH + ".size"),
-                                config.getBoolean(PATH + ".onSale"),
-                                signLocation
-                        ));
-                    });
+                            if (config.contains(PATH + ".sign")) {
+                                signLocation = new Location(world,
+                                        config.getDouble(PATH + ".sign.x"),
+                                        config.getDouble(PATH + ".sign.y"),
+                                        config.getDouble(PATH + ".sign.z")
+                                );
+                            }
+
+                            areaMap.put(name, new Area(
+                                    this,
+                                    world,
+                                    name,
+                                    config.getString(PATH + ".id"),
+                                    (strUuid != null) ? UUID.fromString(strUuid) : null,
+                                    config.getDouble(PATH + ".purchasedPrice", -1D),
+                                    config.getInt(PATH + ".size"),
+                                    config.getBoolean(PATH + ".onSale"),
+                                    signLocation
+                            ));
+                        });
+                    }
 
                     boolean enablePurchaseRuleMessage = config.getBoolean("Purchase.ruleMessageEnabled", false);
                     boolean enableSellRuleMessage     = config.getBoolean("Sell.ruleMessageEnabled", false);
@@ -100,7 +103,8 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             }
         });
 
-        Log.print("World area cache created with async.");
+        Log.print("WorldParamCacheMap has been created async.");
+        Log.print("WorldAreaCacheMap has been created async.");
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(NekoCore.getPlugin(), () -> sWorldAreaCacheMap.forEach((w, m) -> m.forEach((n, a) -> a.updateSign())));
 
@@ -118,25 +122,45 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             final Location SIGN = area.getSignLocation();
             final UUID OWNER = area.getOwnerUuid();
 
-            sWorldAreaCacheMap.get(area.getWorld()).put(area.getName(), area);
+            final World WORLD = area.getWorld();
+
+            if(sWorldAreaCacheMap.containsKey(WORLD)){
+                if(area.getId() != null) {
+                    sWorldAreaCacheMap.get(WORLD).put(area.getName(), area);
+                }else{
+                    sWorldAreaCacheMap.get(WORLD).remove(area.getName());
+                }
+            }else{
+                sWorldAreaCacheMap.put(WORLD, new HashMap<String, Area>(){
+                    {
+                        put(area.getName(), area);
+                    }
+                });
+            }
+
 
             save(area.getWorldName(), new HashMap<String, Object>(){
                 {
-                    put(PATH + ".id", area.getId());
-                    put(PATH + ".size", area.getSize());
-                    put(PATH + ".owner", (OWNER != null) ? OWNER.toString() : null);
-                    put(PATH + ".purchasedPrice", area.getPurchasedPrice());
-                    put(PATH + ".onSale", area.onSale());
+                    if(area.getId() != null) {
+                        put(PATH + ".id", area.getId());
+                        put(PATH + ".size", area.getSize());
+                        put(PATH + ".owner", (OWNER != null) ? OWNER.toString() : null);
+                        put(PATH + ".purchasedPrice", area.getPurchasedPrice());
+                        put(PATH + ".onSale", area.onSale());
 
-                    if(SIGN == null){
-                        put(PATH + ".sign", null);
-                    }else {
-                        put(PATH + ".sign.x", SIGN.getX());
-                        put(PATH + ".sign.y", SIGN.getY());
-                        put(PATH + ".sign.z", SIGN.getZ());
+                        if (SIGN == null) {
+                            put(PATH + ".sign", null);
+                        } else {
+                            put(PATH + ".sign.x", SIGN.getX());
+                            put(PATH + ".sign.y", SIGN.getY());
+                            put(PATH + ".sign.z", SIGN.getZ());
+                        }
+                    }else{ //消去
+                        put(PATH, null);
                     }
                 }
             });
+            Log.print("Area data has been saved async.");
         });
     }
 
@@ -154,15 +178,20 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                     put("Sell.rate", param.getSellRate());
                 }
             });
+            Log.print("WorldParam data has been saved async.");
         });
     }
 
     public Area getArea(World world, String name){
-        //キャッシュから探す
-        Area area = sWorldAreaCacheMap.get(world).get(name);
+        Area area;
 
-        if(area != null){
-            return area;
+        //キャッシュから探す
+        if(sWorldAreaCacheMap.containsKey(world)) {
+            area = sWorldAreaCacheMap.get(world).get(name);
+
+            if (area != null) {
+                return area;
+            }
         }
 
         //見つからなかった場合、ファイルから探す
@@ -178,6 +207,10 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             reader.close();
 
             final String PATH = "Area." + name;
+
+            if(!config.contains(PATH)){
+                return null;
+            }
 
             String strUuid = config.getString(PATH + ".owner");
 

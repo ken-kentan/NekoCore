@@ -119,7 +119,7 @@ public class ZoneManager implements ZoneSignEventListener {
             return;
         }
 
-        if(statusText.contains("販売中")){
+        if(statusText.contains("販売中") && area != null){
             player.sendMessage(ChatColor.GRAY + "この区画を購入するには " + ChatColor.RESET + "/zone purchase " + nameArea + ChatColor.GRAY + " と入力して下さい.");
         }
     }
@@ -153,7 +153,7 @@ public class ZoneManager implements ZoneSignEventListener {
     }
 
 
-    void register(Player player, String areaId, String areaName, int size){
+    void register(Player player, String name, String id, int size){
         if(size < 1){
             sendWarn(player, "面積は1以上に設定して下さい.");
             return;
@@ -161,12 +161,23 @@ public class ZoneManager implements ZoneSignEventListener {
 
         RegionManager regions = mRegionContainer.get(player.getWorld());
 
-        if (regions != null && regions.hasRegion(areaId)) {
-            mConfigProvider.register(player.getWorld(), areaName, areaId, size);
+        if (regions != null && regions.hasRegion(id)) {
+            mConfigProvider.register(player.getWorld(), name, id, size);
 
-            player.sendMessage(TAG + areaId + "を" + areaName + "で登録しました.");
+            player.sendMessage(TAG + id + "を" + name + "で登録しました.");
         } else {
-            sendWarn(player, areaId + "は存在しません.");
+            sendWarn(player, "区画ID " + id + " は存在しません.");
+        }
+    }
+
+    void remove(Player player, String name){
+        Area area = mConfigProvider.getArea(player.getWorld(), name);
+
+        if(area != null){
+            area.remove();
+            player.sendMessage(TAG + name + "を消去しました.");
+        }else{
+            sendWarn(player, "区画名 " + name + " は登録されていません.");
         }
     }
 
@@ -246,7 +257,7 @@ public class ZoneManager implements ZoneSignEventListener {
         Area area = mConfigProvider.getArea(player.getWorld(), nameArea);
 
         if(area == null){
-            sendWarn(player, nameArea + "は存在しません.");
+            sendWarn(player, nameArea + " は存在しません. 区画名を確認して下さい.");
             return;
         }
 

@@ -23,7 +23,7 @@ public class SignEventListener implements Listener {
 
     @EventHandler (ignoreCancelled = true)
     public void onSignChanged(SignChangeEvent event) {
-        if(event.getPlayer().hasPermission("neko.zone.moderator") && event.getLine(0).contains("[区画]")){
+        if(event.getPlayer().hasPermission("neko.zone.moderator") && event.getLine(0).contains("[zone]")){
             mListener.onSignPlace(event);
         }
     }

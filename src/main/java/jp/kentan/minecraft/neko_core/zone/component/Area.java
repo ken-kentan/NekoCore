@@ -47,6 +47,11 @@ public class Area {
         mListener.onUpdate(this);
     }
 
+    public void remove(){
+        mId = null;
+        mListener.onUpdate(this);
+    }
+
     public void updateSign(){
         if(mSignLocation == null){
             return;
@@ -68,10 +73,16 @@ public class Area {
             }
 
             if(!sign.update()){
-                Log.warn("failed to set Area sing at " + mSignLocation.toString());
+                Log.warn("failed to update Area sing at " +
+                        mSignLocation.getX() + ", " +
+                        mSignLocation.getY() + ", " +
+                        mSignLocation.getZ() + " in " + mSignLocation.getWorld().getName());
             }
         }else{ //看板が見つからなかった場合
-            Log.warn("failed to find Area sing at " + mSignLocation.toString());
+            Log.warn("Sign was not found at " +
+                    mSignLocation.getX() + ", " +
+                    mSignLocation.getY() + ", " +
+                    mSignLocation.getZ() + " in " + mSignLocation.getWorld().getName());
 
             mSignLocation = null;
 
@@ -120,6 +131,7 @@ public class Area {
 
         mOwnerUuid = null;
         mOnSale = false;
+        mPurchasedPrice = -1D;
 
         updateSign();
 

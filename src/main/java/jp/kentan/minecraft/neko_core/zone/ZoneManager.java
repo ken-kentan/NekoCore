@@ -125,7 +125,7 @@ public class ZoneManager implements ZoneSignEventListener {
     }
 
 
-    void setWorldParam(Player player, int ownerLimit, double purchaseRate, double purchaseRateGain, double sellRate, double sellRateGain){
+    void setWorldParam(Player player, int ownerLimit, double purchaseRate, double purchaseRateGain, double sellRate){
         if(ownerLimit < 0){
             sendWarn(player, "所有者上限は0以上に設定して下さい.");
             return;
@@ -136,7 +136,7 @@ public class ZoneManager implements ZoneSignEventListener {
             return;
         }
 
-        if(purchaseRateGain < 1D || sellRateGain < 1D){
+        if(purchaseRateGain < 1D){
             sendWarn(player, "レートゲインは1以上に設定して下さい.");
             return;
         }
@@ -175,15 +175,29 @@ public class ZoneManager implements ZoneSignEventListener {
         final Area area = mConfigProvider.getArea(player.getWorld(), nameArea);
 
         if(area != null){
-            double price = area.getPurchasePrice(ZoneConfigProvider.getTotalOwnerNumber(player), mConfigProvider.getWorldParam(player.getWorld()));
+            final WorldParam param = mConfigProvider.getWorldParam(player.getWorld());
+
+            boolean isOwner = area.isOwner(player.getUniqueId());
             OfflinePlayer owner = area.getOwner();
+
+            StringBuilder priceText = new StringBuilder();
+
+            if(isOwner){             //売却価格
+                priceText.append('\u00A5');
+                priceText.append(area.getSellPrice(param));
+            }else if(area.onSale()){ //販売価格
+                priceText.append('\u00A5');
+                priceText.append(area.getPurchasePrice(ZoneConfigProvider.getTotalOwnerNumber(player), param));
+            }else{                   //手続き中...
+                priceText.append("--");
+            }
 
             player.sendMessage(new String[]{
                     ChatColor.GRAY + "***************" + ChatColor.BLUE + " 区画情報 " + ChatColor.GRAY + "***************",
-                    " 名前: "      + nameArea,
-                    " ID: "       + area.getId(),
-                    " 価格: "      + ChatColor.YELLOW + "\u00A5" + price,
-                    " 所有者: "    + ((owner != null) ? ChatColor.DARK_GRAY + owner.getName() : ""),
+                    " 名前: " + nameArea,
+                    " ID: " + area.getId(),
+                    (isOwner ? " 売却価格: " : " 販売価格: " ) + ChatColor.YELLOW + priceText.toString(),
+                    " 所有者: " + ((owner != null) ? ChatColor.DARK_GRAY + owner.getName() : ""),
                     " ステータス: " + (area.onSale() ? Area.ON_SALE_TEXT : ((owner != null) ? Area.SOLD_TEXT : Area.PROCESSING_TEXT))
             });
         }else{

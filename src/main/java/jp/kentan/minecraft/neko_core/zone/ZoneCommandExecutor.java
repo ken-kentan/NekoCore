@@ -35,7 +35,7 @@ class ZoneCommandExecutor implements CommandExecutor {
                     try {
                         mManager.setWorldParam(player, Integer.parseInt(args[1]),
                                 Double.parseDouble(args[2]), Double.parseDouble(args[3]),
-                                Double.parseDouble(args[4]), Double.parseDouble(args[5]));
+                                Double.parseDouble(args[4]));
                     } catch (Exception e){
                         e.printStackTrace();
                     }

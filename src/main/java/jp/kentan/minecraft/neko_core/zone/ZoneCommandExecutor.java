@@ -27,13 +27,15 @@ class ZoneCommandExecutor implements CommandExecutor {
 
         if(sender.hasPermission("neko.zone.admin")){
             switch (args[0]){
-                case "world":
-                    if(params < 4) {
+                case "param":
+                    if(params < 6) {
                         return true;
                     }
 
                     try {
-                        mManager.setWorldConfig(player, Double.parseDouble(args[1]), Double.parseDouble(args[2]), Integer.parseInt(args[3]));
+                        mManager.setWorldParam(player, Integer.parseInt(args[1]),
+                                Double.parseDouble(args[2]), Double.parseDouble(args[3]),
+                                Double.parseDouble(args[4]), Double.parseDouble(args[5]));
                     } catch (Exception e){
                         e.printStackTrace();
                     }

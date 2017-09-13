@@ -173,30 +173,13 @@ public class Area {
 
     public UUID getOwnerUuid(){ return mOwnerUuid; }
 
-    public double getPrice(int total){ //ToDo レートをキャッシュ化
-        Map<String, Object> dataMap = ZoneConfigProvider.get(mWorld.getName(), Arrays.asList("rate", "rateGain", "ownerLimit"));
+    public double getBuyPrice(int total, WorldParam param){
+        double rate = param.getBuyRate();
 
-        int ownerLimit;
-        double rate, rateGain;
-
-        try {
-            if(dataMap == null){
-                return INF_PRICE;
-            }
-
-            ownerLimit = (int)dataMap.get("ownerLimit");
-
-            rate = (double)dataMap.get("rate");
-            rateGain = (double)dataMap.get("rateGain");
-        } catch (Exception e){
-            e.printStackTrace();
-            return INF_PRICE;
-        }
-
-        total = Math.min(total, --ownerLimit);
+        total = Math.min(total, param.getOwnerLimit() - 1);
 
         if(total > 0){
-            rate *= rateGain * total;
+            rate *= param.getBuyRateGain() * total;
         }
 
         return rate * mSize;

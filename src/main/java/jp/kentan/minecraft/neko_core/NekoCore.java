@@ -2,6 +2,7 @@ package jp.kentan.minecraft.neko_core;
 
 
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
+import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
 import jp.kentan.minecraft.neko_core.spawn.SpawnCommandExecutor;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialCommandExecutor;
@@ -13,6 +14,7 @@ import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import jp.kentan.minecraft.neko_core.vote.ServerVoteListener;
 import jp.kentan.minecraft.neko_core.vote.WeatherVote;
+import jp.kentan.minecraft.neko_core.zone.ZoneManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -43,6 +45,8 @@ public class NekoCore extends JavaPlugin implements Listener{
         mConfig = new ConfigManager(getDataFolder());
         mConfig.load();
 
+        EconomyProvider.setup();
+
         mTwitter = new TwitterProvider(mConfig.getTwitterConfig(), mConfig.getBotMessages());
 
         mWeatherVote = new WeatherVote();
@@ -52,6 +56,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
         new SpawnCommandExecutor(spawnManager);
         new TutorialCommandExecutor(new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
+        new ZoneManager();
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
 

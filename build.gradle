@@ -32,6 +32,11 @@ repositories {
         name "luck-repo"
         url "https://repo.lucko.me/"
     }
+
+    maven {
+        name "sk89q-repo"
+        url "http://maven.sk89q.com/repo/"
+    }
 }
 
 dependencies {
@@ -46,6 +51,8 @@ dependencies {
     compileOnly 'com.vexsoftware:nuvotifier-bukkit:2.3.4'
 
     compileOnly 'me.lucko.luckperms:luckperms-api:3.3'
+
+    compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
 
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.twitter4j:twitter4j-stream:4.0.4'

@@ -183,7 +183,7 @@ public class TwitterProvider {
         mStream.addListener(streamListener);
 
         // start user Stream
-        mStream.user();
+//        mStream.user();
     }
 
     private void startTimer(Plugin plugin){
@@ -197,7 +197,7 @@ public class TwitterProvider {
     }
 
     public void disable() {
-        mStream.shutdown();
+//        mStream.shutdown();
     }
 
     public void tweet(String str){

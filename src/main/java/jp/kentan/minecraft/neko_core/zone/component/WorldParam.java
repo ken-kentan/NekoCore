@@ -5,7 +5,7 @@ import org.bukkit.World;
 
 import java.util.List;
 
-public class WorldParam {
+public class WorldParam implements Comparable<WorldParam> {
 
     private WorldParamUpdateListener mListener;
 
@@ -90,5 +90,10 @@ public class WorldParam {
                 textList.set(i, ChatColor.translateAlternateColorCodes('&', textList.get(i)));
             }
         }
+    }
+
+    @Override
+    public int compareTo(WorldParam p) {
+        return mWorld.getName().compareTo(p.getWorldName());
     }
 }

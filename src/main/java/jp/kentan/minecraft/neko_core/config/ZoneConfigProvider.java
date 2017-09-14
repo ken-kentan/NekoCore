@@ -2,6 +2,7 @@ package jp.kentan.minecraft.neko_core.config;
 
 import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.utils.comparator.WorldComparator;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
 import jp.kentan.minecraft.neko_core.zone.component.AreaUpdateListener;
 import jp.kentan.minecraft.neko_core.zone.component.WorldParam;
@@ -20,6 +21,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateListener {
@@ -246,6 +248,31 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
         return area;
     }
 
+    public static Map<World, List<Area>> getOwnerAreaMap(UUID owner){
+        Map<World, List<Area>> ownerAreaMap = new HashMap<>();
+
+        Bukkit.getWorlds()
+                .parallelStream()
+                .sorted(WorldComparator.getInstance())
+                .forEach(world -> {
+            if(sWorldAreaCacheMap.containsKey(world)){
+                List<Area> areaList = sWorldAreaCacheMap.get(world)
+                        .values()
+                        .parallelStream()
+                        .sorted()
+                        .filter(a -> a.isOwner(owner))
+                        .collect(Collectors.toList());
+
+                if(areaList != null && areaList.size() > 0){
+                    ownerAreaMap.put(world, new ArrayList<>());
+                    ownerAreaMap.get(world).addAll(areaList);
+                }
+            }
+        });
+
+        return ownerAreaMap;
+    }
+
     public WorldParam getWorldParam(World world){
         //キャッシュから探す
         WorldParam param = sWorldParamCacheMap.get(world);
@@ -291,6 +318,10 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
     }
 
     public static List<WorldParam> getWorldParamList(){
+        if(sWorldParamCacheMap == null){
+            return Collections.emptyList();
+        }
+
         return new ArrayList<>(sWorldParamCacheMap.values());
     }
 

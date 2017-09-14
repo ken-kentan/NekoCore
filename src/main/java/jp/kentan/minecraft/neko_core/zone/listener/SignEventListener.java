@@ -1,5 +1,6 @@
 package jp.kentan.minecraft.neko_core.zone.listener;
 
+import jp.kentan.minecraft.neko_core.utils.Log;
 import org.bukkit.ChatColor;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -23,7 +24,7 @@ public class SignEventListener implements Listener {
 
     @EventHandler (ignoreCancelled = true)
     public void onSignChanged(SignChangeEvent event) {
-        if(event.getPlayer().hasPermission("neko.zone.moderator") && event.getLine(0).contains("[zone]")){
+        if(event.getPlayer().hasPermission("neko.zone.moderator") && event.getLine(0).equals("z")){
             mListener.onSignPlace(event);
         }
     }
@@ -35,7 +36,7 @@ public class SignEventListener implements Listener {
         if(blockState instanceof Sign && event.getPlayer().hasPermission("neko.zone.moderator")){
             Sign sign = (Sign)blockState;
 
-            if(sign.getLine(0).contains("SIGN_INDEX_TEXT")) {
+            if(sign.getLine(0).contains(SIGN_INDEX_TEXT)) {
                 mListener.onSignBreak(event.getPlayer(), sign);
             }
         }

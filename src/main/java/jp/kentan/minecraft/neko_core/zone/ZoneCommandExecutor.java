@@ -2,6 +2,7 @@ package jp.kentan.minecraft.neko_core.zone;
 
 import jp.kentan.minecraft.neko_core.utils.Log;
 import jp.kentan.minecraft.neko_core.utils.NekoUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,8 +21,8 @@ class ZoneCommandExecutor implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         final int params = args.length;
 
-        if(params < 1){
-            printHelp(sender);
+        if(params <= 0 || args[0].equals("help")){
+            sendHelp(sender);
             return true;
         }
 
@@ -88,9 +89,6 @@ class ZoneCommandExecutor implements CommandExecutor {
                     mManager.sendInfo(player, args[1]);
                 }
                 break;
-            case "limits":
-                mManager.sendLimits(player);
-                break;
             case "purchase":
                 if(params >= 2){
                     mManager.prePurchase(player, args[1]);
@@ -101,6 +99,15 @@ class ZoneCommandExecutor implements CommandExecutor {
                     mManager.preSell(player, args[1]);
                 }
                 break;
+            case "limits":
+                mManager.sendLimits(player);
+                break;
+            case "list":
+                mManager.sendList(player);
+                break;
+            case "rule":
+                mManager.sendRules(player);
+                break;
             case "confirm":
                 mManager.confirm(player);
                 break;
@@ -110,7 +117,20 @@ class ZoneCommandExecutor implements CommandExecutor {
         return true;
     }
 
-    private void printHelp(CommandSender sender){
-        sender.sendMessage("help");
+    private void sendHelp(CommandSender sender){
+        sender.sendMessage(HELP_MESSAGES);
     }
+
+    private final static String[] HELP_MESSAGES = new String[]{
+            "---------- 区画コマンドヘルプ ----------",
+            "| " + ChatColor.BLUE + "/zone info <区画名>    " + ChatColor.WHITE + " 区画名の情報を表示.",
+            "| " + ChatColor.BLUE + "/zone info <区画名>    " + ChatColor.WHITE + " 区画の情報を表示.",
+            "| " + ChatColor.BLUE + "/zone purchase <区画名>" + ChatColor.WHITE + " 区画を購入.",
+            "| " + ChatColor.BLUE + "/zone sell <区画名>    " + ChatColor.WHITE + " 区画を売却.",
+            "| " + ChatColor.BLUE + "/zone limits          " + ChatColor.WHITE + " 所有上限を表示.",
+            "| " + ChatColor.BLUE + "/zone list            " + ChatColor.WHITE + " 所有区画一覧を表示.",
+            "| " + ChatColor.BLUE + "/zone rule            " + ChatColor.WHITE + " ワールドの区画規約を表示.",
+            "| " + ChatColor.BLUE + "/zone help            " + ChatColor.WHITE + " ヘルプを表示.",
+            "---------------------------------------"
+    };
 }

@@ -11,7 +11,7 @@ import org.bukkit.event.block.SignChangeEvent;
 
 import java.util.UUID;
 
-public class Area {
+public class Area implements Comparable<Area> {
 
     private final static String SIGN_INDEX_TEXT = ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "[" + ChatColor.BLUE + ChatColor.BOLD + "区画" + ChatColor.DARK_GRAY + ChatColor.BOLD + "]";
 
@@ -228,5 +228,10 @@ public class Area {
         mListener.onUpdate(this);
 
         return null;
+    }
+
+    @Override
+    public int compareTo(Area a) {
+        return mName.compareTo(a.getName());
     }
 }

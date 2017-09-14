@@ -1,6 +1,5 @@
 package jp.kentan.minecraft.neko_core.zone.listener;
 
-import jp.kentan.minecraft.neko_core.utils.Log;
 import org.bukkit.ChatColor;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;

@@ -104,28 +104,6 @@ public class PlayerConfigProvider {
         return true;
     }
 
-    static boolean save(UUID uuid, String path, Object data) {
-        final File file = new File(sFolderPath + uuid + ".yml");
-
-        try {
-            if(!file.exists()){
-                file.createNewFile();
-            }
-
-            FileConfiguration config = new YamlConfiguration();
-            config.load(file);
-
-            config.set(path, data);
-
-            config.save(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
     static boolean addToArray(UUID uuid, String path, String data) {
         final List<String> oldList = getStringList(uuid, path);
         final List<String> newList = new ArrayList<>();

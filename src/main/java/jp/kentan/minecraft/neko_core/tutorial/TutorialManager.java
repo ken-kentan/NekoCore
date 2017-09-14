@@ -20,6 +20,7 @@ import org.bukkit.plugin.Plugin;
 public class TutorialManager implements Listener {
 
     private final String GUEST_LOGIN_MSG = "が" + ChatColor.GOLD + "ゲスト" + ChatColor.WHITE + "としてログインしました.";
+    private final String TUTORIAL_COMPLETE_MSG = ChatColor.translateAlternateColorCodes('&', "が&9チュートリアル&rを&6完了&rしました！");
     private final String INVALID_KEYWORD_MSG = NekoCore.TAG + ChatColor.YELLOW + "キーワードが間違っています. ルールを確認してください.";
     private final String ERROR_MSG = NekoCore.TAG + ChatColor.YELLOW + "チュートリアル処理に失敗しました. 運営に報告して下さい.";
 
@@ -121,7 +122,7 @@ public class TutorialManager implements Listener {
                             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
 
                             player.sendMessage(NekoCore.TAG + "できたてサーバー(猫)へようこそ！");
-                            NekoUtils.broadcast(INVALID_KEYWORD_MSG, player);
+                            NekoUtils.broadcast(player.getName() + TUTORIAL_COMPLETE_MSG, player);
                         });
 
                     }, mPermsApi.getStorage().getAsyncExecutor());

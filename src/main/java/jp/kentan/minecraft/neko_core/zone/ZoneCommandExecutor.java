@@ -123,7 +123,6 @@ class ZoneCommandExecutor implements CommandExecutor {
 
     private final static String[] HELP_MESSAGES = new String[]{
             "---------- 区画コマンドヘルプ ----------",
-            "| " + ChatColor.BLUE + "/zone info <区画名>    " + ChatColor.WHITE + " 区画名の情報を表示.",
             "| " + ChatColor.BLUE + "/zone info <区画名>    " + ChatColor.WHITE + " 区画の情報を表示.",
             "| " + ChatColor.BLUE + "/zone purchase <区画名>" + ChatColor.WHITE + " 区画を購入.",
             "| " + ChatColor.BLUE + "/zone sell <区画名>    " + ChatColor.WHITE + " 区画を売却.",

@@ -5,7 +5,6 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import jp.kentan.minecraft.neko_core.NekoCore;
-import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
 import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
 import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
 import jp.kentan.minecraft.neko_core.utils.Log;
@@ -312,7 +311,7 @@ public class ZoneManager implements ZoneSignEventListener {
         }
 
 
-        int ownerAreaTotal = PlayerConfigProvider.getOwnerAreaTotalNumber(player.getUniqueId(), player.getWorld().getName());
+        int ownerAreaTotal = ZoneConfigProvider.getTotalOwnerNumber(player);
         int ownerAreaLimit = mConfigProvider.getWorldParam(player.getWorld()).getOwnerLimit();
 
         if(ownerAreaTotal >= ownerAreaLimit){

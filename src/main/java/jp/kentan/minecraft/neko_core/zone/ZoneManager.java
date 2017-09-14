@@ -423,10 +423,15 @@ public class ZoneManager implements ZoneSignEventListener {
         player.sendMessage(TAG + area.getName() + "を" + ChatColor.YELLOW + "\u00A5" + price + ChatColor.RESET + "で購入しました！");
     }
 
-    private void sell(Player player, Area area, double price){ //ToDo 入金処理
+    private void sell(Player player, Area area, double price){
         final ProtectedRegion region = getProtectedRegion(player.getWorld(), area.getId());
         if(region == null){
             sendError(player, "IDエラーです. 運営に連絡して下さい.");
+            return;
+        }
+
+        if(!EconomyProvider.deposit(player, price)){
+            sendError(player, "入金処理に失敗しました. 運営に連絡して下さい.");
             return;
         }
 

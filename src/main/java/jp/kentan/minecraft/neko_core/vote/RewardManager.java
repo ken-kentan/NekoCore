@@ -28,7 +28,7 @@ public class RewardManager {
         mConfig = config;
     }
 
-    void vote(String playerName){
+    public void vote(String playerName){
         String[] broadcastMsgs = new String[]{
                 NekoCore.TAG + playerName + ChatColor.YELLOW + " がサーバーに投票しました！",
                 NekoCore.TAG + ChatColor.GRAY + "投票すると様々な" + ChatColor.GOLD + "特典" + ChatColor.GRAY + "を入手できます！",

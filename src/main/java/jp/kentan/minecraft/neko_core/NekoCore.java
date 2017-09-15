@@ -21,7 +21,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -32,6 +31,8 @@ public class NekoCore extends JavaPlugin implements Listener{
     private static JavaPlugin sPlugin;
 
     private ConfigManager mConfig;
+
+    private RewardManager mRewardManager;
 
     private TwitterProvider mTwitter;
     private WeatherVote mWeatherVote;
@@ -50,7 +51,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         mTwitter = new TwitterProvider(mConfig.getTwitterConfig(), mConfig.getBotMessages());
 
         mWeatherVote = new WeatherVote();
-        RewardManager rewardManager = new RewardManager(mConfig.getRewardConfig());
+        mRewardManager = new RewardManager(mConfig.getRewardConfig());
 
         final SpawnManager spawnManager = new SpawnManager(mConfig.getSpawnConfig());
 
@@ -58,7 +59,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         new TutorialCommandExecutor(new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
         new ZoneManager();
 
-        getServer().getPluginManager().registerEvents(new ServerVoteListener(rewardManager), this);
+        getServer().getPluginManager().registerEvents(new ServerVoteListener(mRewardManager), this);
 
         Log.print("onEnable");
     }
@@ -122,6 +123,11 @@ public class NekoCore extends JavaPlugin implements Listener{
                 case "cancel":
                     break;
                 case "bot":
+                    break;
+                case "forcevote":
+                    if(params >= 3){
+                        mRewardManager.vote(args[2]);
+                    }
                     break;
                 case "reload":
                     mConfig.load();

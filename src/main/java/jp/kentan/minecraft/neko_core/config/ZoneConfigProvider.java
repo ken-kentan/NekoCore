@@ -252,15 +252,15 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
         Map<World, List<Area>> ownerAreaMap = new HashMap<>();
 
         Bukkit.getWorlds()
-                .parallelStream()
+                .stream()
                 .sorted(WorldComparator.getInstance())
                 .forEach(world -> {
             if(sWorldAreaCacheMap.containsKey(world)){
                 List<Area> areaList = sWorldAreaCacheMap.get(world)
                         .values()
-                        .parallelStream()
-                        .sorted()
+                        .stream()
                         .filter(a -> a.isOwner(owner))
+                        .sorted()
                         .collect(Collectors.toList());
 
                 if(areaList != null && areaList.size() > 0){

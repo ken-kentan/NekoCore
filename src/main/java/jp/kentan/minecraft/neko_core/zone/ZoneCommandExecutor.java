@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 
 class ZoneCommandExecutor implements CommandExecutor {
 
+    private final static String WARN_EMPTY_AREA_NAME_MESSAGE = ZoneManager.TAG + ChatColor.YELLOW + "区画名を入力してください.";
+
     private ZoneManager mManager;
 
     ZoneCommandExecutor(ZoneManager manager){
@@ -87,16 +89,22 @@ class ZoneCommandExecutor implements CommandExecutor {
             case "info":
                 if(params >= 2){
                     mManager.sendInfo(player, args[1]);
+                }else{
+                    player.sendMessage(WARN_EMPTY_AREA_NAME_MESSAGE);
                 }
                 break;
             case "purchase":
                 if(params >= 2){
                     mManager.prePurchase(player, args[1]);
+                }else{
+                    player.sendMessage(WARN_EMPTY_AREA_NAME_MESSAGE);
                 }
                 break;
             case "sell":
                 if(params >= 2){
                     mManager.preSell(player, args[1]);
+                }else{
+                    player.sendMessage(WARN_EMPTY_AREA_NAME_MESSAGE);
                 }
                 break;
             case "limits":

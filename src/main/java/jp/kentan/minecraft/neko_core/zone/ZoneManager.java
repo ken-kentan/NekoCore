@@ -24,7 +24,7 @@ import java.util.*;
 
 public class ZoneManager implements ZoneSignEventListener {
 
-    private final static String TAG = ChatColor.GRAY + "[" + ChatColor.BLUE + "区画" + ChatColor.GRAY  + "] " + ChatColor.RESET;
+    public final static String TAG = ChatColor.GRAY + "[" + ChatColor.BLUE + "区画" + ChatColor.GRAY  + "] " + ChatColor.RESET;
 
     private ZoneConfigProvider mConfigProvider;
 

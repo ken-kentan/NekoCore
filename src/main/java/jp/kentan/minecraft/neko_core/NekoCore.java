@@ -180,14 +180,14 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     private void printHelp(CommandSender sender) {
         sender.sendMessage("---------- NekoCoreコマンドヘルプ ----------");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko nyan" + ChatColor.WHITE + " にゃーん.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko hp" + ChatColor.WHITE + " ホームページのURLを表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko map" + ChatColor.WHITE + " WebMapのURLを表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko discord" + ChatColor.WHITE + " DiscordのURLを表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.WHITE + " TwitterのURLを表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.WHITE + " 運営に<報告文>を送信します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.WHITE + " ワールドの天気投票を行います.");
-//        sender.sendMessage("| " + ChatColor.GOLD + "/neko account <Twitter ID>" + ChatColor.WHITE + " MinecraftIDとTwitterIDをリンクします。");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko nyan" + ChatColor.RESET + " にゃーん.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko hp" + ChatColor.RESET + " ホームページのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko map" + ChatColor.RESET + " WebMapのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko discord" + ChatColor.RESET + " DiscordのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko <twitter|tw>" + ChatColor.RESET + " TwitterのURLを表示します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko report <報告文>" + ChatColor.RESET + " 運営に<報告文>を送信します.");
+        sender.sendMessage("| " + ChatColor.GOLD + "/neko vote" + ChatColor.RESET + " ワールドの天気投票を行います.");
+        sender.sendMessage("| " + ChatColor.BLUE + "/zone" + ChatColor.RESET + " 区画管理のヘルプを表示.");
         sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です.");
         sender.sendMessage("---------------------------------------");
     }

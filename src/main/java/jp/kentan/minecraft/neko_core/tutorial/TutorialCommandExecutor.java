@@ -52,7 +52,7 @@ public class TutorialCommandExecutor implements CommandExecutor {
         Bukkit.getServer().dispatchCommand(
                 Bukkit.getConsoleSender(),
                 "tellraw " + player.getName() +
-                        " [\"\",{\"text\":\"サーバールール\",\"bold\":true,\"color\":\"aqua\"},{\"text\":\"[\",\"color\":\"gray\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"Link\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"]\",\"color\":\"gray\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"を\",\"color\":\"gold\"},{\"text\":\"確認\",\"color\":\"red\"},{\"text\":\"して,キーワードを入力してください.\",\"color\":\"gold\"}]");
+                        " [\"\",{\"text\":\"サーバールール\",\"bold\":true,\"color\":\"aqua\"},{\"text\":\"[\",\"color\":\"gray\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"ｸﾘｯｸ!\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"]\",\"color\":\"gray\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://minecraft.kentan.jp/rule/\"}},{\"text\":\"を\",\"color\":\"gold\"},{\"text\":\"確認\",\"color\":\"red\"},{\"text\":\"して,キーワードを入力してください.\",\"color\":\"gold\"}]");
         player.sendMessage(ChatColor.GOLD + "例 キーワードが cat の場合は");
         player.sendMessage(ChatColor.GOLD + "/tutorial cat");
         player.sendMessage(ChatColor.GOLD + "とチャットに入力してください.");

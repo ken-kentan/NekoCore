@@ -3,10 +3,12 @@ package jp.kentan.minecraft.neko_core;
 
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
 import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
+import jp.kentan.minecraft.neko_core.listener.PlayerEventListener;
 import jp.kentan.minecraft.neko_core.spawn.SpawnCommandExecutor;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialCommandExecutor;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
+import jp.kentan.minecraft.neko_core.utils.RankUtils;
 import jp.kentan.minecraft.neko_core.vote.RewardManager;
 import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
 import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
@@ -46,6 +48,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         mConfig = new ConfigManager(getDataFolder());
         mConfig.load();
 
+        RankUtils.setup();
         EconomyProvider.setup();
 
         mTwitter = new TwitterProvider(mConfig.getTwitterConfig(), mConfig.getBotMessages());
@@ -60,6 +63,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         new ZoneManager();
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(mRewardManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
 
         Log.print("onEnable");
     }
@@ -127,6 +131,13 @@ public class NekoCore extends JavaPlugin implements Listener{
                 case "forcevote":
                     if(params >= 3){
                         mRewardManager.vote(args[2]);
+                    }
+                    break;
+                case "rank":
+                    if(params >= 2){
+                        Player p = NekoUtils.getOnlinePlayer(args[2]);
+                        RankUtils.reset(p);
+                        RankUtils.update(p);
                     }
                     break;
                 case "reload":

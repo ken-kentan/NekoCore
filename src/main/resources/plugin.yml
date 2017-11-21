@@ -3,6 +3,7 @@ main: jp.kentan.minecraft.neko_core.NekoCore
 version: 2.0.0
 author: ken_kentan
 website: https://ken.kentan.jp
+softdepend: [LuckPerms]
 
 commands:
     neko:

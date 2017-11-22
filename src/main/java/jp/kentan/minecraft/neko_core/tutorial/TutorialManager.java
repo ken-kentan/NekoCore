@@ -7,6 +7,7 @@ import jp.kentan.minecraft.neko_core.utils.NekoUtils;
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.*;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 
@@ -123,6 +125,8 @@ public class TutorialManager implements Listener {
 
                             player.sendMessage(NekoCore.TAG + "できたてサーバー(猫)へようこそ！");
                             NekoUtils.broadcast(NekoCore.TAG + player.getName() + TUTORIAL_COMPLETE_MSG, player);
+
+                            giveWelcomeItems(player);
                         });
 
                     }, mPermsApi.getStorage().getAsyncExecutor());
@@ -134,5 +138,15 @@ public class TutorialManager implements Listener {
     private void failed(Player player, String detail){
         player.sendMessage(ERROR_MSG);
         Log.warn(detail);
+    }
+
+    private void giveWelcomeItems(Player player){
+        player.getInventory().addItem(
+                new ItemStack(Material.IRON_HELMET),
+                new ItemStack(Material.IRON_CHESTPLATE),
+                new ItemStack(Material.IRON_LEGGINGS),
+                new ItemStack(Material.IRON_BOOTS),
+                new ItemStack(Material.BAKED_POTATO, 64)
+        );
     }
 }

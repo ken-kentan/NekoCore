@@ -146,6 +146,8 @@ public class TutorialManager implements Listener {
                 new ItemStack(Material.IRON_CHESTPLATE),
                 new ItemStack(Material.IRON_LEGGINGS),
                 new ItemStack(Material.IRON_BOOTS),
+                new ItemStack(Material.IRON_AXE),
+                new ItemStack(Material.IRON_SWORD),
                 new ItemStack(Material.BAKED_POTATO, 64)
         );
     }

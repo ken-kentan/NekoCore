@@ -1,14 +1,14 @@
-package jp.kentan.minecraft.neko_core.economy;
+package jp.kentan.minecraft.neko_core.bridge;
 
 
-import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.util.Log;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class EconomyProvider {
+public class VaultProvider {
 
     private static Economy sEconomy;
 
@@ -18,14 +18,14 @@ public class EconomyProvider {
 
     private static void detectVault() {
         if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
-            Log.warn("failed to detect Vault.");
+            Log.error("failed to detect Vault.");
             return;
         }
 
         RegisteredServiceProvider<Economy> serviceProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
 
         if (serviceProvider == null) {
-            Log.warn("failed to get Economy service.");
+            Log.error("failed to get Economy service.");
             return;
         }
         sEconomy = serviceProvider.getProvider();

@@ -1,7 +1,8 @@
 package jp.kentan.minecraft.neko_core.vote;
 
 import jp.kentan.minecraft.neko_core.NekoCore;
-import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.util.Log;
+import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -14,84 +15,76 @@ import java.util.List;
 
 public class WeatherVote {
 
-    private int mTaskId;
-    private int mCountSec = 300;
+    private static int sTaskId;
+    private static int sCountSec = 300;
 
-    private Plugin mPlugin;
-    private Server mServer;
-    private List<Player> mVotedPlayers =  Collections.synchronizedList(new ArrayList<>());
+    private static Plugin sPlugin;
+    private static Server sServer;
+    private static List<Player> sVotedPlayerList =  Collections.synchronizedList(new ArrayList<>());
 
-    public WeatherVote(){
-        mPlugin = NekoCore.getPlugin();
-        mServer = mPlugin.getServer();
+    public static void setup(Plugin plugin){
+        sPlugin = plugin;
+        sServer = plugin.getServer();
     }
 
-
-    public void vote(Player player){
-        if(mVotedPlayers.contains(player)){ //多重投票
-            printStatus(player);
+    public static void vote(Player player){
+        if(sVotedPlayerList.contains(player)){ //多重投票
+            sendStatus(player);
             return;
         }
 
 
-        final int currentOnlinePlayer = mServer.getOnlinePlayers().size();
+        final int currentOnlinePlayer = sServer.getOnlinePlayers().size();
 
         startTimerIfNeed(player);
 
-        mVotedPlayers.add(player);
+        sVotedPlayerList.add(player);
 
-        if(mVotedPlayers.size() >= currentOnlinePlayer / 2){
+        if(sVotedPlayerList.size() >= currentOnlinePlayer / 2){
 
-            mVotedPlayers.forEach(p -> {
+            sVotedPlayerList.forEach(p -> {
                 p.getWorld().setStorm(false);
                 p.getWorld().setThundering(false);
             });
 
-            final String broadcastMsg = NekoCore.TAG + ChatColor.AQUA + "投票の結果、天候を晴れにしました。";
-            mServer.getOnlinePlayers().forEach(p -> p.sendMessage(broadcastMsg));
+            sServer.broadcastMessage(NekoCore.TAG + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 
             stopTimer();
         }else{
             player.sendMessage(NekoCore.TAG + ChatColor.AQUA + "天候投票に成功しました！");
-            printStatus(player);
+            sendStatus(player);
         }
     }
 
-    private void startTimerIfNeed(Player player){
-        if(mVotedPlayers.size() > 0){
+    private static void startTimerIfNeed(Player player){
+        if(sVotedPlayerList.size() > 0){
             return;
         }
 
-        mCountSec = 300;
+        sCountSec = 300;
 
-        mTaskId = mServer.getScheduler().runTaskTimer(mPlugin, () -> {
-            if(--mCountSec < 0){
+        sTaskId = sServer.getScheduler().runTaskTimer(sPlugin, () -> {
+            if(--sCountSec < 0){
                 stopTimer();
             }
         }, 20L, 20L).getTaskId(); //20ticks = 1sec
 
-        final String playerName = player.getName();
-        final String broadcastMsg = NekoCore.TAG + playerName + "さんが天候投票を開始しました。";
+        NekoUtil.broadcast(NekoCore.TAG + player.getDisplayName() + "さんが天候投票を開始しました。", player);
 
-        final List<Player> onlinePlayers = new ArrayList<>(mServer.getOnlinePlayers());
-        onlinePlayers.removeIf(p -> p.getName().contains(playerName));
-
-        onlinePlayers.forEach(p -> p.sendMessage(broadcastMsg));
-
-        Log.print("WeatherVote start.");
+        Log.info("WeatherVote start.");
     }
 
-    private void stopTimer(){
-        mServer.getScheduler().cancelTask(mTaskId);
+    private static void stopTimer(){
+        sServer.getScheduler().cancelTask(sTaskId);
 
-        mVotedPlayers.clear();
+        sVotedPlayerList.clear();
 
-        Log.print("WeatherVote stopped.");
+        Log.info("WeatherVote stopped.");
     }
 
-    private void printStatus(Player player){
-        player.sendMessage(NekoCore.TAG + "現在の投票数：" + ChatColor.AQUA + " " + mVotedPlayers.size() + "人");
-        player.sendMessage(NekoCore.TAG + "残り投票時間：" + ChatColor.GREEN + " " + mCountSec + "秒");
+    private static void sendStatus(Player player){
+        player.sendMessage(NekoCore.TAG + "現在の投票数：" + ChatColor.AQUA + " " + sVotedPlayerList.size() + "人");
+        player.sendMessage(NekoCore.TAG + "残り投票時間：" + ChatColor.GREEN + " " + sCountSec + "秒");
         player.sendMessage(NekoCore.TAG + ChatColor.GRAY + "ログインプレイヤーの半数が投票すると天候が晴れになります。");
     }
 }

@@ -2,7 +2,7 @@ package jp.kentan.minecraft.neko_core.zone.component;
 
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.util.Log;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;

@@ -1,7 +1,7 @@
 package jp.kentan.minecraft.neko_core.zone;
 
-import jp.kentan.minecraft.neko_core.utils.Log;
-import jp.kentan.minecraft.neko_core.utils.NekoUtils;
+import jp.kentan.minecraft.neko_core.util.Log;
+import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,7 +28,7 @@ class ZoneCommandExecutor implements CommandExecutor {
             return true;
         }
 
-        final Player player = NekoUtils.toPlayer(sender);
+        final Player player = NekoUtil.toPlayer(sender);
 
         if(sender.hasPermission("neko.zone.admin") || sender instanceof ConsoleCommandSender){
             switch (args[0]){

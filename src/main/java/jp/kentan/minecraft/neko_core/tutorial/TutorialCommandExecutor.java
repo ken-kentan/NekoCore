@@ -1,53 +1,40 @@
 package jp.kentan.minecraft.neko_core.tutorial;
 
-import jp.kentan.minecraft.neko_core.NekoCore;
-import jp.kentan.minecraft.neko_core.utils.NekoUtils;
+import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class TutorialCommandExecutor implements CommandExecutor {
-    private TutorialManager mManager;
-
-    public TutorialCommandExecutor(TutorialManager manager){
-        mManager = manager;
-
-        JavaPlugin plugin = NekoCore.getPlugin();
-
-        plugin.getServer().getPluginManager().registerEvents(mManager, plugin);
-
-        plugin.getCommand("tutorial").setExecutor(this);
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         final int params = args.length;
 
-        if(!NekoUtils.isPlayer(sender)){
+        if(!NekoUtil.isPlayer(sender)){
             return true;
         }
 
         Player player = (Player) sender;
 
-        if (mManager.isGuest(player)) {
+        if (TutorialManager.isGuest(player)) {
 
             if (params < 1) {
-                printHelp(player);
+                sendHelp(player);
                 return true;
             }
 
-            mManager.agree(player, args[0]);
+            TutorialManager.agree(player, args[0]);
         }
 
         return true;
     }
 
-    private void printHelp(Player player){
+    private void sendHelp(Player player){
         player.sendMessage(ChatColor.GOLD + "****************************************************");
         Bukkit.getServer().dispatchCommand(
                 Bukkit.getConsoleSender(),

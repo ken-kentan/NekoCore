@@ -2,23 +2,18 @@ package jp.kentan.minecraft.neko_core.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 
 public class PlayerConfigProvider {
-    private final static Charset UTF_8 = StandardCharsets.UTF_8;
-
     private static String sFolderPath;
 
     static void setup(File dataFolder){
@@ -26,7 +21,7 @@ public class PlayerConfigProvider {
     }
 
     public static Object get(UUID uuid, String path, Object def) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), UTF_8)) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), StandardCharsets.UTF_8)) {
 
             FileConfiguration config = new YamlConfiguration();
 
@@ -37,6 +32,21 @@ public class PlayerConfigProvider {
             return config.get(path, def);
         } catch (Exception e) {
             return def;
+        }
+    }
+
+    public static List<String> get(UUID uuid, String path) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), StandardCharsets.UTF_8)) {
+
+            FileConfiguration config = new YamlConfiguration();
+
+            config.load(reader);
+
+            reader.close();
+
+            return config.getStringList(path);
+        } catch (Exception e) {
+            return null;
         }
     }
 

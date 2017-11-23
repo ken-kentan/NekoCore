@@ -1,4 +1,4 @@
-package jp.kentan.minecraft.neko_core.utils.comparator;
+package jp.kentan.minecraft.neko_core.util.comparator;
 
 import org.bukkit.World;
 

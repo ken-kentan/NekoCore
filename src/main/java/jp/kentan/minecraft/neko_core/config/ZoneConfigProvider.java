@@ -1,8 +1,7 @@
 package jp.kentan.minecraft.neko_core.config;
 
-import jp.kentan.minecraft.neko_core.NekoCore;
-import jp.kentan.minecraft.neko_core.utils.Log;
-import jp.kentan.minecraft.neko_core.utils.comparator.WorldComparator;
+import jp.kentan.minecraft.neko_core.util.Log;
+import jp.kentan.minecraft.neko_core.util.comparator.WorldComparator;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
 import jp.kentan.minecraft.neko_core.zone.component.AreaUpdateListener;
 import jp.kentan.minecraft.neko_core.zone.component.WorldParam;
@@ -13,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,16 +28,19 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
 
     private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
+    private static Plugin sPlugin;
     private static String sFolderPath;
 
     private final static Map<World, WorldParam> sWorldParamCacheMap = Collections.synchronizedMap(new HashMap<>());
     private final static Map<World, Map<String, Area>> sWorldAreaCacheMap = Collections.synchronizedMap(new HashMap<>());
 
 
-    public ZoneConfigProvider(File dataFolder){
+    public ZoneConfigProvider(Plugin plugin, File dataFolder){
+        sPlugin = plugin;
+
         sFolderPath = dataFolder + File.separator + "zones" + File.separator;
 
-        Bukkit.getScheduler().runTaskAsynchronously(NekoCore.getPlugin(), this::createCache);
+        Bukkit.getScheduler().runTaskAsynchronously(sPlugin, this::createCache);
     }
 
     private void createCache(){
@@ -105,10 +108,10 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
             }
         });
 
-        Log.print("WorldParamCacheMap has been created async.");
-        Log.print("WorldAreaCacheMap has been created async.");
+        Log.info("WorldParamCacheMap has been created async.");
+        Log.info("WorldAreaCacheMap has been created async.");
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(NekoCore.getPlugin(), () -> sWorldAreaCacheMap.forEach((w, m) -> m.forEach((n, a) -> a.updateSign())));
+        Bukkit.getScheduler().scheduleSyncDelayedTask(sPlugin, () -> sWorldAreaCacheMap.forEach((w, m) -> m.forEach((n, a) -> a.updateSign())));
 
     }
 
@@ -119,7 +122,7 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
     @Override
     public void onUpdate(Area area) {
         //非同期で保存
-        Bukkit.getScheduler().runTaskAsynchronously(NekoCore.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(sPlugin, () -> {
             final String PATH = "Area." + area.getName();
             final Location SIGN = area.getSignLocation();
             final UUID OWNER = area.getOwnerUuid();
@@ -162,14 +165,14 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                     }
                 }
             });
-            Log.print("Area data has been saved async.");
+            Log.info("Area data has been saved async.");
         });
     }
 
     @Override
     public void onUpdate(WorldParam param) {
         //非同期で保存
-        Bukkit.getScheduler().runTaskAsynchronously(NekoCore.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(sPlugin, () -> {
             sWorldParamCacheMap.put(param.getWorld(), param);
 
             save(param.getWorldName(), new HashMap<String, Object>() {
@@ -180,7 +183,7 @@ public class ZoneConfigProvider implements AreaUpdateListener, WorldParamUpdateL
                     put("Sell.rate", param.getSellRate());
                 }
             });
-            Log.print("WorldParam data has been saved async.");
+            Log.info("WorldParam data has been saved async.");
         });
     }
 

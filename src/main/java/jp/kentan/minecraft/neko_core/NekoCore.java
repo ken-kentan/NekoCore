@@ -1,25 +1,24 @@
 package jp.kentan.minecraft.neko_core;
 
 
+import jp.kentan.minecraft.neko_core.bridge.LuckPermsProvider;
+import jp.kentan.minecraft.neko_core.bridge.WorldGuardProvider;
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
-import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
-import jp.kentan.minecraft.neko_core.spawn.SpawnCommandExecutor;
+import jp.kentan.minecraft.neko_core.bridge.VaultProvider;
+import jp.kentan.minecraft.neko_core.listener.PlayerEventListener;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
-import jp.kentan.minecraft.neko_core.tutorial.TutorialCommandExecutor;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
-import jp.kentan.minecraft.neko_core.vote.RewardManager;
-import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
-import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
-import jp.kentan.minecraft.neko_core.utils.Log;
-import jp.kentan.minecraft.neko_core.utils.NekoUtils;
-import jp.kentan.minecraft.neko_core.vote.ServerVoteListener;
+import jp.kentan.minecraft.neko_core.twitter.TwitterManager;
+import jp.kentan.minecraft.neko_core.vote.reward.RewardManager;
+import jp.kentan.minecraft.neko_core.twitter.TwitterBot;
+import jp.kentan.minecraft.neko_core.util.Log;
+import jp.kentan.minecraft.neko_core.util.NekoUtil;
+import jp.kentan.minecraft.neko_core.vote.reward.ServerVoteListener;
 import jp.kentan.minecraft.neko_core.vote.WeatherVote;
 import jp.kentan.minecraft.neko_core.zone.ZoneManager;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,47 +27,41 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     public static final String TAG = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
 
-    private static JavaPlugin sPlugin;
-
-    private ConfigManager mConfig;
-
-    private RewardManager mRewardManager;
-
-    private TwitterProvider mTwitter;
-    private WeatherVote mWeatherVote;
 
     @Override
     public void onEnable() {
-        sPlugin = this;
+        Log.setup(getLogger());
 
-        new Log(getLogger());
+        ConfigManager.setup(getDataFolder());
 
-        mConfig = new ConfigManager(getDataFolder());
-        mConfig.load();
+        VaultProvider.setup();
+        LuckPermsProvider.setup();
+        WorldGuardProvider.setup();
 
-        EconomyProvider.setup();
+        TwitterManager.setup();
+        TwitterBot.setup(this);
+        RewardManager.setup();
+        TutorialManager.setup(this);
+        SpawnManager.setup(this);
+        WeatherVote.setup(this);
 
-        mTwitter = new TwitterProvider(mConfig.getTwitterConfig(), mConfig.getBotMessages());
+        new ZoneManager(this);
 
-        mWeatherVote = new WeatherVote();
-        mRewardManager = new RewardManager(mConfig.getRewardConfig());
+        ConfigManager.load();
 
-        final SpawnManager spawnManager = new SpawnManager(mConfig.getSpawnConfig());
+        getServer().getPluginManager().registerEvents(new ServerVoteListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
 
-        new SpawnCommandExecutor(spawnManager);
-        new TutorialCommandExecutor(new TutorialManager(spawnManager, mConfig.getTutorialKeyword()));
-        new ZoneManager();
-
-        getServer().getPluginManager().registerEvents(new ServerVoteListener(mRewardManager), this);
-
-        Log.print("onEnable");
+        Log.info("Enabled");
     }
 
     @Override
     public void onDisable() {
-        mTwitter.disable();
+        TwitterManager.shutdown();
+
         getServer().getScheduler().cancelTasks(this);
-        Log.print("onDisable");
+
+        Log.info("Disabled");
     }
 
     @Override
@@ -86,9 +79,6 @@ public class NekoCore extends JavaPlugin implements Listener{
         }
 
         switch (args[0]){
-            case "nyan":
-                sender.sendMessage("にゃーん" + TwitterBot.getInstance().getNeko());
-                break;
             case "hp":
                 printUrl(sender, "https://minecraft.kentan.jp");
                 break;
@@ -105,12 +95,7 @@ public class NekoCore extends JavaPlugin implements Listener{
             case "vote":
                 if(!checkPlayer(sender)) return true;
 
-                mWeatherVote.vote(NekoUtils.toPlayer(sender));
-                break;
-            case "report":
-                if(!checkPlayer(sender)) return true;
-
-                sendReport(NekoUtils.toPlayer(sender), args);
+                WeatherVote.vote(NekoUtil.toPlayer(sender));
                 break;
             default:
                 break;
@@ -126,11 +111,11 @@ public class NekoCore extends JavaPlugin implements Listener{
                     break;
                 case "forcevote":
                     if(params >= 3){
-                        mRewardManager.vote(args[2]);
+                        RewardManager.vote(args[2]);
                     }
                     break;
                 case "reload":
-                    mConfig.load();
+                    ConfigManager.load();
                     sender.sendMessage(TAG + "設定ファルをリロードしました.");
                     break;
                 default:
@@ -141,38 +126,9 @@ public class NekoCore extends JavaPlugin implements Listener{
         return true;
     }
 
-    public static JavaPlugin getPlugin(){
-        return sPlugin;
-    }
-
-    private void sendReport(Player player, String[] details){
-        Location location = player.getLocation();
-
-        if (details.length < 2) {
-            player.sendMessage(TAG + ChatColor.RED + "報告文を記入してください。");
-            return;
-        }
-
-        String report = ":";
-        String info = "[" + NekoUtils.getTime() + " World:" + player.getWorld().getName()
-                + " Loc X:" + (int)location.getX() + " Y:" + (int)location.getY() + " Z:" + (int)location.getZ() + "]";
-
-        for (int i = 1; i < details.length; ++i) {
-            report = report.concat(details[i]).concat(" ");
-        }
-
-        final String msg = info + player.getName() + report;
-
-        mTwitter.sendDirectMessage("ken_kentan", msg);
-        mTwitter.sendDirectMessage("tiru_2525" , msg);
-        mTwitter.sendDirectMessage("xxviachaxx", msg);
-
-        player.sendMessage(TAG + "レポートが正常に送信されました。");
-    }
-
 
     private boolean checkPlayer(CommandSender sender){
-        if(!NekoUtils.isPlayer(sender)){
+        if(!NekoUtil.isPlayer(sender)){
             Log.warn("ゲーム内専用コマンドです.");
             return false;
         }
@@ -181,7 +137,7 @@ public class NekoCore extends JavaPlugin implements Listener{
     }
 
     private boolean isAdminCommand(CommandSender sender, String[] args){
-        return args.length >= 2 && (args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !NekoUtils.isPlayer(sender)));
+        return args.length >= 2 && (args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !NekoUtil.isPlayer(sender)));
     }
 
     private void printHelp(CommandSender sender) {

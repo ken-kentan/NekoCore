@@ -1,10 +1,10 @@
 package jp.kentan.minecraft.neko_core.config;
 
-import jp.kentan.minecraft.neko_core.vote.RewardManager;
-import jp.kentan.minecraft.neko_core.sql.SqlProvider;
-import jp.kentan.minecraft.neko_core.twitter.TwitterProvider;
-import jp.kentan.minecraft.neko_core.twitter.bot.TwitterBot;
-import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.twitter.TwitterBot;
+import jp.kentan.minecraft.neko_core.twitter.TwitterManager;
+import jp.kentan.minecraft.neko_core.vote.reward.Reward;
+import jp.kentan.minecraft.neko_core.vote.reward.RewardManager;
+import jp.kentan.minecraft.neko_core.util.Log;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,31 +19,40 @@ import java.util.List;
 
 public class ConfigManager {
 
-    private final Charset UTF_8 = StandardCharsets.UTF_8;
+    private static String sConfigPath;
 
-    private String mConfigFilePath;
 
-    private SpawnConfig mSpawnConfig;
+    private static ConfigUpdateListener<TwitterManager.Config> sTwitterConfigListener;
+    private static ConfigUpdateListener<TwitterBot.Messages> sBotMessagesListener;
+    private static ConfigUpdateListener<String> sTutorialKeywordListener;
+    private static ConfigUpdateListener<RewardManager.Config> sRewardConfigListener;
 
-    private TwitterProvider.Config mTwitterConfig;
-    private TwitterBot.Messages mBotMessages;
 
-    private RewardManager.Config mRewardConfig;
+    public static void setup(File dataFolder){
+        sConfigPath = dataFolder + File.separator + "config.yml";
 
-    private String mTutorialKeyword;
-
-    private static SqlProvider.Config sSqlConfig;
-
-    public ConfigManager(File folder){
-        PlayerConfigProvider.setup(folder);
-
-        mSpawnConfig = new SpawnConfig(folder);
-
-        mConfigFilePath = folder + File.separator + "config.yml";
+        PlayerConfigProvider.setup(dataFolder);
+        SpawnConfigProvider.setup(dataFolder);
     }
 
-    public void load(){
-        try (Reader reader = new InputStreamReader(new FileInputStream(mConfigFilePath), UTF_8)) {
+    public static void bindTwitterConfigListener(ConfigUpdateListener<TwitterManager.Config> listener){
+        sTwitterConfigListener = listener;
+    }
+
+    public static void bindBotMessagesListener(ConfigUpdateListener<TwitterBot.Messages> listener){
+        sBotMessagesListener = listener;
+    }
+
+    public static void bindTutorialKeywordListener(ConfigUpdateListener<String> listener){
+        sTutorialKeywordListener = listener;
+    }
+
+    public static void bindRewardConfigListener(ConfigUpdateListener<RewardManager.Config> listener){
+        sRewardConfigListener = listener;
+    }
+
+    public static void load(){
+        try (Reader reader = new InputStreamReader(new FileInputStream(sConfigPath), StandardCharsets.UTF_8)) {
             final FileConfiguration config = new YamlConfiguration();
 
             config.load(reader);
@@ -52,9 +60,10 @@ public class ConfigManager {
             loadTwitterConfig(config);
             loadBotMessages(config);
             loadRewardConfig(config);
-            loadSqlConfig(config);
 
-            mTutorialKeyword = config.getString("Tutorial.keyword");
+            sTutorialKeywordListener.onUpdate(
+                    config.getString("Tutorial.keyword")
+            );
 
             reader.close();
         }catch (Exception e){
@@ -62,84 +71,38 @@ public class ConfigManager {
         }
     }
 
-    private void loadTwitterConfig(FileConfiguration config){
-        final String consumerKey       = config.getString("Twitter.consumerKey");
-        final String consumerSecret    = config.getString("Twitter.consumerSecret");
-        final String accessToken       = config.getString("Twitter.accessToken");
-        final String accessTokenSecret = config.getString("Twitter.accessTokenSecret");
-        final int tweetInterval        = config.getInt("Twitter.tweetInterval");
-
-        mTwitterConfig = new TwitterProvider.Config(consumerKey, consumerSecret, accessToken, accessTokenSecret, tweetInterval);
+    private static void loadTwitterConfig(FileConfiguration config){
+        sTwitterConfigListener.onUpdate(new TwitterManager.Config(
+                config.getString("Twitter.consumerKey"),
+                config.getString("Twitter.consumerSecret"),
+                config.getString("Twitter.accessToken"),
+                config.getString("Twitter.accessTokenSecret")
+        ));
     }
 
-    private void loadBotMessages(FileConfiguration config){
-        final List<String> nekoFace          = config.getStringList("Bot.nekoFace");
-        final List<String> msgPlayerAction   = config.getStringList("Bot.msgPlayerAction");
-        final List<String> msgUnknownCommand = config.getStringList("Bot.msgUnknownCommand");
-        final List<String> msgRejectCommand  = config.getStringList("Bot.msgRejectCommand");
-        final List<String> msgThanks         = config.getStringList("Bot.msgThanks");
-        final List<String> msgLucky          = config.getStringList("Bot.msgLucky");
-        final List<String> msgGoodMorning    = config.getStringList("Bot.msgGoodMorning");
-        final List<String> msgWeather        = config.getStringList("Bot.msgWeather");
-        final List<String> msgNyan           = config.getStringList("Bot.msgNyan");
-        final List<String> msgGachaMiss      = config.getStringList("Bot.msgGachaMiss");
-        final List<String> msgAskYes         = config.getStringList("Bot.msgAskYes");
-        final List<String> msgAskNo          = config.getStringList("Bot.msgAskNo");
-
-        final List<String> msgShiritoriNewList         = config.getStringList("Bot.msgShiritoriNew");
-        final List<String> msgShiritoriContinueList    = config.getStringList("Bot.msgShiritoriContinue");
-        final List<String> msgShiritoriWinNList        = config.getStringList("Bot.msgShiritoriWinN");
-        final List<String> msgShiritoriWinNotMatchList = config.getStringList("Bot.msgShiritoriWinNotMatch");
-        final List<String> msgShiritoriWinUsedList     = config.getStringList("Bot.msgShiritoriWinUsed");
-        final List<String> msgShiritoriLoseList        = config.getStringList("Bot.msgShiritoriLose");
-
-        mBotMessages = new TwitterBot.Messages(nekoFace, msgPlayerAction, msgShiritoriNewList, msgShiritoriContinueList,
-                msgShiritoriWinNList, msgShiritoriWinNotMatchList, msgShiritoriWinUsedList, msgShiritoriLoseList);
+    private static void loadBotMessages(FileConfiguration config){
+        sBotMessagesListener.onUpdate(new TwitterBot.Messages(
+                config.getStringList("Bot.nekoFace"),
+                config.getStringList("Bot.msgPlayerAction")
+        ));
     }
 
-    private void loadRewardConfig(FileConfiguration config){
-        final int maxSuccession = config.getInt("Vote.maxSuccession");
+    private static void loadRewardConfig(FileConfiguration config){
+        final List<Reward> rewardList = new ArrayList<>();
 
-        final List<List<String>> rewardList = new ArrayList<>();
-        final List<String> rewardDetailList = config.getStringList("Vote.Reward.Detail");
+        for(int i=1; i<10; ++i){
+            final String path = "Vote.Reward." + i + "day";
 
-        for (int i = 1; i <= maxSuccession; ++i) {
-            rewardList.add(config.getStringList("Vote.Reward." + i + "day"));
+            if(!config.isConfigurationSection(path)) break;
+
+            rewardList.add(new Reward(
+                    config.getString(path + ".name"),
+                    config.getStringList(path + ".commands")
+            ));
         }
 
-        mRewardConfig = new RewardManager.Config(maxSuccession, rewardList, rewardDetailList);
-    }
-
-    private void loadSqlConfig(FileConfiguration config){
-        final String host     = config.getString("SQL.host");
-        final String id       = config.getString("SQL.id");
-        final String password = config.getString("SQL.pass");
-
-        sSqlConfig = new SqlProvider.Config(host, id, password);
-    }
-
-    public TwitterProvider.Config getTwitterConfig(){
-        return mTwitterConfig;
-    }
-
-    public TwitterBot.Messages getBotMessages(){
-        return mBotMessages;
-    }
-
-    public RewardManager.Config getRewardConfig(){
-        return mRewardConfig;
-    }
-
-    public SpawnConfig getSpawnConfig()
-    {
-        return mSpawnConfig;
-    }
-
-    public String getTutorialKeyword(){
-        return mTutorialKeyword;
-    }
-
-    public static SqlProvider.Config getSqlConfig(){
-        return sSqlConfig;
+        sRewardConfigListener.onUpdate(new RewardManager.Config(
+                rewardList
+        ));
     }
 }

@@ -9,23 +9,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class SpawnConfig {
+public class SpawnConfigProvider {
 
-    private final Charset UTF_8 = StandardCharsets.UTF_8;
+    private static File sFile;
 
-    private File mFile;
-    private String mFilePath;
-
-    SpawnConfig(File folder){
-        mFile = new File(folder, "spawn.yml");
-        mFilePath = folder + File.separator + "spawn.yml";
+    static void setup(File dataFolder){
+        sFile = new File(dataFolder, "spawn.yml");
     }
 
-    public Location load(String spawnName) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(mFilePath), UTF_8)) {
+    public static Location load(String spawnName) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(sFile), StandardCharsets.UTF_8)) {
 
             FileConfiguration config = new YamlConfiguration();
 
@@ -46,10 +41,10 @@ public class SpawnConfig {
         }
     }
 
-    public boolean save(String spawnName, Location location) {
+    public static boolean save(String spawnName, Location location) {
         try {
             FileConfiguration config = new YamlConfiguration();
-            config.load(mFile);
+            config.load(sFile);
 
             config.set(spawnName + ".world", location.getWorld().getName());
             config.set(spawnName + ".x", location.getX());
@@ -58,7 +53,7 @@ public class SpawnConfig {
             config.set(spawnName + ".yaw", location.getYaw());
             config.set(spawnName + ".pitch", location.getPitch());
 
-            config.save(mFile);
+            config.save(sFile);
         } catch (Exception e) {
             return false;
         }

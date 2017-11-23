@@ -1,4 +1,4 @@
-package jp.kentan.minecraft.neko_core.utils;
+package jp.kentan.minecraft.neko_core.util;
 
 import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 
-public class NekoUtils {
+public class NekoUtil {
 
     private final static Server SERVER = Bukkit.getServer();
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy MM/dd HH:mm:ss", Locale.JAPAN);
@@ -51,7 +51,7 @@ public class NekoUtils {
     }
 
     public static void broadcast(String message, Player without){
-        NekoUtils.broadcast(new String[]{message}, without);
+        NekoUtil.broadcast(new String[]{message}, without);
     }
 
     public static void broadcast(String[] messages, Player without){

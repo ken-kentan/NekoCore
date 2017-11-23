@@ -1,14 +1,16 @@
 package jp.kentan.minecraft.neko_core.spawn;
 
 import jp.kentan.minecraft.neko_core.NekoCore;
-import jp.kentan.minecraft.neko_core.config.SpawnConfig;
+import jp.kentan.minecraft.neko_core.config.SpawnConfigProvider;
 import jp.kentan.minecraft.neko_core.spawn.listener.CancelListener;
+import jp.kentan.minecraft.neko_core.spawn.listener.SpawnCancelListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.HashMap;
@@ -16,20 +18,23 @@ import java.util.Map;
 
 public class SpawnManager implements CancelListener {
 
-    private Plugin mPlugin;
-    private BukkitScheduler mScheduler = Bukkit.getScheduler();
+    private final static BukkitScheduler SCHEDULER = Bukkit.getScheduler();
+    private static Plugin sPlugin;
 
-    private SpawnConfig mConfig;
-    private Map<Player, Integer> mPlayerSpawnTaskMap = new HashMap<>();
+    private static Map<Player, Integer> sPlayerSpawnTaskMap = new HashMap<>();
 
-    public SpawnManager(SpawnConfig config){
-        mPlugin = NekoCore.getPlugin();
+    public static void setup(JavaPlugin plugin){
+        sPlugin = plugin;
 
-        mConfig = config;
+        plugin.getServer().getPluginManager().registerEvents(new SpawnCancelListener(new SpawnManager()), plugin);
+
+        SpawnCommandExecutor executor = new SpawnCommandExecutor();
+        plugin.getCommand("spawn").setExecutor(executor);
+        plugin.getCommand("setspawn").setExecutor(executor);
     }
 
-    public boolean spawn(Player player, String locationName){
-        Location location = mConfig.load(locationName);
+    public static boolean spawn(Player player, String locationName){
+        Location location = SpawnConfigProvider.load(locationName);
 
         if(location == null){
             return false;
@@ -39,8 +44,9 @@ public class SpawnManager implements CancelListener {
         return true;
     }
 
-    void addSpawnTask(Player player, String locationName){
-        Location location = mConfig.load(locationName);
+    static void addSpawnTask(Player player, String locationName){
+        Location location = SpawnConfigProvider.load(locationName);
+
         if(location != null){
             Location playerLocation = player.getLocation();
 
@@ -52,28 +58,28 @@ public class SpawnManager implements CancelListener {
             return;
         }
 
-        if(mPlayerSpawnTaskMap.containsKey(player)){
-            mScheduler.cancelTask(mPlayerSpawnTaskMap.remove(player));
+        if(sPlayerSpawnTaskMap.containsKey(player)){
+            SCHEDULER.cancelTask(sPlayerSpawnTaskMap.remove(player));
         }
 
-        int taskId = mScheduler.scheduleSyncDelayedTask(mPlugin, () ->{
-            mPlayerSpawnTaskMap.remove(player);
+        int taskId = SCHEDULER.scheduleSyncDelayedTask(sPlugin, () ->{
+            sPlayerSpawnTaskMap.remove(player);
             player.teleport(location);
         }, 20*3L);
 
-        mPlayerSpawnTaskMap.put(player, taskId);
+        sPlayerSpawnTaskMap.put(player, taskId);
     }
 
-    void saveSpawn(Player player, String spawnName){
-        mConfig.save(spawnName, player.getLocation());
+    static void saveSpawn(Player player, String spawnName){
+        SpawnConfigProvider.save(spawnName, player.getLocation());
 
         player.sendMessage(NekoCore.TAG + "スポーン(" + spawnName + ")を、ここにセットしました.");
     }
 
     @Override
     public void onCancel(Player player) {
-        if(mPlayerSpawnTaskMap.containsKey(player)) {
-            mScheduler.cancelTask(mPlayerSpawnTaskMap.remove(player));
+        if(sPlayerSpawnTaskMap.containsKey(player)) {
+            SCHEDULER.cancelTask(sPlayerSpawnTaskMap.remove(player));
             player.sendMessage(NekoCore.TAG + "スポーンをキャンセルしました.");
         }
     }

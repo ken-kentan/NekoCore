@@ -1,13 +1,11 @@
 package jp.kentan.minecraft.neko_core.zone;
 
 import com.sk89q.worldguard.bukkit.RegionContainer;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import jp.kentan.minecraft.neko_core.NekoCore;
+import jp.kentan.minecraft.neko_core.bridge.WorldGuardProvider;
 import jp.kentan.minecraft.neko_core.config.ZoneConfigProvider;
-import jp.kentan.minecraft.neko_core.economy.EconomyProvider;
-import jp.kentan.minecraft.neko_core.utils.Log;
+import jp.kentan.minecraft.neko_core.bridge.VaultProvider;
 import jp.kentan.minecraft.neko_core.zone.component.Area;
 import jp.kentan.minecraft.neko_core.zone.component.WorldParam;
 import jp.kentan.minecraft.neko_core.zone.listener.SignEventListener;
@@ -24,44 +22,25 @@ import java.util.*;
 
 public class ZoneManager implements ZoneSignEventListener {
 
-    public final static String TAG = ChatColor.GRAY + "[" + ChatColor.BLUE + "区画" + ChatColor.GRAY  + "] " + ChatColor.RESET;
+    final static String TAG = ChatColor.GRAY + "[" + ChatColor.BLUE + "区画" + ChatColor.GRAY  + "] " + ChatColor.RESET;
 
+    private Plugin mPlugin;
     private ZoneConfigProvider mConfigProvider;
-
     private RegionContainer mRegionContainer;
-
     private Map<Player, AreaProcessInfo> mWaitingAreaProcessMap = Collections.synchronizedMap(new HashMap<>());
 
 
-    public ZoneManager(){
-        WorldGuardPlugin worldGuard = detectWorldGuard();
+    public ZoneManager(JavaPlugin plugin){
+        mPlugin = plugin;
 
-        if(worldGuard != null) {
-            mRegionContainer = worldGuard.getRegionContainer();
-        }
+        mRegionContainer = WorldGuardProvider.getRegionContainer();
 
-        JavaPlugin plugin = NekoCore.getPlugin();
-
-        mConfigProvider = new ZoneConfigProvider(plugin.getDataFolder());
+        mConfigProvider = new ZoneConfigProvider(plugin, plugin.getDataFolder());
 
         plugin.getCommand("zone").setExecutor(new ZoneCommandExecutor(this));
         plugin.getServer().getPluginManager().registerEvents(new SignEventListener(this), plugin);
     }
 
-
-    private WorldGuardPlugin detectWorldGuard(){
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
-
-        // WorldGuard may not be loaded
-        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-            Log.warn("failed to detect WorldGuard");
-            return null; // Maybe you want throw an exception instead
-        }
-
-        Log.print("WorldGuard detected.");
-
-        return (WorldGuardPlugin) plugin;
-    }
 
 
     void refresh(){
@@ -335,7 +314,7 @@ public class ZoneManager implements ZoneSignEventListener {
 
             mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.PURCHASE, area, price));
 
-            Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
+            Bukkit.getScheduler().runTaskLaterAsynchronously(mPlugin,
                     () -> mWaitingAreaProcessMap.remove(player), 20L * 30);
         }else{
             sendWarn(player, "現在、この区画は購入できません.");
@@ -370,7 +349,7 @@ public class ZoneManager implements ZoneSignEventListener {
 
         mWaitingAreaProcessMap.put(player, new AreaProcessInfo(AreaProcessInfo.Type.SELL, area, price));
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(NekoCore.getPlugin(),
+        Bukkit.getScheduler().runTaskLaterAsynchronously(mPlugin,
                 () -> mWaitingAreaProcessMap.remove(player), 20L * 30);
     }
 
@@ -398,7 +377,12 @@ public class ZoneManager implements ZoneSignEventListener {
     }
 
     private void purchase(Player player, Area area, double price){
-        double balance = EconomyProvider.getBalance(player);
+        double balance = VaultProvider.getBalance(player);
+
+        if(!area.onSale()){
+            sendWarn(player, "現在、この区画は購入できません.");
+            return;
+        }
 
         if(balance < price){
             sendWarn(player, "所持金が \u00A5" + (price - balance) + " 不足しています.");
@@ -412,7 +396,7 @@ public class ZoneManager implements ZoneSignEventListener {
             return;
         }
 
-        if(!EconomyProvider.withdraw(player, price)){
+        if(!VaultProvider.withdraw(player, price)){
             sendError(player, "購入処理に失敗しました. 運営に連絡して下さい.");
             return;
         }
@@ -423,13 +407,18 @@ public class ZoneManager implements ZoneSignEventListener {
     }
 
     private void sell(Player player, Area area, double price){
+        if(!area.isOwner(player.getUniqueId())){
+            sendWarn(player, "この区画の所有者ではありません.");
+            return;
+        }
+
         final ProtectedRegion region = getProtectedRegion(player.getWorld(), area.getId());
         if(region == null){
             sendError(player, "IDエラーです. 運営に連絡して下さい.");
             return;
         }
 
-        if(!EconomyProvider.deposit(player, price)){
+        if(!VaultProvider.deposit(player, price)){
             sendError(player, "入金処理に失敗しました. 運営に連絡して下さい.");
             return;
         }

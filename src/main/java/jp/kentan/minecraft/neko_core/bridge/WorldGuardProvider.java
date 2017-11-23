@@ -21,6 +21,7 @@ public class WorldGuardProvider {
         if (plugin != null && plugin instanceof  WorldGuardPlugin) {
             sWorldGuardPlugin = (WorldGuardPlugin) plugin;
             Log.info("WorldGuard detected.");
+            return;
         }
 
         Log.error("failed to detect WorldGuard");

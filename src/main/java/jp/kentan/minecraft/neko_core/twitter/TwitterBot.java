@@ -26,7 +26,7 @@ public class TwitterBot implements Listener, ConfigUpdateListener<TwitterBot.Mes
     public static void setup(Plugin plugin){
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if(sTweetQueue.size() > 0){
-                TwitterManager.tweet(sTweetQueue.peek().TWEET);
+                TwitterManager.tweet(sTweetQueue.poll().TWEET);
             }
         }, 20*30L, 20*30L);
 

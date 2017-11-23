@@ -56,7 +56,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         if(isaOnlineMode) {
             reward.getCommandList().forEach(cmd -> Bukkit.getServer().dispatchCommand(CONSOLE, cmd.replace("{player}", playerName)));
 
-            final String[] playerMessages = PLAYER_MESSAGES;
+            final String[] playerMessages = PLAYER_MESSAGES.clone();
             playerMessages[0] = playerMessages[0].replace("{cat}", TwitterBot.getCatFace());
             playerMessages[1] = playerMessages[1].replace("{reward}", reward.NAME);
             playerMessages[2] = playerMessages[2].replace("{status}", buildStatusMessage(continuous));
@@ -71,7 +71,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         /*
         Broadcast
          */
-        final String[] broadcastMessages = BROADCAST_MESSAGES;
+        final String[] broadcastMessages = BROADCAST_MESSAGES.clone();
         broadcastMessages[0] = broadcastMessages[0].replace("{player}", playerName).replace("{reward}", reward.NAME);
 
         NekoUtil.broadcast(broadcastMessages, player);

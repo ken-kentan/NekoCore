@@ -6,6 +6,7 @@ import jp.kentan.minecraft.neko_core.bridge.WorldGuardProvider;
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
 import jp.kentan.minecraft.neko_core.bridge.VaultProvider;
 import jp.kentan.minecraft.neko_core.listener.PlayerEventListener;
+import jp.kentan.minecraft.neko_core.rank.RankManager;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
 import jp.kentan.minecraft.neko_core.twitter.TwitterManager;
@@ -41,6 +42,7 @@ public class NekoCore extends JavaPlugin implements Listener{
         TwitterManager.setup();
         TwitterBot.setup(this);
         RewardManager.setup();
+        RankManager.setup(this);
         TutorialManager.setup(this);
         SpawnManager.setup(this);
         WeatherVote.setup(this);

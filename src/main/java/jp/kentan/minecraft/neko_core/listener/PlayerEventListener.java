@@ -1,6 +1,7 @@
 package jp.kentan.minecraft.neko_core.listener;
 
 import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
+import jp.kentan.minecraft.neko_core.rank.RankManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -28,6 +29,7 @@ public class PlayerEventListener implements Listener {
         final Player player = event.getPlayer();
 
         TutorialManager.joinTutorialIfNeed(player);
+        RankManager.update(player);
 
         List<String> stackCommandList = PlayerConfigProvider.get(player.getUniqueId(), "stackCommands");
 

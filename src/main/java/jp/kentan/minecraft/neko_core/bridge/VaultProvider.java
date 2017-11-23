@@ -2,6 +2,7 @@ package jp.kentan.minecraft.neko_core.bridge;
 
 
 import jp.kentan.minecraft.neko_core.util.Log;
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 public class VaultProvider {
 
     private static Economy sEconomy;
+    private static Chat sChat;
 
     public static void setup(){
         detectVault();
@@ -23,12 +25,20 @@ public class VaultProvider {
         }
 
         RegisteredServiceProvider<Economy> serviceProvider = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Chat> chatProvider = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
 
         if (serviceProvider == null) {
             Log.error("failed to get Economy service.");
             return;
         }
+
+        if (chatProvider == null) {
+            Log.error("failed to get Chat service.");
+            return;
+        }
+
         sEconomy = serviceProvider.getProvider();
+        sChat = chatProvider.getProvider();
     }
 
     public static boolean deposit(Player player, double amount){
@@ -57,5 +67,9 @@ public class VaultProvider {
         }
 
         return sEconomy.getBalance(player);
+    }
+
+    public static String getPlayerPrefix(Player player){
+        return sChat.getPlayerPrefix(player);
     }
 }

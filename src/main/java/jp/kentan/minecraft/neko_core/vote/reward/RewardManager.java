@@ -111,8 +111,8 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
 
     private final static String[] PLAYER_MESSAGES = new String[]{
             NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&6投票ありがとにゃ{cat}"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "特典&r {reward} &rをゲット！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "ステータス: {status}"),
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&e特典&r {reward} &rを&dゲット！"),
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&aステータス&7: {status}"),
             NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&7毎日投票すると、特典がアップグレードします！")
     };
 

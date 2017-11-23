@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -37,7 +38,14 @@ public class PlayerEventListener implements Listener {
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(sPlugin, () -> {
             final String playerName = player.getName();
+
             stackCommandList.forEach(cmd -> Bukkit.getServer().dispatchCommand(CONSOLE, cmd.replace("{player}", playerName)));
+
+            PlayerConfigProvider.save(player.getUniqueId(), new HashMap<String, Object>(){
+                {
+                    put("stackCommands", null);
+                }
+            });
         }, 20L * 5);
     }
 

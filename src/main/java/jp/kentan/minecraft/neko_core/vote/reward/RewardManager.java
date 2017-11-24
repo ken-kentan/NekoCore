@@ -31,7 +31,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
     }
 
     public static void vote(String playerName){
-        TwitterBot.pushActionMessage(playerName + "_vote", " http://minecraft.jp で投票");
+        TwitterBot.pushActionMessage(playerName, " http://minecraft.jp で投票");
 
         final Player player = NekoUtil.getOnlinePlayer(playerName);
         final UUID uuid;

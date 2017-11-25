@@ -104,9 +104,9 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
     }
 
     private final static String[] BROADCAST_MESSAGES = new String[]{
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "{player}&7さんが投票で&r {reward} &rをゲットしました！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&3まだ投票をしていませんか？ ↓のURLをクリックしてかんたん投票！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&b&n https://minecraft.kentan.jp/vote")
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "{player}&7さんが投票で&r {reward} &7をゲットしました！"),
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&3まだ投票をしていませんか？ ↓をクリックしてぜひ投票を！"),
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&b&nhttps://minecraft.kentan.jp/vote")
     };
 
     private final static String[] PLAYER_MESSAGES = new String[]{

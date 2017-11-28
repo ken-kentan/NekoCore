@@ -4,11 +4,14 @@ import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
 import jp.kentan.minecraft.neko_core.rank.RankManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 
@@ -49,4 +52,14 @@ public class PlayerEventListener implements Listener {
         }, 20L * 5);
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+        if(!event.hasBlock() || !event.hasItem() || event.getPlayer().getGameMode() == GameMode.CREATIVE){
+            return;
+        }
+
+        if(event.getClickedBlock().getType() == Material.MOB_SPAWNER && event.getItem().getType() == Material.MONSTER_EGG) {
+            event.setCancelled(true);
+        }
+    }
 }

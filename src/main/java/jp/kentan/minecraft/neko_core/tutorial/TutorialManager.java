@@ -23,7 +23,7 @@ public class TutorialManager implements ConfigUpdateListener<String> {
 
     private final static String GUEST_LOGIN_MSG = ChatColor.translateAlternateColorCodes('&', "が&6ゲスト&rとしてログインしました！");
     private final static String TUTORIAL_COMPLETE_MSG = ChatColor.translateAlternateColorCodes('&', "が&9チュートリアル&rを&6完了&rしました！");
-    private final static String INVALID_KEYWORD_MSG = NekoCore.TAG + ChatColor.YELLOW + "キーワードが間違っています. ルールを確認してください.";
+    private final static String INVALID_KEYWORD_MSG = NekoCore.TAG + ChatColor.YELLOW + "キーワードが間違っています. ホームページのルールを確認してください.";
     private final static String ERROR_MSG = NekoCore.TAG + ChatColor.YELLOW + "チュートリアル処理に失敗しました. 運営に報告して下さい.";
 
     private final static BukkitScheduler SCHEDULER = Bukkit.getScheduler();

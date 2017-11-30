@@ -34,3 +34,7 @@ commands:
         description: 区画管理
         permission: neko.zone
         usage: /<command>
+    hat:
+        description: アイテムをかぶる
+        permission: neko.hat
+        usage: /<command>

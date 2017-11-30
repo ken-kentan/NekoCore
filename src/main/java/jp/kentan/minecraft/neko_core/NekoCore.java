@@ -5,6 +5,7 @@ import jp.kentan.minecraft.neko_core.bridge.LuckPermsProvider;
 import jp.kentan.minecraft.neko_core.bridge.WorldGuardProvider;
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
 import jp.kentan.minecraft.neko_core.bridge.VaultProvider;
+import jp.kentan.minecraft.neko_core.hat.HatCommandExecutor;
 import jp.kentan.minecraft.neko_core.listener.PlayerEventListener;
 import jp.kentan.minecraft.neko_core.rank.RankManager;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
@@ -51,6 +52,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
         ConfigManager.load();
 
+        getCommand("hat").setExecutor(new HatCommandExecutor());
         getServer().getPluginManager().registerEvents(new ServerVoteListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEventListener(this), this);
 

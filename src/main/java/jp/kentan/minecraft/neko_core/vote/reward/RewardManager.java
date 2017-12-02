@@ -4,7 +4,6 @@ import jp.kentan.minecraft.neko_core.NekoCore;
 import jp.kentan.minecraft.neko_core.config.ConfigManager;
 import jp.kentan.minecraft.neko_core.config.ConfigUpdateListener;
 import jp.kentan.minecraft.neko_core.config.PlayerConfigProvider;
-import jp.kentan.minecraft.neko_core.twitter.TwitterBot;
 import jp.kentan.minecraft.neko_core.util.Log;
 import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import org.bukkit.Bukkit;
@@ -31,7 +30,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
     }
 
     public static void vote(String playerName){
-        TwitterBot.pushActionMessage(playerName, " http://minecraft.jp で投票");
+//        TwitterBot.pushActionMessage(playerName, " http://minecraft.jp で投票");
 
         final Player player = NekoUtil.getOnlinePlayer(playerName);
         final UUID uuid;
@@ -57,7 +56,6 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
             reward.getCommandList().forEach(cmd -> Bukkit.getServer().dispatchCommand(CONSOLE, cmd.replace("{player}", playerName)));
 
             final String[] playerMessages = PLAYER_MESSAGES.clone();
-            playerMessages[0] = playerMessages[0].replace("{cat}", TwitterBot.getCatFace());
             playerMessages[1] = playerMessages[1].replace("{reward}", reward.NAME);
             playerMessages[2] = playerMessages[2].replace("{status}", buildStatusMessage(continuous));
 
@@ -110,7 +108,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
     };
 
     private final static String[] PLAYER_MESSAGES = new String[]{
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&6投票ありがとにゃ{cat}"),
+            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&6投票ありがとにゃ(｡･ω･｡)"),
             NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&e特典&r {reward} &rを&dゲット！"),
             NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&aステータス&7: {status}"),
             NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&7毎日投票すると、特典がアップグレードします！")

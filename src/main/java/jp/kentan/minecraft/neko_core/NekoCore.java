@@ -10,9 +10,7 @@ import jp.kentan.minecraft.neko_core.listener.PlayerEventListener;
 import jp.kentan.minecraft.neko_core.rank.RankManager;
 import jp.kentan.minecraft.neko_core.spawn.SpawnManager;
 import jp.kentan.minecraft.neko_core.tutorial.TutorialManager;
-import jp.kentan.minecraft.neko_core.twitter.TwitterManager;
 import jp.kentan.minecraft.neko_core.vote.reward.RewardManager;
-import jp.kentan.minecraft.neko_core.twitter.TwitterBot;
 import jp.kentan.minecraft.neko_core.util.Log;
 import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import jp.kentan.minecraft.neko_core.vote.reward.ServerVoteListener;
@@ -40,8 +38,8 @@ public class NekoCore extends JavaPlugin implements Listener{
         LuckPermsProvider.setup();
         WorldGuardProvider.setup();
 
-        TwitterManager.setup();
-        TwitterBot.setup(this);
+//        TwitterManager.setup();
+//        TwitterBot.setup(this);
         RewardManager.setup();
         RankManager.setup(this);
         TutorialManager.setup(this);
@@ -61,7 +59,7 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     @Override
     public void onDisable() {
-        TwitterManager.shutdown();
+//        TwitterManager.shutdown();
 
         getServer().getScheduler().cancelTasks(this);
 

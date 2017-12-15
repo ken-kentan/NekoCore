@@ -99,7 +99,7 @@ public class TutorialManager implements ConfigUpdateListener<String> {
                             return;
                         }
 
-                        user.refreshPermissions();
+                        user.refreshCachedData();
 
                         SCHEDULER.scheduleSyncDelayedTask(sPlugin, () -> {
                             SpawnManager.spawn(player, "default");

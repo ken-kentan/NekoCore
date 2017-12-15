@@ -2,7 +2,7 @@ package jp.kentan.minecraft.neko_core.rank;
 
 import jp.kentan.minecraft.neko_core.bridge.LuckPermsProvider;
 import jp.kentan.minecraft.neko_core.bridge.VaultProvider;
-import me.lucko.luckperms.api.Group;
+import me.lucko.luckperms.api.Node;
 import me.lucko.luckperms.api.User;
 import me.lucko.luckperms.api.event.EventBus;
 import me.lucko.luckperms.api.event.EventHandler;
@@ -20,14 +20,14 @@ public class RankManager {
     private static final Scoreboard SCOREBOARD = Bukkit.getScoreboardManager().getMainScoreboard();
 
     private static Plugin sPlugin;
-    private static Group sGoldRank, sDiamondRank, sEmeraldRank;
+    private static Node sGoldRank, sDiamondRank, sEmeraldRank;
 
     public static void setup(Plugin plugin) {
         sPlugin = plugin;
 
-        sGoldRank = LuckPermsProvider.getGroup("gold_rank");
-        sDiamondRank = LuckPermsProvider.getGroup("diamond_rank");
-        sEmeraldRank = LuckPermsProvider.getGroup("emerald_rank");
+        sGoldRank    = LuckPermsProvider.getNodeByGroupName("gold_rank");
+        sDiamondRank = LuckPermsProvider.getNodeByGroupName("diamond_rank");
+        sEmeraldRank = LuckPermsProvider.getNodeByGroupName("emerald_rank");
 
         final EventBus eventBus = LuckPermsProvider.getEventBus();
         eventBus.getHandlers(UserDataRecalculateEvent.class).forEach(EventHandler::unregister);
@@ -43,11 +43,11 @@ public class RankManager {
 
         ChatColor rankColor = ChatColor.RESET;
 
-        if (user.isInGroup(sEmeraldRank)) {
+        if (user.hasPermission(sEmeraldRank).asBoolean()) {
             rankColor = ChatColor.GREEN;
-        } else if (user.isInGroup(sDiamondRank)) {
+        } else if (user.hasPermission(sDiamondRank).asBoolean()) {
             rankColor = ChatColor.AQUA;
-        } else if (user.isInGroup(sGoldRank)) {
+        } else if (user.hasPermission(sGoldRank).asBoolean()) {
             rankColor = ChatColor.GOLD;
         }
 

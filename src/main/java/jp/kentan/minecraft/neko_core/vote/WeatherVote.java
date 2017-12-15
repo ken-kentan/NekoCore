@@ -40,7 +40,7 @@ public class WeatherVote {
 
         sVotedPlayerList.add(player);
 
-        if(sVotedPlayerList.size() >= currentOnlinePlayer / 2){
+        if(sVotedPlayerList.size() >= currentOnlinePlayer / 3.0f){
 
             sVotedPlayerList.forEach(p -> {
                 p.getWorld().setStorm(false);

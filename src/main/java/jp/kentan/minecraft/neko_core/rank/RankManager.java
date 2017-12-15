@@ -65,6 +65,13 @@ public class RankManager {
             prefix = prefix.substring(0, prefix.length() - 2);
 
             team.setPrefix(prefix + rankColor);
+        } else if (rankColor != ChatColor.RESET){
+            if (team == null) {
+                team = SCOREBOARD.registerNewTeam(player.getName());
+                team.addEntry(player.getName());
+            }
+
+            team.setPrefix(rankColor.toString());
         } else if (team != null) {
             team.unregister();
         }

@@ -17,8 +17,10 @@ import jp.kentan.minecraft.neko_core.vote.reward.ServerVoteListener;
 import jp.kentan.minecraft.neko_core.vote.WeatherVote;
 import jp.kentan.minecraft.neko_core.zone.ZoneManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -81,6 +83,11 @@ public class NekoCore extends JavaPlugin implements Listener{
         }
 
         switch (args[0]){
+            case "nyan":
+                if(checkPlayer(sender)){
+                    playNyan(NekoUtil.toPlayer(sender));
+                }
+                break;
             case "hp":
                 printUrl(sender, "https://minecraft.kentan.jp");
                 break;
@@ -140,6 +147,10 @@ public class NekoCore extends JavaPlugin implements Listener{
 
     private boolean isAdminCommand(CommandSender sender, String[] args){
         return args.length >= 2 && (args[0].equals("admin") && (sender.getName().equals("ken_kentan") || !NekoUtil.isPlayer(sender)));
+    }
+
+    private void playNyan(Player player){
+        player.playSound(player.getLocation(), Sound.ENTITY_CAT_AMBIENT, 1, 1);
     }
 
     private void printHelp(CommandSender sender) {

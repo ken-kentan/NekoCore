@@ -36,9 +36,9 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         final UUID uuid;
         final String playerDisplayName;
 
-        boolean isaOnlineMode = (player != null);
+        boolean isOnline = (player != null);
 
-        if(isaOnlineMode){ //Online
+        if(isOnline){ //Online
             uuid = player.getUniqueId();
 
             playerDisplayName = player.getDisplayName();
@@ -57,7 +57,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         final Reward reward = sConfig.getReward(uuid);
         final int continuous = sConfig.getContinuous(uuid);
 
-        if(isaOnlineMode) {
+        if(isOnline) {
             reward.getCommandList().forEach(cmd -> Bukkit.getServer().dispatchCommand(CONSOLE, cmd.replace("{player}", playerName)));
 
             final String[] playerMessages = PLAYER_MESSAGES.clone();
@@ -66,7 +66,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
 
             player.sendMessage(playerMessages);
         }else{
-            sConfig.saveCommand(uuid, reward.getCommandList());
+            sConfig.addStackCommands(uuid, reward.getCommandList());
         }
 
         sConfig.saveContinuous(uuid, continuous);
@@ -79,7 +79,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
 
         NekoUtil.broadcast(broadcastMessages, player);
 
-        Log.info(playerName + " voted as " + (isaOnlineMode ? "ONLINE." : "offline."));
+        Log.info(playerName + " voted as " + (isOnline ? "ONLINE." : "offline."));
     }
 
     private static String buildStatusMessage(int succession) {
@@ -154,10 +154,14 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
             );
         }
 
-        void saveCommand(UUID uuid, List<String> commandList){
+        void addStackCommands(UUID uuid, List<String> commandList){
+            List<String> stackCommandList = PlayerConfigProvider.get(uuid, "stackCommands");
+
+            stackCommandList.addAll(commandList);
+
             PlayerConfigProvider.save(uuid, new HashMap<String, Object>(){
                         {
-                            put("stackCommands", commandList);
+                            put("stackCommands", stackCommandList);
                         }
                     }
             );

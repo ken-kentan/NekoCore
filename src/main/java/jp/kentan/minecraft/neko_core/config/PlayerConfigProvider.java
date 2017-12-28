@@ -8,9 +8,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class PlayerConfigProvider {
@@ -46,7 +44,7 @@ public class PlayerConfigProvider {
 
             return config.getStringList(path);
         } catch (Exception e) {
-            return null;
+            return new ArrayList<>();
         }
     }
 

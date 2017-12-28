@@ -40,6 +40,10 @@ public class PlayerEventListener implements Listener {
         if(stackCommandList == null || stackCommandList.size() <= 0) return;
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(sPlugin, () -> {
+            if(!player.isOnline()){
+                return;
+            }
+
             final String playerName = player.getName();
 
             stackCommandList.forEach(cmd -> Bukkit.getServer().dispatchCommand(CONSOLE, cmd.replace("{player}", playerName)));

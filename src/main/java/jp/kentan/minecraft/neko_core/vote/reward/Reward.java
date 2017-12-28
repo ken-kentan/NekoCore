@@ -8,12 +8,12 @@ import java.util.List;
 
 public class Reward {
     final String NAME;
-    private List<String> mCommandList = new ArrayList<>();
+    final private List<String> COMMAND_LIST = new ArrayList<>();
 
     public Reward(String name, List<String> commandList){
         NAME = ChatColor.translateAlternateColorCodes('&', name);
-        mCommandList.addAll(commandList);
+        COMMAND_LIST.addAll(commandList);
     }
 
-    List<String> getCommandList(){return mCommandList;}
+    List<String> getCommandList(){return COMMAND_LIST;}
 }

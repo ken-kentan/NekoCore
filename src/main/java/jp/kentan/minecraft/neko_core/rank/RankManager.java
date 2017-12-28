@@ -51,7 +51,10 @@ public class RankManager {
             rankColor = ChatColor.GOLD;
         }
 
-        player.setDisplayName(rankColor + player.getName());
+
+        if(rankColor != ChatColor.RESET){
+            player.setDisplayName(rankColor + player.getName() + ChatColor.RESET);
+        }
 
         Team team = SCOREBOARD.getTeam(player.getName());
 

@@ -27,7 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class NekoCore extends JavaPlugin implements Listener{
 
-    public static final String TAG = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.WHITE;
+    public static final String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "Neko" + ChatColor.RED + "Core" + ChatColor.GRAY + "] " + ChatColor.RESET;
 
 
     @Override
@@ -125,7 +125,7 @@ public class NekoCore extends JavaPlugin implements Listener{
                     break;
                 case "reload":
                     ConfigManager.load();
-                    sender.sendMessage(TAG + "設定ファルをリロードしました.");
+                    sender.sendMessage(PREFIX + "設定ファルをリロードしました.");
                     break;
                 default:
                     break;
@@ -168,7 +168,7 @@ public class NekoCore extends JavaPlugin implements Listener{
     }
 
     private void printUrl(CommandSender sender, String url){
-        sender.sendMessage(TAG + ChatColor.AQUA + ChatColor.UNDERLINE + url);
-        sender.sendMessage(TAG + ChatColor.GRAY + "↑のアドレスをクリックして下さい.");
+        sender.sendMessage(PREFIX + ChatColor.AQUA + ChatColor.UNDERLINE + url);
+        sender.sendMessage(PREFIX + ChatColor.GRAY + "↑のアドレスをクリックして下さい.");
     }
 }

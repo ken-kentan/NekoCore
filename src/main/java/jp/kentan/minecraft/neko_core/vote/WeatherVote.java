@@ -47,11 +47,11 @@ public class WeatherVote {
                 p.getWorld().setThundering(false);
             });
 
-            sServer.broadcastMessage(NekoCore.TAG + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
+            sServer.broadcastMessage(NekoCore.PREFIX + ChatColor.AQUA + "投票の結果、天候を晴れにしました。");
 
             stopTimer();
         }else{
-            player.sendMessage(NekoCore.TAG + ChatColor.AQUA + "天候投票に成功しました！");
+            player.sendMessage(NekoCore.PREFIX + ChatColor.AQUA + "天候投票に成功しました！");
             sendStatus(player);
         }
     }
@@ -69,7 +69,7 @@ public class WeatherVote {
             }
         }, 20L, 20L).getTaskId(); //20ticks = 1sec
 
-        NekoUtil.broadcast(NekoCore.TAG + player.getDisplayName() + "さんが天候投票を開始しました。", player);
+        NekoUtil.broadcast(NekoCore.PREFIX + player.getDisplayName() + "さんが天候投票を開始しました。", player);
 
         Log.info("WeatherVote start.");
     }
@@ -83,8 +83,8 @@ public class WeatherVote {
     }
 
     private static void sendStatus(Player player){
-        player.sendMessage(NekoCore.TAG + "現在の投票数：" + ChatColor.AQUA + " " + sVotedPlayerList.size() + "人");
-        player.sendMessage(NekoCore.TAG + "残り投票時間：" + ChatColor.GREEN + " " + sCountSec + "秒");
-        player.sendMessage(NekoCore.TAG + ChatColor.GRAY + "ログインプレイヤーの半数が投票すると天候が晴れになります。");
+        player.sendMessage(NekoCore.PREFIX + "現在の投票数：" + ChatColor.AQUA + " " + sVotedPlayerList.size() + "人");
+        player.sendMessage(NekoCore.PREFIX + "残り投票時間：" + ChatColor.GREEN + " " + sCountSec + "秒");
+        player.sendMessage(NekoCore.PREFIX + ChatColor.GRAY + "ログインプレイヤーの約半数が投票すると天候が晴れになります。");
     }
 }

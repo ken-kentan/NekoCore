@@ -29,18 +29,23 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         ConfigManager.bindRewardConfigListener(new RewardManager());
     }
 
-    public static void vote(String playerName){
+    public static void vote(final String playerName){
 //        TwitterBot.pushActionMessage(playerName, " http://minecraft.jp で投票");
 
         final Player player = NekoUtil.getOnlinePlayer(playerName);
         final UUID uuid;
+        final String playerDisplayName;
 
         boolean isaOnlineMode = (player != null);
 
         if(isaOnlineMode){ //Online
             uuid = player.getUniqueId();
+
+            playerDisplayName = player.getDisplayName();
         }else{
             uuid = NekoUtil.getOfflinePlayerUuid(playerName);
+
+            playerDisplayName = playerName;
         }
 
         if(uuid == null){
@@ -70,7 +75,7 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
         Broadcast
          */
         final String[] broadcastMessages = BROADCAST_MESSAGES.clone();
-        broadcastMessages[0] = broadcastMessages[0].replace("{player}", playerName).replace("{reward}", reward.NAME);
+        broadcastMessages[0] = broadcastMessages[0].replace("{player}", playerDisplayName).replace("{reward}", reward.NAME);
 
         NekoUtil.broadcast(broadcastMessages, player);
 
@@ -102,16 +107,16 @@ public class RewardManager implements ConfigUpdateListener<RewardManager.Config>
     }
 
     private final static String[] BROADCAST_MESSAGES = new String[]{
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "{player}&7さんが投票で&r {reward} &7をゲットしました！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&3まだ投票をしていませんか？ ↓をクリックしてぜひ投票を！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&b&nhttps://minecraft.kentan.jp/vote")
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "{player}&7さんが投票で&r {reward} &7をゲットしました！"),
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&3まだ投票をしていませんか？ ↓をクリックしてぜひ投票を！"),
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&b&nhttps://minecraft.kentan.jp/vote")
     };
 
     private final static String[] PLAYER_MESSAGES = new String[]{
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&6投票ありがとにゃ(｡･ω･｡)"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&e特典&r {reward} &rを&dゲット！"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&aステータス&7: {status}"),
-            NekoCore.TAG + ChatColor.translateAlternateColorCodes('&', "&7毎日投票すると、特典がアップグレードします！")
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&6投票ありがとにゃ(｡･ω･｡)"),
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&e特典&r {reward} &rを&dゲット！"),
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&aステータス&7: {status}"),
+            NekoCore.PREFIX + ChatColor.translateAlternateColorCodes('&', "&7毎日投票すると、特典がアップグレードします！")
     };
 
     public static class Config{

@@ -10,9 +10,6 @@ import jp.kentan.minecraft.neko_core.util.NekoUtil;
 import me.lucko.luckperms.api.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,8 +20,8 @@ public class TutorialManager implements ConfigUpdateListener<String> {
 
     private final static String GUEST_LOGIN_MSG = ChatColor.translateAlternateColorCodes('&', "が&6ゲスト&rとしてログインしました！");
     private final static String TUTORIAL_COMPLETE_MSG = ChatColor.translateAlternateColorCodes('&', "が&9チュートリアル&rを&6完了&rしました！");
-    private final static String INVALID_KEYWORD_MSG = NekoCore.TAG + ChatColor.YELLOW + "キーワードが間違っています. ホームページのルールを確認してください.";
-    private final static String ERROR_MSG = NekoCore.TAG + ChatColor.YELLOW + "チュートリアル処理に失敗しました. 運営に報告して下さい.";
+    private final static String INVALID_KEYWORD_MSG = NekoCore.PREFIX + ChatColor.YELLOW + "キーワードが間違っています. ホームページのルールを確認してください.";
+    private final static String ERROR_MSG = NekoCore.PREFIX + ChatColor.YELLOW + "チュートリアル処理に失敗しました. 運営に報告して下さい.";
 
     private final static BukkitScheduler SCHEDULER = Bukkit.getScheduler();
 
@@ -53,14 +50,9 @@ public class TutorialManager implements ConfigUpdateListener<String> {
         plugin.getCommand("tutorial").setExecutor(new TutorialCommandExecutor());
     }
 
-    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerJoin(PlayerJoinEvent event){
-        joinTutorialIfNeed(event.getPlayer());
-    }
-
     public static void joinTutorialIfNeed(Player player){
         if(isGuest(player)){
-            NekoUtil.broadcast(NekoCore.TAG + player.getName() + GUEST_LOGIN_MSG, player);
+            NekoUtil.broadcast(NekoCore.PREFIX + player.getName() + GUEST_LOGIN_MSG, player);
 
             SCHEDULER.scheduleSyncDelayedTask(sPlugin, () -> SpawnManager.spawn(player, "tutorial"), 10L);
         }
@@ -106,8 +98,8 @@ public class TutorialManager implements ConfigUpdateListener<String> {
 
                             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
 
-                            player.sendMessage(NekoCore.TAG + "できたてサーバー(猫)へようこそ！");
-                            NekoUtil.broadcast(NekoCore.TAG + player.getName() + TUTORIAL_COMPLETE_MSG, player);
+                            player.sendMessage(NekoCore.PREFIX + "できたてサーバー(猫)へようこそ！");
+                            NekoUtil.broadcast(NekoCore.PREFIX + player.getName() + TUTORIAL_COMPLETE_MSG, player);
 
                             giveWelcomeItems(player);
                         });

@@ -50,11 +50,11 @@ public class SpawnManager implements CancelListener {
         if(location != null){
             Location playerLocation = player.getLocation();
 
-            player.sendMessage(NekoCore.TAG + "3秒後にスポーンします.");
+            player.sendMessage(NekoCore.PREFIX + "3秒後にスポーンします.");
             player.getWorld().playEffect(playerLocation, Effect.MOBSPAWNER_FLAMES, 6);
             player.playSound(playerLocation, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
         }else{
-            player.sendMessage(NekoCore.TAG + "そのようなスポーンは存在しません.");
+            player.sendMessage(NekoCore.PREFIX + "そのようなスポーンは存在しません.");
             return;
         }
 
@@ -73,14 +73,14 @@ public class SpawnManager implements CancelListener {
     static void saveSpawn(Player player, String spawnName){
         SpawnConfigProvider.save(spawnName, player.getLocation());
 
-        player.sendMessage(NekoCore.TAG + "スポーン(" + spawnName + ")を、ここにセットしました.");
+        player.sendMessage(NekoCore.PREFIX + "スポーン(" + spawnName + ")を、ここにセットしました.");
     }
 
     @Override
     public void onCancel(Player player) {
         if(sPlayerSpawnTaskMap.containsKey(player)) {
             SCHEDULER.cancelTask(sPlayerSpawnTaskMap.remove(player));
-            player.sendMessage(NekoCore.TAG + "スポーンをキャンセルしました.");
+            player.sendMessage(NekoCore.PREFIX + "スポーンをキャンセルしました.");
         }
     }
 }

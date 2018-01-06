@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class SpawnCancelListener implements Listener {
     private CancelListener mListener;
@@ -25,6 +26,11 @@ public class SpawnCancelListener implements Listener {
         if((to.getBlockX() != from.getBlockX()) || (to.getBlockY() != from.getBlockY()) || (to.getBlockZ() != from.getBlockZ())) {
             mListener.onCancel(event.getPlayer());
         }
+    }
+
+    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        mListener.onCancel(event.getPlayer());
     }
 
     @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)

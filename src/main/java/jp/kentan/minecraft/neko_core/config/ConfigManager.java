@@ -55,9 +55,9 @@ public class ConfigManager {
 
             config.load(reader);
 
-//            loadTwitterConfig(config);
-//            loadBotMessages(config);
             loadRewardConfig(config);
+
+            SpawnConfigProvider.load();
 
             sTutorialKeywordListener.onUpdate(
                     config.getString("Tutorial.keyword")

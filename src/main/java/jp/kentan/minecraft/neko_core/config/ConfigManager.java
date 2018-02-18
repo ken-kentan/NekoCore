@@ -1,106 +1,93 @@
 package jp.kentan.minecraft.neko_core.config;
 
-import jp.kentan.minecraft.neko_core.vote.reward.Reward;
-import jp.kentan.minecraft.neko_core.vote.reward.RewardManager;
+import jp.kentan.minecraft.neko_core.component.ServerVoteReward;
+import jp.kentan.minecraft.neko_core.component.SpawnLocation;
+import jp.kentan.minecraft.neko_core.event.ConfigUpdateEvent;
 import jp.kentan.minecraft.neko_core.util.Log;
+import jp.kentan.minecraft.neko_core.manager.ServerVoteManager;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ConfigManager {
 
-    private static String sConfigPath;
+    private final JavaPlugin JAVA_PLUGIN;
+
+    /*
+    ConfigProvider
+     */
+    private PlayerConfigProvider mPlayerConfigProvider;
+    private SpawnConfigProvider mSpawnConfigProvider;
+
+    /*
+    ConfigUpdateEvent
+     */
+    private ConfigUpdateEvent<ServerVoteManager.Config> mServerVoteConfigUpdateEvent = null;
 
 
-//    private static ConfigUpdateListener<TwitterManager.Config> sTwitterConfigListener;
-//    private static ConfigUpdateListener<TwitterBot.Messages> sBotMessagesListener;
-    private static ConfigUpdateListener<String> sTutorialKeywordListener;
-    private static ConfigUpdateListener<RewardManager.Config> sRewardConfigListener;
+    public ConfigManager(JavaPlugin javaPlugin) {
+        JAVA_PLUGIN = javaPlugin;
 
-
-    public static void setup(File dataFolder){
-        sConfigPath = dataFolder + File.separator + "config.yml";
-
-        PlayerConfigProvider.setup(dataFolder);
-        SpawnConfigProvider.setup(dataFolder);
+        mPlayerConfigProvider = new PlayerConfigProvider(JAVA_PLUGIN.getDataFolder());
+        mSpawnConfigProvider  = new SpawnConfigProvider(JAVA_PLUGIN.getDataFolder());
     }
 
-//    public static void bindTwitterConfigListener(ConfigUpdateListener<TwitterManager.Config> listener){
-//        sTwitterConfigListener = listener;
-//    }
-//
-//    public static void bindBotMessagesListener(ConfigUpdateListener<TwitterBot.Messages> listener){
-//        sBotMessagesListener = listener;
-//    }
-
-    public static void bindTutorialKeywordListener(ConfigUpdateListener<String> listener){
-        sTutorialKeywordListener = listener;
+    public void bindServerVoteEvent(ConfigUpdateEvent<ServerVoteManager.Config> event) {
+        mServerVoteConfigUpdateEvent = event;
     }
 
-    public static void bindRewardConfigListener(ConfigUpdateListener<RewardManager.Config> listener){
-        sRewardConfigListener = listener;
+    public void bindSpawnConfigEvent(ConfigUpdateEvent<List<SpawnLocation>> event) {
+        mSpawnConfigProvider.bindEvent(event);
     }
 
-    public static void load(){
-        try (Reader reader = new InputStreamReader(new FileInputStream(sConfigPath), StandardCharsets.UTF_8)) {
-            final FileConfiguration config = new YamlConfiguration();
+    public PlayerConfigProvider getPlayerConfigProvider() {
+        return mPlayerConfigProvider;
+    }
 
-            config.load(reader);
+    public SpawnConfigProvider getSpawnConfigProvider() {
+        return mSpawnConfigProvider;
+    }
 
-            loadRewardConfig(config);
+    public boolean reload() {
+        JAVA_PLUGIN.reloadConfig();
+        return load();
+    }
 
-            SpawnConfigProvider.load();
+    public boolean load() {
+        FileConfiguration config = JAVA_PLUGIN.getConfig();
 
-            sTutorialKeywordListener.onUpdate(
-                    config.getString("Tutorial.keyword")
-            );
+        loadServerVoteConfig(config);
+        mSpawnConfigProvider.load();
 
-            reader.close();
-        }catch (Exception e){
-            Log.warn(e.getMessage());
+        return true;
+    }
+
+    private void loadServerVoteConfig(FileConfiguration config) {
+        if (mServerVoteConfigUpdateEvent == null) {
+            Log.warn("ServerVoteConfigListener was not bound.");
+            return;
         }
-    }
 
-//    private static void loadTwitterConfig(FileConfiguration config){
-//        sTwitterConfigListener.onUpdate(new TwitterManager.Config(
-//                config.getString("Twitter.consumerKey"),
-//                config.getString("Twitter.consumerSecret"),
-//                config.getString("Twitter.accessToken"),
-//                config.getString("Twitter.accessTokenSecret")
-//        ));
-//    }
-//
-//    private static void loadBotMessages(FileConfiguration config){
-//        sBotMessagesListener.onUpdate(new TwitterBot.Messages(
-//                config.getStringList("Bot.nekoFace"),
-//                config.getStringList("Bot.msgPlayerAction")
-//        ));
-//    }
 
-    private static void loadRewardConfig(FileConfiguration config){
-        final List<Reward> rewardList = new ArrayList<>();
-
-        for(int i=1; i<10; ++i){
+        for (int i = 1; i < 10; ++i) {
             final String path = "Vote.Reward." + i + "day";
 
-            if(!config.isConfigurationSection(path)) break;
+            if (!config.isConfigurationSection(path)) break;
 
-            rewardList.add(new Reward(
-                    config.getString(path + ".name"),
-                    config.getStringList(path + ".commands")
-            ));
+            List<ServerVoteReward> rewardList = new ArrayList<>();
+
+            rewardList.add(
+                    new ServerVoteReward(
+                            config.getString(path + ".name"),
+                            config.getStringList(path + ".commands")
+                    )
+            );
+
+            mServerVoteConfigUpdateEvent.onConfigUpdate(
+                    new ServerVoteManager.Config(mPlayerConfigProvider, rewardList)
+            );
         }
-
-        sRewardConfigListener.onUpdate(new RewardManager.Config(
-                rewardList
-        ));
     }
 }

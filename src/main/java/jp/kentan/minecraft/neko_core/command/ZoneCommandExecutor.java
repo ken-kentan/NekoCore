@@ -103,7 +103,7 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
                 }
                 break;
             case "buy":
-                if (!sender.hasPermission("neko.zone.purchase")) {
+                if (!sender.hasPermission("neko.zone.buy")) {
                     Util.sendPermissionError(sender);
                     return true;
                 }
@@ -115,7 +115,7 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
                 }
                 break;
             case "rental":
-                if (!sender.hasPermission("neko.zone.lease")) {
+                if (!sender.hasPermission("neko.zone.rental")) {
                     Util.sendPermissionError(sender);
                     return true;
                 }

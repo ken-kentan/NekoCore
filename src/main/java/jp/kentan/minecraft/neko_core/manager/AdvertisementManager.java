@@ -193,7 +193,7 @@ public class AdvertisementManager implements AdvertisementEvent {
 
         if (PLAYER_CONFIG.saveAdvertiseFrequency(player.getUniqueId(), freq)) {
             PLAYER_MAP.put(player, freq);
-            player.sendMessage(PREFIX + ChatColor.GREEN + "受信頻度を " + freq.getName() + ChatColor.GREEN + " に設定しました.");
+            player.sendMessage(PREFIX + ChatColor.GREEN + "受信頻度を" + freq.getName() + ChatColor.GREEN + "に設定しました.");
         } else {
             player.sendMessage(PREFIX + ChatColor.YELLOW + "設定に失敗しました.");
         }

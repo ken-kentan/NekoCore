@@ -56,7 +56,9 @@ public class ServerVoteManager implements ConfigUpdateEvent<ServerVoteManager.Co
 
             player.sendMessage(playerMessages);
         } else {
-            mConfig.PLAYER_CONFIG.addStackCommands(uuid, reward.getCommandList());
+            if (!mConfig.PLAYER_CONFIG.addStackCommands(uuid, reward.getCommandList())) {
+                Log.error("failed add the StackCommands of " + uuid + '.');
+            }
         }
 
         mConfig.updateVoteData(uuid, voteContinuous);
@@ -138,7 +140,9 @@ public class ServerVoteManager implements ConfigUpdateEvent<ServerVoteManager.Co
         }
 
         private void updateVoteData(UUID uuid, int continuous) {
-            PLAYER_CONFIG.saveServerVoteData(uuid, ZonedDateTime.now(), continuous);
+            if (!PLAYER_CONFIG.saveServerVoteData(uuid, ZonedDateTime.now(), continuous)) {
+                Log.error("failed save the ServerVoteDate of " + uuid + '.');
+            }
         }
     }
 }

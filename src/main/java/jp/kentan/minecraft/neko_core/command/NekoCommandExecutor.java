@@ -116,7 +116,9 @@ public class NekoCommandExecutor implements CommandExecutor, TabCompleter {
         sender.sendMessage("| " + ChatColor.GOLD + "/neko discord" + ChatColor.RESET + " DiscordのURLを表示します.");
         sender.sendMessage("| " + ChatColor.GOLD + "/neko twitter" + ChatColor.RESET + " TwitterのURLを表示します.");
         sender.sendMessage("| " + ChatColor.GOLD + "/neko help" + ChatColor.RESET + " ヘルプを表示します.");
-        sender.sendMessage("| " + ChatColor.BLUE + "/zone" + ChatColor.RESET + " 区画管理のヘルプを表示.");
+        sender.sendMessage("| " + ChatColor.BLUE + "/zone help" + ChatColor.RESET + " 区画管理のヘルプを表示.");
+        sender.sendMessage("| " + ChatColor.LIGHT_PURPLE + "/ad help" + ChatColor.RESET + " 広告のヘルプを表示.");
+        sender.sendMessage("| " + ChatColor.DARK_AQUA + "/wvote help" + ChatColor.RESET + " 天候投票のヘルプを表示.");
         sender.sendMessage("| " + ChatColor.GRAY + "/neko は /nk と省略することも可能です.");
         sender.sendMessage("---------------------------------------");
     }

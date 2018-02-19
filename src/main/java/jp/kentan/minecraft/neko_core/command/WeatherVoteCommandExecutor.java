@@ -82,10 +82,10 @@ public class WeatherVoteCommandExecutor implements CommandExecutor, TabCompleter
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("---------- 天候投票コマンドヘルプ ----------");
-        sender.sendMessage("| " + ChatColor.GOLD + "/weathervote" + ChatColor.RESET + " 投票する.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/weathervote <sun/rain>" + ChatColor.RESET + " 天候投票を開始する.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/weathervote info" + ChatColor.RESET + " 投票状況を表示します.");
-        sender.sendMessage("| " + ChatColor.GOLD + "/weathervote help" + ChatColor.RESET + " ヘルプを表示します.");
+        sender.sendMessage("| " + ChatColor.DARK_AQUA + "/weathervote" + ChatColor.RESET + " 投票する.");
+        sender.sendMessage("| " + ChatColor.DARK_AQUA + "/weathervote <sun/rain>" + ChatColor.RESET + " 天候投票を開始する.");
+        sender.sendMessage("| " + ChatColor.DARK_AQUA + "/weathervote info" + ChatColor.RESET + " 投票状況を表示します.");
+        sender.sendMessage("| " + ChatColor.DARK_AQUA + "/weathervote help" + ChatColor.RESET + " ヘルプを表示します.");
         sender.sendMessage("| " + ChatColor.GRAY + "/weathervote は /wvote と省略することも可能です.");
         sender.sendMessage("---------------------------------------");
     }

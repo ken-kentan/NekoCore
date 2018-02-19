@@ -126,19 +126,19 @@ public class AdvertisementCommandExecutor implements CommandExecutor, TabComplet
 
     final private String[] COMMAND_HELP = new String[]{
             "---------- 広告コマンドヘルプ ----------",
-            ChatColor.translateAlternateColorCodes('&', "| &d/ad set <期限> <内容> &r広告を登録"),
+            ChatColor.translateAlternateColorCodes('&', "| &d/ad set <日数> <内容> &r広告を登録"),
             ChatColor.translateAlternateColorCodes('&', "| &d/ad unset &r広告を消去"),
             ChatColor.translateAlternateColorCodes('&', "| &d/ad preview <内容> &r広告をプレビュー"),
             ChatColor.translateAlternateColorCodes('&', "| &d/ad info &r広告を確認"),
             ChatColor.translateAlternateColorCodes('&', "| &d/ad list &r全プレイヤーの広告を確認"),
-            ChatColor.translateAlternateColorCodes('&', "| &d/ad freq <off|lounge|normal|busy> &r広告の受信頻度を変更"),
+            ChatColor.translateAlternateColorCodes('&', "| &d/ad freq <off|low|middle|high> &r広告の受信頻度を変更"),
             ChatColor.translateAlternateColorCodes('&', "| &d/ad help &rヘルプを表示"),
             ChatColor.translateAlternateColorCodes('&', "| &7'&'を使用して装飾コードを利用できます."),
             "---------------------------------------"
     };
 
-    private final List<String> COMMAND_ARGUMENT_LIST = Arrays.asList("set", "unset", "preview", "info", "list", "freq", "confirm");
+    private final List<String> COMMAND_ARGUMENT_LIST = Arrays.asList("set", "unset", "preview", "info", "list", "freq", "confirm", "help");
     private final List<String> ADMIN_COMMAND_ARGUMENT_LIST = new ArrayList<>(Collections.singletonList("sync"));
 
-    private final List<String> FREQ_COMMAND_PARAM_LIST = Arrays.asList("busy", "normal", "lounge", "off");
+    private final List<String> FREQ_COMMAND_PARAM_LIST = Arrays.asList("high", "middle", "low", "off");
 }

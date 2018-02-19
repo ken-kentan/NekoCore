@@ -4,9 +4,9 @@ import org.bukkit.ChatColor;
 
 public enum AdvertiseFrequency {
     OFF(0, "&7停止"),
-    LOUNGE(6, "&6たまに"),
-    NORMAL(3, "&bふつう"),
-    BUSY(1, "&9たくさん");
+    LOW(6, "&6低"),
+    MIDDLE(3, "&b中"),
+    HIGH(1, "&9高");
 
     private final int INTERVAL_GAIN;
     private final String NAME;

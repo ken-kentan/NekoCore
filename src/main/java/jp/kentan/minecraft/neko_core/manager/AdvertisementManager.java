@@ -32,8 +32,9 @@ public class AdvertisementManager implements AdvertisementEvent {
     private final EconomyProvider ECONOMY;
     private final PlayerConfigProvider PLAYER_CONFIG;
 
-    private int mIndexAdList = 0;
-    private int mCountInterval = 1;
+    private int mIndexAdListHigh   = 0;
+    private int mIndexAdListMiddle = 0;
+    private int mIndexAdListLow    = 0;
 
     public AdvertisementManager(Plugin plugin, EconomyProvider economyProvider, PlayerConfigProvider playerConfigProvider) {
         PLUGIN = plugin;
@@ -65,25 +66,39 @@ public class AdvertisementManager implements AdvertisementEvent {
                 return;
             }
 
-            List<AdvertiseFrequency> freqList = new ArrayList<>(3);
-            freqList.add(AdvertiseFrequency.BUSY);
-
-            if (mCountInterval % AdvertiseFrequency.NORMAL.getIntervalGain() == 0) {
-                freqList.add(AdvertiseFrequency.NORMAL);
+            if (AD_LIST.size() <= ++mIndexAdListHigh) {
+                mIndexAdListHigh = 0;
             }
-            if (mCountInterval % AdvertiseFrequency.LOUNGE.getIntervalGain() == 0) {
-                freqList.add(AdvertiseFrequency.LOUNGE);
-                mCountInterval = 1;
-            }
+            Advertisement ad = AD_LIST.get(mIndexAdListHigh);
 
-            if (AD_LIST.size() <= ++mIndexAdList) {
-                mIndexAdList = 0;
-            }
-            Advertisement ad = AD_LIST.get(mIndexAdList);
-
-            PLAYER_MAP.entrySet().stream().filter(e -> freqList.contains(e.getValue())).forEach(e -> e.getKey().sendMessage(PREFIX + ad.CONTENT));
-
+            PLAYER_MAP.entrySet().stream().filter(e -> e.getValue() == AdvertiseFrequency.HIGH).forEach(e -> e.getKey().sendMessage(PREFIX + ad.CONTENT));
         }, INTERVAL_TICK, INTERVAL_TICK);
+
+        SCHEDULER.runTaskTimerAsynchronously(PLUGIN, () -> {
+            if (AD_LIST.isEmpty() || PLAYER_MAP.isEmpty()) {
+                return;
+            }
+
+            if (AD_LIST.size() <= ++mIndexAdListMiddle) {
+                mIndexAdListMiddle = 0;
+            }
+            Advertisement ad = AD_LIST.get(mIndexAdListMiddle);
+
+            PLAYER_MAP.entrySet().stream().filter(e -> e.getValue() == AdvertiseFrequency.MIDDLE).forEach(e -> e.getKey().sendMessage(PREFIX + ad.CONTENT));
+        }, INTERVAL_TICK, INTERVAL_TICK * AdvertiseFrequency.MIDDLE.getIntervalGain());
+
+        SCHEDULER.runTaskTimerAsynchronously(PLUGIN, () -> {
+            if (AD_LIST.isEmpty() || PLAYER_MAP.isEmpty()) {
+                return;
+            }
+
+            if (AD_LIST.size() <= ++mIndexAdListLow) {
+                mIndexAdListLow = 0;
+            }
+            Advertisement ad = AD_LIST.get(mIndexAdListLow);
+
+            PLAYER_MAP.entrySet().stream().filter(e -> e.getValue() == AdvertiseFrequency.LOW).forEach(e -> e.getKey().sendMessage(PREFIX + ad.CONTENT));
+        }, INTERVAL_TICK, INTERVAL_TICK * AdvertiseFrequency.LOW.getIntervalGain());
     }
 
     public void addSetAdConfirmTask(Player player, String strPeriodDays, String content) {

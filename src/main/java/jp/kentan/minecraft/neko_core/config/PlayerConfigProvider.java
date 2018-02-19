@@ -3,6 +3,8 @@ package jp.kentan.minecraft.neko_core.config;
 import jp.kentan.minecraft.neko_core.component.AdvertiseFrequency;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -11,7 +13,8 @@ public class PlayerConfigProvider extends BaseConfig {
 
     private final String DATA_FOLDER_PATH;
 
-    private final DateTimeFormatter OLD_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.JAPAN);
+    private final DateTimeFormatter OLD_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final ZoneId ZONE_JAPAN = ZoneId.of("Asia/Tokyo");
 
 
     PlayerConfigProvider(File dataFolder) {
@@ -35,7 +38,7 @@ public class PlayerConfigProvider extends BaseConfig {
         }
 
         //旧フォーマット互換
-        return ZonedDateTime.from(OLD_DATE_FORMATTER.parse(strDate));
+        return LocalDate.parse(strDate, OLD_DATE_FORMATTER).atStartOfDay(ZONE_JAPAN);
     }
 
     public int getServerVoteContinuous(UUID uuid) {
@@ -48,10 +51,10 @@ public class PlayerConfigProvider extends BaseConfig {
         changePlayerConfig(uuid);
 
         try {
-            return AdvertiseFrequency.valueOf((String) super.get("Advertisement.frequency", AdvertiseFrequency.NORMAL.toString()));
+            return AdvertiseFrequency.valueOf((String) super.get("Advertisement.frequency", AdvertiseFrequency.MIDDLE.toString()));
         } catch (Exception e) {
             e.printStackTrace();
-            return AdvertiseFrequency.NORMAL;
+            return AdvertiseFrequency.MIDDLE;
         }
     }
 

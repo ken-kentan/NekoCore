@@ -25,6 +25,7 @@ public class ConfigManager {
     ConfigUpdateEvent
      */
     private ConfigUpdateEvent<ServerVoteManager.Config> mServerVoteConfigUpdateEvent = null;
+    private ConfigUpdateEvent<String> mTutorialKeywordUpdateEvent;
 
 
     public ConfigManager(JavaPlugin javaPlugin) {
@@ -36,6 +37,10 @@ public class ConfigManager {
 
     public void bindServerVoteEvent(ConfigUpdateEvent<ServerVoteManager.Config> event) {
         mServerVoteConfigUpdateEvent = event;
+    }
+
+    public void bindTutorialKeywordEvent(ConfigUpdateEvent<String> event) {
+        mTutorialKeywordUpdateEvent = event;
     }
 
     public void bindSpawnConfigEvent(ConfigUpdateEvent<List<SpawnLocation>> event) {
@@ -59,6 +64,7 @@ public class ConfigManager {
         FileConfiguration config = JAVA_PLUGIN.getConfig();
 
         loadServerVoteConfig(config);
+        loadTutorialKeyword(config);
         mSpawnConfigProvider.load();
 
         return true;
@@ -66,17 +72,16 @@ public class ConfigManager {
 
     private void loadServerVoteConfig(FileConfiguration config) {
         if (mServerVoteConfigUpdateEvent == null) {
-            Log.warn("ServerVoteConfigListener was not bound.");
+            Log.warn("ServerVoteConfigUpdateEvent was not bound.");
             return;
         }
 
+        List<ServerVoteReward> rewardList = new ArrayList<>();
 
         for (int i = 1; i < 10; ++i) {
             final String path = "Vote.Reward." + i + "day";
 
             if (!config.isConfigurationSection(path)) break;
-
-            List<ServerVoteReward> rewardList = new ArrayList<>();
 
             rewardList.add(
                     new ServerVoteReward(
@@ -84,10 +89,21 @@ public class ConfigManager {
                             config.getStringList(path + ".commands")
                     )
             );
-
-            mServerVoteConfigUpdateEvent.onConfigUpdate(
-                    new ServerVoteManager.Config(mPlayerConfigProvider, rewardList)
-            );
         }
+
+        mServerVoteConfigUpdateEvent.onConfigUpdate(
+                new ServerVoteManager.Config(mPlayerConfigProvider, rewardList)
+        );
+    }
+
+    private void loadTutorialKeyword(FileConfiguration config) {
+        if (mTutorialKeywordUpdateEvent == null) {
+            Log.warn("TutorialKeywordUpdateEvent was not bound.");
+            return;
+        }
+
+        mTutorialKeywordUpdateEvent.onConfigUpdate(
+                config.getString("Tutorial.keyword")
+        );
     }
 }

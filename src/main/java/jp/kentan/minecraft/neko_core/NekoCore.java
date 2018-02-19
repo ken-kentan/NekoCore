@@ -86,6 +86,7 @@ public class NekoCore extends JavaPlugin {
         Listener登録
          */
         configManager.bindServerVoteEvent(serverVoteManager);
+        configManager.bindTutorialKeywordEvent(tutorialManager);
         configManager.bindSpawnConfigEvent(spawnManager);
 
         getServer().getPluginManager().registerEvents(new ServerVoteListener(serverVoteManager), this);

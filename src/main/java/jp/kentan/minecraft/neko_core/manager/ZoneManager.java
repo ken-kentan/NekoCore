@@ -691,15 +691,17 @@ public class ZoneManager implements ZoneEvent {
         SCHEDULER.runTaskTimerAsynchronously(PLUGIN, () -> {
             List<Area> expiredAreaList = new ArrayList<>(DAO.takeExpiredRentalAreas());
 
-            SCHEDULER.scheduleSyncDelayedTask(PLUGIN, () -> expiredAreaList.forEach(area -> {
-                World world = Bukkit.getWorld(area.WORLD);
+            if (!expiredAreaList.isEmpty()) {
+                SCHEDULER.scheduleSyncDelayedTask(PLUGIN, () -> expiredAreaList.forEach(area -> {
+                    World world = Bukkit.getWorld(area.WORLD);
 
-                ProtectedRegion region = WORLD_GUARD.getProtectedRegion(world, area.REGION_ID);
+                    ProtectedRegion region = WORLD_GUARD.getProtectedRegion(world, area.REGION_ID);
 
-                setRegionMember(null, region);
-                cleanRegion(world, region);
-                area.checkSign();
-            }));
+                    setRegionMember(null, region);
+                    cleanRegion(world, region);
+                    area.checkSign();
+                }));
+            }
         }, 20L, 20L * 60 * 5); // 5分おきに走る
     }
 

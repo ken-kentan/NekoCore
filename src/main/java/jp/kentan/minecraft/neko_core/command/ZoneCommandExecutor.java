@@ -244,9 +244,9 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
             "| " + ChatColor.BLUE + "/zone buy <区画名>     " + ChatColor.WHITE + " 区画を購入.",
             "| " + ChatColor.BLUE + "/zone rental <区画名>  " + ChatColor.WHITE + " 区画を借りる.",
             "| " + ChatColor.BLUE + "/zone sell <区画名>    " + ChatColor.WHITE + " 区画を売却.",
+            "| " + ChatColor.BLUE + "/zone rule <区画名>    " + ChatColor.WHITE + " 区画規約を表示.",
             "| " + ChatColor.BLUE + "/zone limits          " + ChatColor.WHITE + " 所有上限を表示.",
             "| " + ChatColor.BLUE + "/zone list            " + ChatColor.WHITE + " 所有区画一覧を表示.",
-            "| " + ChatColor.BLUE + "/zone rule            " + ChatColor.WHITE + " ワールドの区画規約を表示.",
             "| " + ChatColor.BLUE + "/zone help            " + ChatColor.WHITE + " ヘルプを表示.",
             "---------------------------------------"
     };

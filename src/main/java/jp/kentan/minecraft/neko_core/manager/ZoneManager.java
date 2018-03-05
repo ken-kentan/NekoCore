@@ -757,6 +757,8 @@ public class ZoneManager implements ZoneEvent {
     private void checkAllArea() {
         List<Area> areaList = DAO.getAreaList();
 
+        Log.info("checking " + areaList.size() + " areas...");
+
         areaList.forEach(a -> {
             if (!a.updateSign()) {
                 DAO.updateSignLocation(a.WORLD, a.NAME, null);

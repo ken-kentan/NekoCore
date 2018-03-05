@@ -43,7 +43,7 @@ public class NekoCore extends JavaPlugin {
         Manager
          */
         SpawnManager spawnManager = new SpawnManager(this, configManager.getSpawnConfigProvider());
-        ServerVoteManager serverVoteManager = new ServerVoteManager();
+        ServerVoteManager serverVoteManager = new ServerVoteManager(this, configManager.getPlayerConfigProvider());
         TutorialManager tutorialManager = new TutorialManager(this, mPermissionProvider, spawnManager);
         RankManager rankManager = new RankManager(this, mPermissionProvider, mChatProvider);
         WeatherVoteManager weatherVoteManager = new WeatherVoteManager(this, mEconomyProvider);
@@ -67,7 +67,9 @@ public class NekoCore extends JavaPlugin {
 
         getCommand("tutorial").setExecutor(new TutorialCommandExecutor(tutorialManager));
 
-        getCommand("vote").setExecutor(new VoteCommandExecutor(serverVoteManager));
+        VoteCommandExecutor voteCommandExecutor = new VoteCommandExecutor(serverVoteManager);
+        getCommand("vote").setExecutor(voteCommandExecutor);
+        getCommand("vote").setTabCompleter(voteCommandExecutor);
 
         WeatherVoteCommandExecutor weatherVoteCommandExecutor = new WeatherVoteCommandExecutor(weatherVoteManager);
         getCommand("weathervote").setExecutor(weatherVoteCommandExecutor);
@@ -85,7 +87,7 @@ public class NekoCore extends JavaPlugin {
         /*
         Listener登録
          */
-        configManager.bindServerVoteEvent(serverVoteManager);
+        configManager.bindServerVoteRewardEvent(serverVoteManager);
         configManager.bindTutorialKeywordEvent(tutorialManager);
         configManager.bindSpawnConfigEvent(spawnManager);
 

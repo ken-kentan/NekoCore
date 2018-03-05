@@ -58,7 +58,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -94,7 +94,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -129,7 +129,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -170,7 +170,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -206,7 +206,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -238,7 +238,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -294,7 +294,7 @@ public class ZoneDao extends Dao {
             }
 
             conn.commit();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -324,7 +324,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -360,7 +360,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -402,7 +402,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -428,7 +428,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -460,7 +460,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -486,7 +486,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -512,7 +512,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -538,7 +538,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -565,7 +565,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -592,7 +592,7 @@ public class ZoneDao extends Dao {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -627,7 +627,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -663,7 +663,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -697,7 +697,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -730,7 +730,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -763,7 +763,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -798,7 +798,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -829,7 +829,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -862,7 +862,7 @@ public class ZoneDao extends Dao {
                 e.printStackTrace();
                 conn.rollback();
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

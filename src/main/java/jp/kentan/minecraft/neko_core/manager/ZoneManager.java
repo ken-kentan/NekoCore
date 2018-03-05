@@ -87,6 +87,55 @@ public class ZoneManager implements ZoneEvent {
         }
     }
 
+    public void registerAreas(Player player, String areaNamePattern, String zoneId, String regionIdPattern, String strRegionSize, String strBegin, String strEnd) {
+        String world = player.getWorld().getName();
+
+        List<String> areaNameList = DAO.getAreaNameList(player.getWorld().getName());
+
+        int begin, end;
+        int regionSize;
+        try {
+            begin = Integer.parseInt(strBegin);
+            end   = Integer.parseInt(strEnd);
+
+            regionSize = Integer.parseInt(strRegionSize);
+        } catch (Exception e) {
+            sendWarnMessage(player, "文字列から整数への変換に失敗しました.");
+            return;
+        }
+
+        if (begin == end) {
+            sendWarnMessage(player, "開始番号と終了番号が一致しています.");
+            return;
+        } else if (begin > end) {
+            sendWarnMessage(player, "終了番号が開始番号より小さいです.");
+            return;
+        }
+
+        if (regionSize < 1) {
+            sendWarnMessage(player, "区画サイズは1以上である必要があります.");
+            return;
+        }
+
+        for (int i = begin; i <= end; i++) {
+            String areaName = areaNamePattern.replace("*", Integer.toString(i));
+            String regionId = regionIdPattern.replace("*", Integer.toString(i));
+
+            if (areaNameList.contains(areaName)) {
+                sendWarnMessage(player, areaName + "はすでに登録されています.");
+                continue;
+            }
+
+            if (DAO.addArea(areaName, world, zoneId, regionId, regionSize)) {
+                areaNameList.add(areaName);
+                player.sendMessage(PREFIX + ChatColor.GREEN + areaName + "を登録しました.");
+            } else {
+                player.sendMessage(PREFIX + ChatColor.RED + areaName + "のデータベス更新に失敗しました.");
+                return;
+            }
+        }
+    }
+
     public void removeArea(Player player, String areaName) {
         String world = player.getWorld().getName();
         Area area = DAO.getArea(world, areaName);
@@ -699,7 +748,7 @@ public class ZoneManager implements ZoneEvent {
 
                     setRegionMember(null, region);
                     cleanRegion(world, region);
-                    area.checkSign();
+                    area.updateSign();
                 }));
             }
         }, 20L, 20L * 60 * 5); // 5分おきに走る
@@ -709,7 +758,7 @@ public class ZoneManager implements ZoneEvent {
         List<Area> areaList = DAO.getAreaList();
 
         areaList.forEach(a -> {
-            if (!a.checkSign()) {
+            if (!a.updateSign()) {
                 DAO.updateSignLocation(a.WORLD, a.NAME, null);
             }
 
@@ -820,7 +869,7 @@ public class ZoneManager implements ZoneEvent {
             return;
         }
 
-        area.checkSign();
+        area.updateSign();
     }
 
     private boolean containBlock(World world, ProtectedRegion region) {

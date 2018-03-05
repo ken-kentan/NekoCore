@@ -48,7 +48,13 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
                 case "register": // rg <areaName> <zoneId> <regionId> <size>
                 case "rg":
                     if (player != null && params >= 5) {
-                        MANAGER.registerArea(player, args[1], args[2], args[3], args[4]);
+                        if (params == 5) {
+                            MANAGER.registerArea(player, args[1], args[2], args[3], args[4]);
+                        } else if (params >= 7) {
+                            MANAGER.registerAreas(player, args[1], args[2], args[3], args[4], args[5], args[6]);
+                        } else {
+                            Util.sendMissingParameters(sender);
+                        }
                     } else {
                         Util.sendMissingParameters(sender);
                     }
@@ -226,9 +232,7 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
     }
 
     private boolean isRequireZoneId(String label) {
-        return
-                label.equals("register") ||
-                        label.equals("rg");
+        return label.equals("register") || label.equals("rg");
     }
 
     private final List<String> COMMAND_ARGUMENT_LIST = Arrays.asList("info", "buy", "rental", "sell", "limits", "list", "rule", "confirm", "help");
@@ -237,8 +241,8 @@ public class ZoneCommandExecutor implements CommandExecutor, TabCompleter {
     private final static String[] HELP_MESSAGES = new String[]{
             "---------- 区画コマンドヘルプ ----------",
             "| " + ChatColor.BLUE + "/zone info <区画名>    " + ChatColor.WHITE + " 区画の情報を表示.",
-            "| " + ChatColor.BLUE + "/zone purchase <区画名>" + ChatColor.WHITE + " 区画を購入.",
-            "| " + ChatColor.BLUE + "/zone lease <区画名>   " + ChatColor.WHITE + " 区画を借りる.",
+            "| " + ChatColor.BLUE + "/zone buy <区画名>     " + ChatColor.WHITE + " 区画を購入.",
+            "| " + ChatColor.BLUE + "/zone rental <区画名>  " + ChatColor.WHITE + " 区画を借りる.",
             "| " + ChatColor.BLUE + "/zone sell <区画名>    " + ChatColor.WHITE + " 区画を売却.",
             "| " + ChatColor.BLUE + "/zone limits          " + ChatColor.WHITE + " 所有上限を表示.",
             "| " + ChatColor.BLUE + "/zone list            " + ChatColor.WHITE + " 所有区画一覧を表示.",

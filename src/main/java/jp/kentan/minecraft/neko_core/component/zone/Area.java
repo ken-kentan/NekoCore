@@ -61,7 +61,7 @@ public class Area {
         return STATE == AreaState.ON_SALE;
     }
 
-    public boolean checkSign(){
+    public boolean updateSign(){
         if(SIGN_LOCATION == null){
             return true;
         }

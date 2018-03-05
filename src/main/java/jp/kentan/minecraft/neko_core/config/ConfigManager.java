@@ -4,7 +4,6 @@ import jp.kentan.minecraft.neko_core.component.ServerVoteReward;
 import jp.kentan.minecraft.neko_core.component.SpawnLocation;
 import jp.kentan.minecraft.neko_core.event.ConfigUpdateEvent;
 import jp.kentan.minecraft.neko_core.util.Log;
-import jp.kentan.minecraft.neko_core.manager.ServerVoteManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,7 +23,7 @@ public class ConfigManager {
     /*
     ConfigUpdateEvent
      */
-    private ConfigUpdateEvent<ServerVoteManager.Config> mServerVoteConfigUpdateEvent = null;
+    private ConfigUpdateEvent<List<ServerVoteReward>> mServerVoteRewardUpdateEvent = null;
     private ConfigUpdateEvent<String> mTutorialKeywordUpdateEvent;
 
 
@@ -35,8 +34,8 @@ public class ConfigManager {
         mSpawnConfigProvider  = new SpawnConfigProvider(JAVA_PLUGIN.getDataFolder());
     }
 
-    public void bindServerVoteEvent(ConfigUpdateEvent<ServerVoteManager.Config> event) {
-        mServerVoteConfigUpdateEvent = event;
+    public void bindServerVoteRewardEvent(ConfigUpdateEvent<List<ServerVoteReward>> event) {
+        mServerVoteRewardUpdateEvent = event;
     }
 
     public void bindTutorialKeywordEvent(ConfigUpdateEvent<String> event) {
@@ -71,8 +70,8 @@ public class ConfigManager {
     }
 
     private void loadServerVoteConfig(FileConfiguration config) {
-        if (mServerVoteConfigUpdateEvent == null) {
-            Log.warn("ServerVoteConfigUpdateEvent was not bound.");
+        if (mServerVoteRewardUpdateEvent == null) {
+            Log.warn("ServerVoteRewardUpdateEvent was not bound.");
             return;
         }
 
@@ -91,9 +90,7 @@ public class ConfigManager {
             );
         }
 
-        mServerVoteConfigUpdateEvent.onConfigUpdate(
-                new ServerVoteManager.Config(mPlayerConfigProvider, rewardList)
-        );
+        mServerVoteRewardUpdateEvent.onConfigUpdate(rewardList);
     }
 
     private void loadTutorialKeyword(FileConfiguration config) {

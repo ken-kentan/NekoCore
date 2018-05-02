@@ -428,7 +428,7 @@ public class ZoneManager implements ZoneEvent {
             }
         } else if (area.onSale()) {
             if (zone.TYPE == ZoneType.BUY_UP) {
-                player.sendMessage(ChatColor.GRAY + "購入コマンド " + ChatColor.RESET + "/zone purchase " + areaName);
+                player.sendMessage(ChatColor.GRAY + "購入コマンド " + ChatColor.RESET + "/zone buy " + areaName);
             } else {
                 player.sendMessage(ChatColor.GRAY + "レンタルコマンド " + ChatColor.RESET + "/zone rental " + areaName);
             }

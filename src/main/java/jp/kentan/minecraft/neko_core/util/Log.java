@@ -3,11 +3,10 @@ package jp.kentan.minecraft.neko_core.util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class Log {
     private static Logger sLogger;
 
-    public static void setup(Logger logger){
+    public static void setLogger(Logger logger){
         sLogger = logger;
     }
 

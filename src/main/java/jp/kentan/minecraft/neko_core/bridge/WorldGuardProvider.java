@@ -2,32 +2,25 @@ package jp.kentan.minecraft.neko_core.bridge;
 
 import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import jp.kentan.minecraft.neko_core.util.Log;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import org.bukkit.World;
 
 public class WorldGuardProvider {
 
-    private static WorldGuardPlugin sWorldGuardPlugin;
+    private final RegionContainer REGION_CONTAINER;
 
-    public static void setup(){
-        detectWorldGuard();
+    public WorldGuardProvider(WorldGuardPlugin worldGuardPlugin) {
+        REGION_CONTAINER = worldGuardPlugin.getRegionContainer();
     }
 
-    private static void detectWorldGuard(){
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
+    public ProtectedRegion getProtectedRegion(World world, String id){
+        RegionManager regions = REGION_CONTAINER.get(world);
 
-
-        if (plugin != null && plugin instanceof  WorldGuardPlugin) {
-            sWorldGuardPlugin = (WorldGuardPlugin) plugin;
-            Log.info("WorldGuard detected.");
-            return;
+        if(regions == null){
+            return null;
         }
 
-        Log.error("failed to detect WorldGuard");
-    }
-
-    public static RegionContainer getRegionContainer(){
-        return sWorldGuardPlugin.getRegionContainer();
+        return regions.getRegion(id);
     }
 }

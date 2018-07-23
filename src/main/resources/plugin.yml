@@ -1,9 +1,9 @@
 name: NekoCore
 main: jp.kentan.minecraft.neko_core.NekoCore
-version: 2.0.0
+version: 3.0.0
 author: ken_kentan
 website: https://ken.kentan.jp
-softdepend: [Vault, WorldGuard, LuckPerms]
+softdepend: [Vault, WorldGuard, LuckPerms, ShopChest]
 
 commands:
     neko:
@@ -37,4 +37,14 @@ commands:
     hat:
         description: アイテムをかぶる
         permission: neko.hat
+        usage: /<command>
+    weathervote:
+        description: 天候投票
+        permission: neko.weathervote
+        aliases: [wvote]
+        usage: /<command>
+    advertisement:
+        description: 広告・告知
+        permission: neko.advertisement
+        aliases: [ad]
         usage: /<command>

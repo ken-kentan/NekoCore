@@ -1,72 +1,116 @@
 package jp.kentan.minecraft.neko_core.config;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import jp.kentan.minecraft.neko_core.component.AdvertiseFrequency;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+public class PlayerConfigProvider extends BaseConfig {
 
-public class PlayerConfigProvider {
-    private static String sFolderPath;
+    private final String DATA_FOLDER_PATH;
 
-    static void setup(File dataFolder){
-        sFolderPath = dataFolder + File.separator + "players" + File.separator;
+    private final DateTimeFormatter OLD_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final ZoneId ZONE_JAPAN = ZoneId.of("Asia/Tokyo");
+
+
+    PlayerConfigProvider(File dataFolder) {
+        DATA_FOLDER_PATH = dataFolder + File.separator + "players" + File.separator;
     }
 
-    public static Object get(UUID uuid, String path, Object def) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), StandardCharsets.UTF_8)) {
+    public ZonedDateTime getLastServerVoteDate(UUID uuid) {
+        changePlayerConfig(uuid);
 
-            FileConfiguration config = new YamlConfiguration();
+        String strDate = (String) super.get("Vote.date", null);
 
-            config.load(reader);
-
-            reader.close();
-
-            return config.get(path, def);
-        } catch (Exception e) {
-            return def;
+        if (strDate == null) {
+            return null;
         }
-    }
 
-    public static List<String> get(UUID uuid, String path) {
-        try (Reader reader = new InputStreamReader(new FileInputStream(sFolderPath + uuid + ".yml"), StandardCharsets.UTF_8)) {
 
-            FileConfiguration config = new YamlConfiguration();
-
-            config.load(reader);
-
-            reader.close();
-
-            return config.getStringList(path);
-        } catch (Exception e) {
-            return new ArrayList<>();
+        //新フォーマット
+        try {
+            return ZonedDateTime.parse(strDate);
+        } catch (Exception ignored) {
         }
+
+        //旧フォーマット互換
+        return LocalDate.parse(strDate, OLD_DATE_FORMATTER).atStartOfDay(ZONE_JAPAN);
     }
 
-    public static boolean save(UUID uuid, Map<String, Object> dataList) {
-        final File file = new File(sFolderPath + uuid + ".yml");
+    public int getServerVoteContinuous(UUID uuid) {
+        changePlayerConfig(uuid);
+
+        return (int) super.get("Vote.continuous", 1);
+    }
+
+    public AdvertiseFrequency getAdvertiseFrequency(UUID uuid) {
+        changePlayerConfig(uuid);
 
         try {
-            if(!file.exists()){
-                file.createNewFile();
+            return AdvertiseFrequency.valueOf((String) super.get("Advertisement.frequency", AdvertiseFrequency.MIDDLE.toString()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AdvertiseFrequency.MIDDLE;
+        }
+    }
+
+    public List<String> getStackCommandList(UUID uuid) {
+        changePlayerConfig(uuid);
+        return super.getStringList("stackCommands");
+    }
+
+    public boolean addStackCommands(UUID uuid, List<String> commandList) {
+        changePlayerConfig(uuid);
+
+        List<String> stackCommandList = super.getStringList("stackCommands");
+        stackCommandList.addAll(commandList);
+
+        return save(uuid, new HashMap<String, Object>() {
+            {
+                put("stackCommands", stackCommandList);
             }
+        });
+    }
 
-            FileConfiguration config = new YamlConfiguration();
-            config.load(file);
+    public boolean saveServerVoteData(UUID uuid, ZonedDateTime date, int continuous) {
+        return save(uuid, new LinkedHashMap<String, Object>() {
+            {
+                put("Vote.date", date.toString());
+                put("Vote.continuous", continuous);
+            }
+        });
+    }
 
-            dataList.forEach(config::set);
+    public boolean saveAdvertiseFrequency(UUID uuid, AdvertiseFrequency freq) {
+        return save(uuid, new HashMap<String, Object>() {
+            {
+                put("Advertisement.frequency", freq.toString());
+            }
+        });
+    }
 
-            config.save(file);
+    public boolean save(UUID uuid, Map<String, Object> dataMap) {
+        File file = new File(DATA_FOLDER_PATH + uuid + ".yml");
+
+        try {
+            if (!file.exists() && file.createNewFile()) {
+                return false;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
 
-        return true;
+        super.mConfigFile = file;
+
+        return super.save(dataMap);
+    }
+
+    private void changePlayerConfig(UUID uuid) {
+        super.mConfigFile = new File(DATA_FOLDER_PATH + uuid + ".yml");
     }
 }

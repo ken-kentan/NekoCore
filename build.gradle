@@ -1,5 +1,5 @@
 group 'jp.kentan.minecraft.neko_core'
-version '2.0.0'
+version '3.0.0'
 
 apply plugin: 'java'
 
@@ -44,23 +44,24 @@ dependencies {
 
     compileOnly 'org.bukkit:bukkit:1.12-R0.1-SNAPSHOT'
 
-//    compileOnly "mysql:mysql-connector-java:5.1.43"
-
     compileOnly 'net.milkbowl.vault:VaultAPI:1.5'
 
     compileOnly 'com.vexsoftware:nuvotifier-bukkit:2.3.4'
 
-    compileOnly 'me.lucko.luckperms:luckperms-api:4.0'
+    compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
 
     compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
 
-    compile 'org.twitter4j:twitter4j-core:4.0.4'
-    compile 'org.twitter4j:twitter4j-stream:4.0.4'
-    compile 'org.twitter4j:twitter4j-async:4.0.4'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
 
-//    compile 'org.codelibs:elasticsearch-analysis-kuromoji-neologd:5.4.1'
-//    compile 'com.ibm.icu:icu4j:59.1'
-//
+    compileOnly files('libs/ShopChest-1.12.3.jar')
+
+    compile 'org.mariadb.jdbc:mariadb-java-client:2.2.1'
+
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
+
+    compile 'org.jsoup:jsoup:1.11.2'
+
     compile 'commons-io:commons-io:2.5'
     compile 'org.json:json:20170516'
 }

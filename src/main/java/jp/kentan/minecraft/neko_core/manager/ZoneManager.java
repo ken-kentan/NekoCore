@@ -768,6 +768,8 @@ public class ZoneManager implements ZoneEvent {
                 Log.info("区画(" + a.ZONE_ID + ") " + a.NAME + "の所有者はBANされています!");
             }
         });
+
+        Log.info("check finished.");
     }
 
     private void setRegionMember(UUID uuid, ProtectedRegion region) {

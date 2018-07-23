@@ -29,6 +29,8 @@ public class NekoCore extends JavaPlugin {
     private PermissionProvider mPermissionProvider;
     private WorldGuardProvider mWorldGuardProvider;
 
+    private RankManager mRankManager;
+
     @Override
     public void onEnable() {
         Log.setLogger(getLogger());
@@ -45,7 +47,7 @@ public class NekoCore extends JavaPlugin {
         SpawnManager spawnManager = new SpawnManager(this, configManager.getSpawnConfigProvider());
         ServerVoteManager serverVoteManager = new ServerVoteManager(this, configManager.getPlayerConfigProvider());
         TutorialManager tutorialManager = new TutorialManager(this, mPermissionProvider, spawnManager);
-        RankManager rankManager = new RankManager(this, mPermissionProvider, mChatProvider);
+        mRankManager = new RankManager(this, mPermissionProvider, mChatProvider);
         WeatherVoteManager weatherVoteManager = new WeatherVoteManager(this, mEconomyProvider);
         ZoneManager zoneManager = new ZoneManager(this, mEconomyProvider, mWorldGuardProvider);
         AdvertisementManager advertisementManager = new AdvertisementManager(this, mEconomyProvider, configManager.getPlayerConfigProvider());
@@ -96,7 +98,7 @@ public class NekoCore extends JavaPlugin {
                 this,
                 configManager.getPlayerConfigProvider(),
                 tutorialManager,
-                rankManager,
+                mRankManager,
                 spawnManager,
                 zoneManager,
                 advertisementManager
@@ -109,6 +111,7 @@ public class NekoCore extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
+        mRankManager.unregisterEventHandler();
     }
 
     private void hookVault() {
@@ -151,7 +154,7 @@ public class NekoCore extends JavaPlugin {
         Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
 
 
-        if (plugin != null && plugin instanceof WorldGuardPlugin) {
+        if (plugin instanceof WorldGuardPlugin) {
             mWorldGuardProvider = new WorldGuardProvider((WorldGuardPlugin) plugin);
 
             Log.info("hooked with WorldGuard.");

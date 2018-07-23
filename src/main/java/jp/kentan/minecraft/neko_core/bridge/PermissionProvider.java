@@ -2,6 +2,7 @@ package jp.kentan.minecraft.neko_core.bridge;
 
 import me.lucko.luckperms.api.*;
 import me.lucko.luckperms.api.event.EventBus;
+import me.lucko.luckperms.api.manager.UserManager;
 
 import java.util.UUID;
 
@@ -17,12 +18,8 @@ public class PermissionProvider {
         return PERMS_API.getUser(uuid);
     }
 
-    public Group getGroup(String name){
-        return PERMS_API.getGroup(name);
-    }
-
-    public Storage getStorage(){
-        return PERMS_API.getStorage();
+    public UserManager getUserManager() {
+        return PERMS_API.getUserManager();
     }
 
     public EventBus getEventBus(){

@@ -53,7 +53,7 @@ public class TutorialManager implements ConfigUpdateEvent<String> {
     }
 
     public void finish(Player player, String keyword) {
-        if (keyword == null || !mKeyword.equals(keyword)) {
+        if (!mKeyword.equals(keyword)) {
             player.sendMessage(INVALID_KEYWORD_MSG);
             return;
         }
@@ -79,26 +79,18 @@ public class TutorialManager implements ConfigUpdateEvent<String> {
             return;
         }
 
-        PERMISSION.getStorage().saveUser(user)
-                .thenAcceptAsync(wasSuccessful -> {
-                    if (!wasSuccessful) {
-                        return;
-                    }
+        PERMISSION.getUserManager().saveUser(user);
 
-                    user.refreshCachedData();
+        user.refreshCachedData();
 
-                    SCHEDULER.scheduleSyncDelayedTask(PLUGIN, () -> {
-                        SPAWN_MANAGER.spawn(player, "default");
+        SPAWN_MANAGER.spawn(player, "default");
 
-                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.0f);
 
-                        player.sendMessage(NekoCore.PREFIX + "できたてサーバー（猫）へようこそ！");
-                        Util.broadcast(NekoCore.PREFIX + player.getName() + TUTORIAL_COMPLETE_MSG, player);
+        player.sendMessage(NekoCore.PREFIX + "できたてサーバー（猫）へようこそ！");
+        Util.broadcast(NekoCore.PREFIX + player.getName() + TUTORIAL_COMPLETE_MSG, player);
 
-                        giveWelcomeItems(player);
-                    });
-
-                }, PERMISSION.getStorage().getAsyncExecutor());
+        giveWelcomeItems(player);
     }
 
     public void spawn(Player player) {

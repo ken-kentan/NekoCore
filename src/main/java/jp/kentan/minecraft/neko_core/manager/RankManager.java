@@ -22,6 +22,8 @@ public class RankManager {
     private final PermissionProvider PERMISSION;
     private final ChatProvider CHAT;
 
+    private EventHandler<UserDataRecalculateEvent> eventHandler;
+
     private static Node GOLD_RANK, DIAMOND_RANK, EMERALD_RANK;
 
     public RankManager(Plugin plugin, PermissionProvider permissionProvider, ChatProvider chatProvider) {
@@ -34,8 +36,7 @@ public class RankManager {
         EMERALD_RANK = PERMISSION.getNodeByGroupName("emerald_rank");
 
         final EventBus eventBus = PERMISSION.getEventBus();
-        eventBus.getHandlers(UserDataRecalculateEvent.class).forEach(EventHandler::unregister);
-        eventBus.subscribe(UserDataRecalculateEvent.class, this::onUserDataRecalculate);
+        eventHandler = eventBus.subscribe(UserDataRecalculateEvent.class, this::onUserDataRecalculate);
     }
 
     public void update(final Player player) {
@@ -82,6 +83,10 @@ public class RankManager {
         } else if (team != null) {
             team.unregister();
         }
+    }
+
+    public void unregisterEventHandler() {
+        eventHandler.unregister();
     }
 
     private void onUserDataRecalculate(UserDataRecalculateEvent event) {

@@ -48,7 +48,7 @@ dependencies {
 
     compileOnly 'com.vexsoftware:nuvotifier-bukkit:2.3.4'
 
-    compileOnly 'me.lucko.luckperms:luckperms-api:4.0'
+    compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
 
     compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
 

@@ -1,6 +1,5 @@
 package jp.kentan.minecraft.neko_core;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import jp.kentan.minecraft.neko_core.bridge.ChatProvider;
 import jp.kentan.minecraft.neko_core.bridge.EconomyProvider;
 import jp.kentan.minecraft.neko_core.bridge.PermissionProvider;
@@ -16,7 +15,6 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 

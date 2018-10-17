@@ -151,16 +151,13 @@ public class NekoCore extends JavaPlugin {
     }
 
     private void hookWorldGuard() {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
-
-
-        if (plugin instanceof WorldGuardPlugin) {
-            mWorldGuardProvider = new WorldGuardProvider((WorldGuardPlugin) plugin);
-
-            Log.info("hooked with WorldGuard.");
+        try {
+            mWorldGuardProvider = new WorldGuardProvider();
+        } catch (Exception e) {
+            Log.error("failed to hook with WorldGuard.");
             return;
         }
 
-        Log.error("failed to hook with WorldGuard.");
+        Log.info("hooked with WorldGuard.");
     }
 }

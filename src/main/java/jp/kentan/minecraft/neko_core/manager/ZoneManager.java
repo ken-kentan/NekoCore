@@ -49,8 +49,6 @@ public class ZoneManager implements ZoneEvent {
 
         SHOP = new ShopProvider();
 
-        checkAllArea();
-
         scheduleRentalDateCheckTask();
     }
 

@@ -7,10 +7,9 @@ import jp.kentan.minecraft.neko_core.event.ZoneEvent;
 import jp.kentan.minecraft.neko_core.manager.RankManager;
 import jp.kentan.minecraft.neko_core.manager.TutorialManager;
 import jp.kentan.minecraft.neko_core.util.Util;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Sign;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
@@ -160,6 +159,10 @@ public class BukkitEventListener implements Listener {
                     event.setCancelled(true);
                 }
             }
+        } else if (blockState instanceof CreatureSpawner
+                && event.getItem().getType() == Material.MONSTER_EGG
+                && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+            event.setCancelled(true);
         }
     }
 }

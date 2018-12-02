@@ -5,6 +5,6 @@ local.properties
 .idea
 .DS_Store
 libs
-test
-Dao.java
 out/
+gradle.properties
+proguard.txt

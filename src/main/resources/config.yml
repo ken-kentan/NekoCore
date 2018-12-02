@@ -1,0 +1,20 @@
+database:
+  url: jdbc:mariadb://localhost:3306
+  username: root
+  password: ''
+
+tutorial:
+  keyword: keyword
+
+vote:
+  reward:
+    1:
+      name: '1day reward'
+      commands:
+      - 'command01'
+      - 'command02'
+    2:
+      name: '2day reward'
+      commands:
+      - 'command01'
+      - 'command02'

@@ -1,50 +1,49 @@
 name: NekoCore
-main: jp.kentan.minecraft.neko_core.NekoCore
-version: 3.0.0
+main: jp.kentan.minecraft.nekocore.NekoCorePlugin
+version: 4.0.0
 author: ken_kentan
 website: https://ken.kentan.jp
 softdepend: [Vault, WorldGuard, LuckPerms, ShopChest]
 
 commands:
-    neko:
-        description: NekoCoreのヘルプを表示します。
-        usage: /<command>
-        permission: neko.core
-        aliases: [nk]
-        permission-message: You don't have <permission>
-    vote:
-        description: 投票サイトを表示します。
-        usage: /<command>
-        permission: neko.core.vote
-        permission-message: You don't have <permission>
-    spawn:
-        description: スポーンにテレポートします.
-        permission: neko.spawn
-        aliases: [sapwn, s]
-        usage: /<command>
-    setspawn:
-        description: Set spawn
-        permission: neko.setspawn
-        usage: /<command>
-    tutorial:
-        description: チュートリアル
-        permission: neko.tutorial
-        usage: /<command>
-    zone:
-        description: 区画管理
-        permission: neko.zone
-        usage: /<command>
-    hat:
-        description: アイテムをかぶる
-        permission: neko.hat
-        usage: /<command>
-    weathervote:
-        description: 天候投票
-        permission: neko.weathervote
-        aliases: [wvote]
-        usage: /<command>
-    advertisement:
-        description: 広告・告知
-        permission: neko.advertisement
-        aliases: [ad]
-        usage: /<command>
+  neko:
+    description: NekoCoreのヘルプを表示します。
+    usage: /<command>
+    permission: neko.core
+    aliases: [nk]
+    permission-message: You don't have <permission>
+  tutorial:
+    description: チュートリアル
+    permission: neko.core.tutorial
+    usage: /<command>
+  spawn:
+    description: スポーンにテレポートします.
+    permission: neko.core.spawn
+    aliases: [sapwn, s]
+    usage: /<command>
+  setspawn:
+    description: スポーン設定
+    permission: neko.core.setspawn
+    usage: /<command>
+  vote:
+    description: サーバー投票
+    permission: neko.core.vote
+    usage: /<command>
+  hat:
+    description: アイテムをかぶる
+    permission: neko.core.hat
+    usage: /<command>
+  weathervote:
+    description: 天候投票
+    permission: neko.core.weathervote
+    aliases: [wvote]
+    usage: /<command>
+  advertisement:
+    description: 広告・告知
+    permission: neko.core.advertisement
+    aliases: [ad]
+    usage: /<command>
+  zone:
+    description: 区画管理
+    permission: neko.core.zone
+    usage: /<command>

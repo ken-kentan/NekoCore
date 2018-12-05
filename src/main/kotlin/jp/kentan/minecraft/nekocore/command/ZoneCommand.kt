@@ -19,11 +19,11 @@ class ZoneCommand(plugin: NekoCorePlugin) : BaseCommand("zone") {
             CommandArgument("list"),
             CommandArgument("help"),
             CommandArgument("confirm"),
-            CommandArgument("register", Permissions.MODERATOR),
-            CommandArgument("remove", "[area]", Permissions.MODERATOR),
-            CommandArgument("lock", "[area]", Permissions.MODERATOR),
-            CommandArgument("unlock", "[area]", Permissions.MODERATOR),
-            CommandArgument("take", "[area]", Permissions.MODERATOR)
+            CommandArgument("register", permission = Permissions.MODERATOR),
+            CommandArgument("remove", "[area]", permission = Permissions.MODERATOR),
+            CommandArgument("lock", "[area]", permission = Permissions.MODERATOR),
+            CommandArgument("unlock", "[area]", permission = Permissions.MODERATOR),
+            CommandArgument("take", "[area]", permission = Permissions.MODERATOR)
         )
     }
 

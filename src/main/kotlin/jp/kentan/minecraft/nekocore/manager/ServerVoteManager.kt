@@ -113,8 +113,8 @@ class ServerVoteManager(
     private fun Pair<Int, Date?>.calcNextContinuous(): Int {
         val (continuous, lastDate) = this
 
-        // 最終投票から1時間以内なら
-        if (lastDate != null && System.currentTimeMillis() - lastDate.time <= 86400000) {
+        // 最終投票から2日未満なら
+        if (lastDate != null && System.currentTimeMillis() - lastDate.time < 172800000) {
             return min(continuous + 1, voteContinuousLimit)
         }
 

@@ -27,7 +27,7 @@ abstract class BaseCommand(val name: String) : CommandExecutor, TabCompleter {
         }
     }
 
-    fun CommandSender.doIfArguments(args: Array<String>, requireSize: Int, block: (sender: CommandSender) -> Unit) {
+    protected fun CommandSender.doIfArguments(args: Array<String>, requireSize: Int, block: (sender: CommandSender) -> Unit) {
         if (args.size - 1 < requireSize) {
             sendWarnMessage("パラメータが不足しています.")
         } else {

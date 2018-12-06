@@ -55,8 +55,10 @@ class ServerVoteManager(
 
             if (player != null && player.isOnline) {
                 Bukkit.getServer().apply {
-                    reward.commandList.forEach { command ->
-                        dispatchCommand(consoleSender, command.replace("{player}", username))
+                    scheduler.scheduleSyncDelayedTask(plugin) {
+                        reward.commandList.forEach { command ->
+                            dispatchCommand(consoleSender, command.replace("{player}", player.name))
+                        }
                     }
                 }
 
@@ -101,8 +103,10 @@ class ServerVoteManager(
 
             val commandList = playerRepo.getPendingCommandList(player.uniqueId)
             Bukkit.getServer().apply {
-                commandList.forEach { command ->
-                    dispatchCommand(consoleSender, command.replace("{player}", player.name))
+                scheduler.scheduleSyncDelayedTask(plugin) {
+                    commandList.forEach { command ->
+                        dispatchCommand(consoleSender, command.replace("{player}", player.name))
+                    }
                 }
             }
 

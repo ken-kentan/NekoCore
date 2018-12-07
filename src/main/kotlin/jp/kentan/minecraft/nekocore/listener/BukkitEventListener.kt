@@ -98,7 +98,7 @@ class BukkitEventListener : Listener {
     fun onBlockBreak(event: BlockBreakEvent) {
         val blockState = event.block.state
 
-        if (blockState is Sign) {
+        if (blockState is Sign && event.player.hasPermission(Permissions.MODERATOR) && blockState.isZoneSign()) {
             zoneEvent?.onSignBreak(event.player, blockState)
         }
     }
@@ -109,7 +109,7 @@ class BukkitEventListener : Listener {
 
         when (blockState) {
             is Sign -> {
-                if (blockState.getLine(0) == Area.SIGN_INDEX_TEXT) {
+                if (blockState.isZoneSign()) {
                     if (event.action == Action.RIGHT_CLICK_BLOCK) {
                         zoneEvent?.onSignClick(event.player, blockState)
                     } else if (!event.player.hasPermission(Permissions.MODERATOR)) {
@@ -118,10 +118,12 @@ class BukkitEventListener : Listener {
                 }
             }
             is CreatureSpawner -> {
-                if (event.item.type == Material.MONSTER_EGG && event.player.gameMode != GameMode.CREATIVE) {
+                if (event.material == Material.MONSTER_EGG && event.player.gameMode != GameMode.CREATIVE) {
                     event.isCancelled = true
                 }
             }
         }
     }
+
+    private fun Sign.isZoneSign() = getLine(0) == Area.SIGN_INDEX_TEXT
 }

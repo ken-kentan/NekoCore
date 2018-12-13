@@ -34,9 +34,9 @@ class NekoCommand(
 
         when (args[0]) {
             "nyan" -> sender.playNyan()
-            "hp" -> sender.sendUrl("https://minecraft.kentan.jp/")
-            "map" -> sender.sendUrl("http://minecraft.kentan.jp:8123/")
-            "rule" -> sender.sendUrl("https://minecraft.kentan.jp/rule/")
+            "hp" -> sender.sendUrl("https://www.dekitateserver.com/")
+            "map" -> sender.sendUrl("http://dekitateserver.com/")
+            "rule" -> sender.sendUrl("https://www.dekitateserver.com/rule/")
             "discord" -> sender.sendUrl("https://discord.gg/84ABhPK/")
             "twitter" -> sender.sendUrl("https://twitter.com/DekitateServer/")
             "store" -> sender.sendUrl("https://dekitate.buycraft.net/")

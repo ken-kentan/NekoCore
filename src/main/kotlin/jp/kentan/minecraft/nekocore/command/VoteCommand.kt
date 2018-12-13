@@ -18,7 +18,7 @@ class VoteCommand(plugin: NekoCorePlugin) : BaseCommand("vote") {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
         if (args.isEmpty()) {
-            sender.sendMessage("${NekoCorePlugin.PREFIX}§b§nhttps://minecraft.kentan.jp/vote/")
+            sender.sendMessage("${NekoCorePlugin.PREFIX}§b§nhttps://www.dekitateserver.com/vote/")
             sender.sendMessage("${NekoCorePlugin.PREFIX}§7↑のアドレスをクリックして下さい.")
             return true
         }

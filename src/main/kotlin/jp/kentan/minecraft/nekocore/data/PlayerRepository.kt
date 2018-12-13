@@ -22,7 +22,7 @@ class PlayerRepository(plugin: NekoCorePlugin) {
 
     companion object {
         private const val MOJANG_API_URL = "https://api.mojang.com"
-        private const val JAPAN_MINECRAFT_SERVERS_URL = "https://minecraft.jp/servers/minecraft.kentan.jp/"
+        private const val JAPAN_MINECRAFT_SERVERS_URL = "https://minecraft.jp/servers/dekitateserver.com/"
     }
 
     private val mojangService: MojangService

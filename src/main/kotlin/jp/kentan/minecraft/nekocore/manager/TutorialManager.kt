@@ -47,7 +47,7 @@ class TutorialManager(
 
     fun finish(player: Player, keyword: String) {
         if (plugin.configuration.get(ConfigKeys.TUTORIAL_KEYWORD) != keyword) {
-            player.sendWarnMessage("キーワードが間違っています. ホームページ( https://minecraft.kentan.jp/rule/ )のルールを確認してください.")
+            player.sendWarnMessage("キーワードが間違っています. ホームページ( https://www.dekitateserver.com/rule/ )のルールを確認してください.")
             return
         }
 

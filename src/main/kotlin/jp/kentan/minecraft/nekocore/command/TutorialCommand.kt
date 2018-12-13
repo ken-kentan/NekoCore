@@ -36,7 +36,7 @@ class TutorialCommand(
 
     private fun Player.sendHelp() {
         sendMessage("§6****************************************************")
-        sendMessage("§b§lサーバールール§7(§b§nhttps://minecraft.kentan.jp/rule/§7)§rを§c確認§rして, §dキーワード§rを入力してください.")
+        sendMessage("§b§lサーバールール§7(§b§nhttps://www.dekitateserver.com/rule/§7)§rを§c確認§rして, §dキーワード§rを入力してください.")
         sendMessage("")
         sendMessage("たとえば§dキーワード§rが§l cat§r の場合は")
         sendMessage("§a /tutorial cat\n")

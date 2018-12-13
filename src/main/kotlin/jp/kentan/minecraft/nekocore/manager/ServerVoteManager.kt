@@ -72,7 +72,7 @@ class ServerVoteManager(
 
             player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}${playerDisplayName}§7さんが投票で§r ${reward.name}§7 をゲットしました！")
             player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}§3まだ投票をしていませんか？ ↓をクリックしてぜひ投票を！")
-            player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}§b§nhttps://minecraft.kentan.jp/vote")
+            player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}§b§nhttps://www.dekitateserver.com/vote")
 
             plugin.logger.info("$playerDisplayName voted.")
         }

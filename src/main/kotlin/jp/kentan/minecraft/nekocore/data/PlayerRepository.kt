@@ -10,7 +10,6 @@ import okhttp3.ConnectionSpec
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.TlsVersion
-import org.bukkit.Bukkit
 import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -53,12 +52,6 @@ class PlayerRepository(plugin: NekoCorePlugin) {
     }
 
     fun getUniqueId(username: String): UUID? {
-        @Suppress("DEPRECATION")
-        val offlinePlayer = Bukkit.getOfflinePlayer(username)
-        if (offlinePlayer != null) {
-            return offlinePlayer.uniqueId
-        }
-
         try {
             val response = mojangService.getMojangUser(username).execute()
             return response.body()?.uniqueId

@@ -74,7 +74,7 @@ class ServerVoteManager(
             player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}§3まだ投票をしていませんか？ ↓をクリックしてぜひ投票を！")
             player.broadcastMessageWithoutMe("${NekoCorePlugin.PREFIX}§b§nhttps://www.dekitateserver.com/vote")
 
-            plugin.logger.info("$playerDisplayName voted.")
+            plugin.logger.info("$username voted.")
         }
     }
 
@@ -103,6 +103,10 @@ class ServerVoteManager(
 
             val commandList = playerRepo.getPendingCommandList(player.uniqueId)
                 .formatCommand(player)
+
+            if (commandList.isEmpty()) {
+                return@runTaskLaterAsynchronously
+            }
 
             Bukkit.getServer().apply {
                 scheduler.scheduleSyncDelayedTask(plugin) {

@@ -42,7 +42,7 @@ class PlayerDao(
     fun updateVoteData(uuid: UUID, continuous: Int) =
         database.connection.use { conn ->
             val st =
-                conn.prepareStatement("UPDATE neko_player SET vote_continuous = ?, last_vote_date = NOW() WHERE id = ?")
+                conn.prepareStatement("UPDATE neko_player SET vote_continuous = ?, last_vote_date = CURRENT_TIMESTAMP WHERE id = ?")
             st.setInt(1, continuous)
             st.setString(2, uuid.toString())
 

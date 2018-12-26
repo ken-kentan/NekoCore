@@ -5,6 +5,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import de.epiceric.shopchest.ShopChest
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.block.Container
 import org.bukkit.entity.Player
 
 fun ProtectedRegion.setMember(player: Player?) {
@@ -67,7 +68,13 @@ fun ProtectedRegion.clean(world: World) {
     for (x in minX..maxX) {
         for (y in minY..maxY) {
             for (z in minZ..maxZ) {
-                world.getBlockAt(x, y, z).type = Material.AIR
+                val blockState = world.getBlockAt(x, y, z).state
+
+                if (blockState is Container) {
+                    blockState.inventory.clear()
+                }
+
+                blockState.block.type = Material.AIR
             }
         }
     }

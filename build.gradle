@@ -52,7 +52,6 @@ dependencies {
     embed 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
 
     compile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    compile 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
 
     compile 'net.milkbowl.vault:VaultAPI:1.6'
 

@@ -3,6 +3,7 @@ package jp.kentan.minecraft.nekocore.util
 import com.sk89q.worldguard.domains.DefaultDomain
 import com.sk89q.worldguard.protection.regions.ProtectedRegion
 import de.epiceric.shopchest.ShopChest
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Container
@@ -65,6 +66,16 @@ fun ProtectedRegion.clean(world: World) {
     val maxY = max.blockY
     val maxZ = max.blockZ
 
+    val halfX = (max.blockX - min.blockX + 1) / 2.0
+    val halfY = (max.blockY - min.blockY + 1) / 2.0
+    val halfZ = (max.blockZ - min.blockZ + 1) / 2.0
+
+    val center = Location(world, min.blockX + halfX, min.blockY + halfY, min.blockZ + halfZ)
+
+    // Remove entity
+    world.getNearbyEntities(center, halfX, halfY, halfZ).forEach { it.remove() }
+
+    // Remove block
     for (x in minX..maxX) {
         for (y in minY..maxY) {
             for (z in minZ..maxZ) {

@@ -1,6 +1,6 @@
 name: NekoCore
 main: jp.kentan.minecraft.nekocore.NekoCorePlugin
-version: 4.0.6
+version: 4.0.7
 author: ken_kentan
 website: https://ken.kentan.jp
 softdepend: [Vault, WorldGuard, LuckPerms, ShopChest]

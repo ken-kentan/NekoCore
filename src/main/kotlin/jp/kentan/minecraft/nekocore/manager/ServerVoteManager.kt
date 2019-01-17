@@ -17,6 +17,15 @@ class ServerVoteManager(
     private val plugin: NekoCorePlugin
 ) {
 
+    companion object {
+        private val VOTE_PROMOTE_MESSAGES = arrayOf(
+            "§a====================================",
+            "投票で§6ゲーム内特典§rをゲットしよう！",
+            "§b§nhttps://www.dekitateserver.com/vote/",
+            "§a===================================="
+        )
+    }
+
     private val playerRepo = PlayerRepository(plugin)
 
     private val rewardList = mutableListOf<VoteReward>()
@@ -98,6 +107,11 @@ class ServerVoteManager(
     private fun onPlayerJoined(player: Player) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
             if (!player.isOnline || player.isDead) {
+                return@runTaskLaterAsynchronously
+            }
+
+            if (playerRepo.hasNotVoted(player.uniqueId)) {
+                player.sendMessage(VOTE_PROMOTE_MESSAGES)
                 return@runTaskLaterAsynchronously
             }
 

@@ -39,6 +39,22 @@ class PlayerDao(
             return@use data
         }
 
+    fun isLastVoteDateNull(uuid: UUID): Boolean =
+        database.connection.use { conn ->
+            val st = conn.prepareStatement("SELECT last_vote_date FROM neko_player WHERE id = ?")
+            st.setString(1, uuid.toString())
+
+            val result = st.executeQuery()
+            val data = if (result.next()) {
+                result.getTimestamp(1)
+            } else {
+                null
+            }
+
+            st.close()
+            return@use data == null
+        }
+
     fun updateVoteData(uuid: UUID, continuous: Int) =
         database.connection.use { conn ->
             val st =

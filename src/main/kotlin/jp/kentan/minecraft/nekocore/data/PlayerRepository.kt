@@ -73,7 +73,7 @@ class PlayerRepository(plugin: NekoCorePlugin) {
     fun updateLastServerVoteDate(uuid: UUID, continuous: Int): Boolean = try {
         playerDao.updateVoteData(uuid, continuous)
     } catch (e: Exception) {
-        logger.log(Level.SEVERE, "failed to update last vote data($uuid, $continuous).", e)
+        logger.log(Level.SEVERE, "failed to update last vote date($uuid, $continuous).", e)
         false
     }
 
@@ -94,6 +94,13 @@ class PlayerRepository(plugin: NekoCorePlugin) {
         playerDao.deletePendingCommandList(uuid)
     } catch (e: Exception) {
         logger.log(Level.SEVERE, "failed to delete pending command list($uuid).", e)
+        false
+    }
+
+    fun hasNotVoted(uuid: UUID): Boolean = try {
+        playerDao.isLastVoteDateNull(uuid)
+    } catch (e: Exception) {
+        logger.log(Level.SEVERE, "failed to get last vote date($uuid).", e)
         false
     }
 

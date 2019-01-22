@@ -139,7 +139,11 @@ class PlayerRepository(plugin: NekoCorePlugin) {
             val uuid = getUniqueId(username) ?: return@forEach
             val (_, lastVoteDate) = getVoteData(uuid)
 
-            return targetLastVoteDate.time < lastVoteDate?.time ?: return@forEach
+            if (lastVoteDate == null || targetLastVoteDate.time >= lastVoteDate.time) {
+                return@forEach
+            }
+
+            return true
         }
 
         return false

@@ -1,6 +1,7 @@
 package jp.kentan.minecraft.nekocore.data.model
 
 import org.bukkit.World
+import kotlin.math.max
 import kotlin.math.min
 
 data class Zone(
@@ -23,8 +24,9 @@ data class Zone(
         RENTAL("レンタル");
     }
 
-    fun calcAreaPurchasePrice(size: Int, ownedAreaCount: Int): Double {
-        val count = min(ownedAreaCount, ownedLimit - 1)
+    fun calcAreaPurchasePrice(size: Int, ownedAreaCount: Int, isOwned: Boolean = false): Double {
+        val ownedCount = if (isOwned) max(0, ownedAreaCount - 1) else ownedAreaCount
+        val count = min(ownedCount, ownedLimit - 1)
         val rate = if (count > 0) priceRate * priceRateGain * count else priceRate
         return rate * size
     }

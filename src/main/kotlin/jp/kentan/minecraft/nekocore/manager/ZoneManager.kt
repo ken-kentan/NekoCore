@@ -166,6 +166,11 @@ class ZoneManager(
     fun registerRentalTask(player: Player, name: String) {
         GlobalScope.launch {
             val area = zoneRepo.getAreaOrError(player, name) ?: return@launch
+            if (area.state == Area.State.LOCK) {
+                player.sendWarnMessage("この区画はロックされています.")
+                return@launch
+            }
+
             val zone = zoneRepo.getZoneOrError(player, area.zoneId) ?: return@launch
             if (zone.type != Zone.Type.RENTAL) {
                 player.sendWarnMessage("${Zone.Type.RENTAL.displayName}区画ではありません.")
@@ -185,12 +190,9 @@ class ZoneManager(
                     player.sendMessage("$PREFIX${zone.name}§eの所有数が上限に達しています.")
                     return@launch
                 }
-            } else if (area.state == Area.State.LOCK) {
-                player.sendWarnMessage("この区画はロックされています.")
-                return@launch
             }
 
-            val price = zone.calcAreaPurchasePrice(area.regionSize, ownedAreaCount)
+            val price = zone.calcAreaPurchasePrice(area.regionSize, ownedAreaCount, isOwned = area.isOwner(player))
             if (price < 0.0) {
                 player.sendErrorMessage("${name}のレンタル価格を取得できませんでした.")
                 return@launch

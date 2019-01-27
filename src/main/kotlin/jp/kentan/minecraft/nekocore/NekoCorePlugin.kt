@@ -5,6 +5,7 @@ import jp.kentan.minecraft.nekocore.command.*
 import jp.kentan.minecraft.nekocore.config.NekoCoreConfiguration
 import jp.kentan.minecraft.nekocore.data.dao.NekoCoreDatabase
 import jp.kentan.minecraft.nekocore.data.dao.PlayerDao
+import jp.kentan.minecraft.nekocore.listener.AntiSpamChatListener
 import jp.kentan.minecraft.nekocore.listener.BukkitEventListener
 import jp.kentan.minecraft.nekocore.listener.VotifierEventListener
 import jp.kentan.minecraft.nekocore.manager.*
@@ -63,6 +64,7 @@ class NekoCorePlugin : JavaPlugin() {
         bukkitEventListener.subscribePlayerPreLogin(PlayerDao(database)::insertDefaultRecordIfNeeded)
 
         server.pluginManager.registerEvents(bukkitEventListener, this)
+        server.pluginManager.registerEvents(AntiSpamChatListener(this), this)
         server.pluginManager.registerEvents(votifierEventListener, this)
     }
 

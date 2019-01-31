@@ -21,6 +21,7 @@ import java.util.*
 class BukkitEventListener : Listener {
 
     private var spawnCancelHandler: ((Player) -> Unit)? = null
+    private var asyncPlayerChatEventHandler: ((AsyncPlayerChatEvent) -> Unit)? = null
     private var playerPreLoginHandler: ((UUID) -> Unit)? = null
     private val playerJoinHandlerList = mutableListOf<(Player) -> Unit>()
     private val playerQuitHandlerList = mutableListOf<(Player) -> Unit>()
@@ -37,6 +38,10 @@ class BukkitEventListener : Listener {
         spawnCancelHandler = handler
     }
 
+    fun subscribeAsyncPlayerChatEvent(handler: (AsyncPlayerChatEvent) -> Unit) {
+        asyncPlayerChatEventHandler = handler
+    }
+
     fun subscribePlayerPreLogin(handler: (UUID) -> Unit) {
         playerPreLoginHandler = handler
     }
@@ -47,6 +52,11 @@ class BukkitEventListener : Listener {
 
     fun subscribePlayerQuit(handler: (Player) -> Unit) {
         playerQuitHandlerList.add(handler)
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    fun onAsyncPlayerChat(event: AsyncPlayerChatEvent) {
+        asyncPlayerChatEventHandler?.invoke(event)
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

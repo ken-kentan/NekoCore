@@ -1,6 +1,6 @@
 name: NekoCore
 main: jp.kentan.minecraft.nekocore.NekoCorePlugin
-version: 4.1.10
+version: 4.2.10
 author: ken_kentan
 website: https://ken.kentan.jp
 softdepend: [Vault, WorldGuard, LuckPerms, ShopChest]
@@ -46,4 +46,8 @@ commands:
   zone:
     description: 区画管理
     permission: neko.core.zone
+    usage: /<command>
+  auth:
+    description: 認証
+    permission: neko.core.auth
     usage: /<command>

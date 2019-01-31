@@ -5,6 +5,7 @@ import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.TextComponent
 import org.apache.commons.lang.RandomStringUtils
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import java.util.*
@@ -12,10 +13,13 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.ArrayList
 
 
-class AntiSpamManager(plugin: NekoCorePlugin) {
+class AntiSpamManager(
+    private val plugin: NekoCorePlugin
+) {
 
     private companion object {
         const val AUTH_KEY_LENGTH = 20
+        const val AUTH_REQUEST_SEND_DELAY_TICK = 20L
     }
 
     private val authKeyMap: MutableMap<Player, String> = ConcurrentHashMap()
@@ -23,17 +27,23 @@ class AntiSpamManager(plugin: NekoCorePlugin) {
 
     init {
         plugin.bukkitEventListener.subscribeAsyncPlayerChatEvent(::onAsyncPlayerChat)
+        plugin.bukkitEventListener.subscribePlayerJoin(::onPlayerJoin)
         plugin.bukkitEventListener.subscribePlayerQuit(::onPlayerQuit)
     }
 
     fun auth(player: Player, key: String) {
+        if (authorizedPlayerList.contains(player)) {
+            player.sendMessage("§aすでに認証しています.")
+            return
+        }
+
         val authKey = authKeyMap[player] ?: let {
-            player.sendMessage("§eキーが見つかりません.運営に報告してください.")
+            player.sendMessage("§cキーが見つかりません. 運営に報告してください.")
             return
         }
 
         if (authKey != key) {
-            player.sendMessage("§eキーが不一致です.")
+            player.sendMessage("§eキーが不正です.")
             return
         }
 
@@ -61,6 +71,14 @@ class AntiSpamManager(plugin: NekoCorePlugin) {
             event.isCancelled = true
             sendAuthRequestMessage(event.player)
         }
+    }
+
+    private fun onPlayerJoin(player: Player) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
+            if (player.isOnline) {
+                sendAuthRequestMessage(player)
+            }
+        }, AUTH_REQUEST_SEND_DELAY_TICK)
     }
 
     private fun onPlayerQuit(player: Player) {

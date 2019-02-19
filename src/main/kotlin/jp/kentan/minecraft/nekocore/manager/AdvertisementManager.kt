@@ -163,7 +163,7 @@ class AdvertisementManager(
     }
 
     fun confirmTask(player: Player) {
-        confirmTaskMap[player]?.run(player) ?: let {
+        confirmTaskMap.remove(player)?.run(player) ?: let {
             player.sendMessage("${PREFIX}§e認証が必要な処理はありません.")
             return
         }

@@ -19,7 +19,7 @@ class RankManager(
     private val diamondRankGroupNode = luckPermsApi.nodeFactory.makeGroupNode("diamond_rank").build()
     private val emeraldRankGroupNode = luckPermsApi.nodeFactory.makeGroupNode("emerald_rank").build()
 
-    private val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+    private val scoreboard = Bukkit.getScoreboardManager()?.mainScoreboard
 
     private val eventHandler: EventHandler<UserDataRecalculateEvent>
 
@@ -39,10 +39,10 @@ class RankManager(
         }
 
         if (rankColor != ChatColor.RESET) {
-            player.displayName = "$rankColor${player.name}§r"
+            player.setDisplayName("$rankColor${player.name}§r")
         }
 
-        var team: Team? = scoreboard.getTeam(player.name)
+        var team: Team? = scoreboard?.getTeam(player.name)
 
         when {
             player.hasPermission("group.staff") -> {
@@ -65,7 +65,7 @@ class RankManager(
     }
 
     private fun createNewTeam(playerName: String) =
-        scoreboard.registerNewTeam(playerName).apply {
+        scoreboard?.registerNewTeam(playerName)?.apply {
             addEntry(playerName)
         }
 

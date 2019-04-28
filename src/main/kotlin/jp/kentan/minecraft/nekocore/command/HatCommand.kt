@@ -16,7 +16,7 @@ class HatCommand(plugin: NekoCorePlugin) : BaseCommand("hat") {
             val headItem = inventory.helmet
             val mainHandItem = inventory.itemInMainHand
 
-            if (mainHandItem == null || mainHandItem.amount < 1) {
+            if (mainHandItem.amount < 1) {
                 player.sendMessage("§6アイテムをかぶるには、それを手に持つ必要があります.")
                 return@doIfPlayer
             }
@@ -28,7 +28,7 @@ class HatCommand(plugin: NekoCorePlugin) : BaseCommand("hat") {
 
             if (economy.withdrawPlayer(player, 100.0).transactionSuccess()) {
                 inventory.helmet = mainHandItem
-                inventory.itemInMainHand = headItem
+                inventory.setItemInMainHand(headItem)
 
                 player.sendMessage(" §a\u00A5100 を支払いました.")
             } else {
@@ -38,5 +38,6 @@ class HatCommand(plugin: NekoCorePlugin) : BaseCommand("hat") {
         return true
     }
 
-    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String> = emptyList()
+    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String> =
+        emptyList()
 }

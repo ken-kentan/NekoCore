@@ -60,7 +60,7 @@ dependencies {
     compile 'me.lucko.luckperms:luckperms-api:4.3'
 
     compile 'com.sk89q.worldguard:worldguard-legacy:7.0.0-SNAPSHOT'
-    compile 'com.sk89q.worldedit:worldedit-bukkit:6.0.0-SNAPSHOT'
+    compile 'com.sk89q.worldedit:worldedit-bukkit:7.0.0-SNAPSHOT'
 
     compile files('libs/ShopChest-1.13-SNAPSHOT.jar')
 

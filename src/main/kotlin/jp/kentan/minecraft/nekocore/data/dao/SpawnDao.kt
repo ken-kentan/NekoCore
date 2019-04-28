@@ -37,7 +37,7 @@ class SpawnDao(
             val st =
                 conn.prepareStatement("INSERT INTO neko_spawn VALUES(null,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE world=VALUES(world), x=VALUES(x), y=VALUES(y), z=VALUES(z), yaw=VALUES(yaw), pitch=VALUES(pitch)")
             st.setString(1, name)
-            st.setString(2, location.world.name)
+            st.setString(2, location.world?.name)
             st.setDouble(3, location.x)
             st.setDouble(4, location.y)
             st.setDouble(5, location.z)

@@ -74,7 +74,7 @@ class AntiSpamManager(
     }
 
     private fun onPlayerJoin(player: Player) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable {
             if (player.isOnline) {
                 sendAuthRequestMessage(player)
             }

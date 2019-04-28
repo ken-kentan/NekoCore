@@ -21,7 +21,7 @@ class ConfigKeys {
 
                 rewardList.add(
                     VoteReward(
-                        config.getString("$path.name"),
+                        config.getString("$path.name") ?: "",
                         config.getStringList("$path.commands")
                     )
                 )
@@ -45,10 +45,10 @@ class ConfigKeys {
         fun size() = ORDINAL_COUNTER.get()
 
         private fun stringKey(path: String, def: String? = null) =
-            object : ConfigKey<String> {
+            object : ConfigKey<String?> {
                 override val ordinal: Int = ORDINAL_COUNTER.getAndIncrement()
 
-                override fun get(config: ConfigurationSection): String {
+                override fun get(config: ConfigurationSection): String? {
                     return config.getString(path, def)
                 }
             }

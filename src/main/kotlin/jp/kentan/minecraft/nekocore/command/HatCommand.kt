@@ -38,10 +38,5 @@ class HatCommand(plugin: NekoCorePlugin) : BaseCommand("hat") {
         return true
     }
 
-    override fun onTabComplete(
-        sender: CommandSender?,
-        command: Command?,
-        alias: String?,
-        args: Array<out String>?
-    ): List<String> = emptyList()
+    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String> = emptyList()
 }

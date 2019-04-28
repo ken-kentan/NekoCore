@@ -27,12 +27,8 @@ class TutorialCommand(
         return true
     }
 
-    override fun onTabComplete(
-        sender: CommandSender?,
-        command: Command?,
-        alias: String?,
-        args: Array<out String>?
-    ): List<String> = emptyList()
+    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<String>): List<String> =
+        emptyList()
 
     private fun Player.sendHelp() {
         sendMessage("§6****************************************************")

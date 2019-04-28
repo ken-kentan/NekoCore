@@ -1,6 +1,6 @@
 package jp.kentan.minecraft.nekocore
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin
+import com.sk89q.worldguard.WorldGuard
 import jp.kentan.minecraft.nekocore.command.*
 import jp.kentan.minecraft.nekocore.config.NekoCoreConfiguration
 import jp.kentan.minecraft.nekocore.data.dao.NekoCoreDatabase
@@ -10,7 +10,6 @@ import jp.kentan.minecraft.nekocore.listener.VotifierEventListener
 import jp.kentan.minecraft.nekocore.manager.*
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.economy.Economy
-import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 class NekoCorePlugin : JavaPlugin() {
@@ -30,16 +29,23 @@ class NekoCorePlugin : JavaPlugin() {
     lateinit var antiSpamManager: AntiSpamManager
     private lateinit var rankManager: RankManager
 
-    val chat: Chat by lazy { server.servicesManager.getRegistration(Chat::class.java).provider }
-    val economy: Economy by lazy { server.servicesManager.getRegistration(Economy::class.java).provider }
-    val worldGuard: WorldGuardPlugin by lazy {
-        Bukkit.getServer().pluginManager.getPlugin("WorldGuard") as WorldGuardPlugin
-    }
+    lateinit var chat: Chat
+    lateinit var economy: Economy
+    val worldGuard: WorldGuard by lazy { WorldGuard.getInstance() }
 
     internal val bukkitEventListener = BukkitEventListener()
     internal val votifierEventListener = VotifierEventListener()
 
     override fun onEnable() {
+        try {
+            chat = server.servicesManager.getRegistration(Chat::class.java)?.provider ?: throw RuntimeException("chat not found")
+            economy = server.servicesManager.getRegistration(Economy::class.java)?.provider ?: throw RuntimeException("economy not found")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            server.pluginManager.disablePlugin(this)
+            return
+        }
+
         configuration = NekoCoreConfiguration(this)
         database = NekoCoreDatabase(this)
 
@@ -76,7 +82,7 @@ class NekoCorePlugin : JavaPlugin() {
 
     private fun setCommand(command: BaseCommand) =
         getCommand(command.name)?.apply {
-            executor = command
+            setExecutor(command)
             tabCompleter = command
         }
 }

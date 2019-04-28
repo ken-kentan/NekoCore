@@ -85,7 +85,7 @@ fun ProtectedRegion.clean(world: World) {
                     blockState.inventory.clear()
                 }
 
-                blockState.block.type = Material.AIR
+                blockState.block.setType(Material.AIR, false)
             }
         }
     }

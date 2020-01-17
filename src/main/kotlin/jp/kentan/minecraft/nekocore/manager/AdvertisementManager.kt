@@ -63,8 +63,8 @@ class AdvertisementManager(
             return
         }
 
-        if (periodDays !in 1..30) {
-            player.sendMessage("${PREFIX}§e日数は 1～30 の範囲で入力してください.")
+        if (periodDays !in 1..15) {
+            player.sendMessage("${PREFIX}§e日数は 1～15 の範囲で入力してください.")
             return
         }
 
@@ -74,8 +74,8 @@ class AdvertisementManager(
             player.sendMessage("${PREFIX}§e広告の内容が短すぎます.")
             return
         }
-        if (content.length > 250) {
-            player.sendMessage("${PREFIX}§e250文字を超える広告は登録できません.")
+        if (content.length > 140) {
+            player.sendMessage("${PREFIX}§e140文字を超える広告は登録できません.")
             return
         }
 

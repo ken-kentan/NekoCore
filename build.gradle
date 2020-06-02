@@ -32,11 +32,6 @@ repositories {
     }
 
     maven {
-        name 'Vault'
-        url 'http://nexus.hc.to/content/repositories/pub_releases'
-    }
-
-    maven {
         name 'bintray-nuvotifier-repo'
         url 'https://dl.bintray.com/nuvotifier/maven/'
     }

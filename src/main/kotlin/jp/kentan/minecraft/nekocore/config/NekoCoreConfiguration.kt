@@ -6,8 +6,8 @@ class NekoCoreConfiguration(
     private val plugin: NekoCorePlugin
 ) {
 
-    private var values: Array<Any>? = null
     private val handlerList = mutableListOf<() -> Unit>()
+    private var values = arrayOfNulls<Any>(ConfigKeys.size())
 
     init {
         plugin.saveDefaultConfig()
@@ -19,7 +19,7 @@ class NekoCoreConfiguration(
     }
 
     private fun load() {
-        val values = values ?: Array(ConfigKeys.size()) { Any() }
+        val values = values
 
         val config = plugin.config
 
@@ -38,5 +38,5 @@ class NekoCoreConfiguration(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> get(key: ConfigKey<T>) = values?.get(key.ordinal) as T
+    fun <T> get(key: ConfigKey<T>) = values[key.ordinal] as T
 }

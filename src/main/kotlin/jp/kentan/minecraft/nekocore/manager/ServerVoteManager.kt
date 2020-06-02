@@ -105,21 +105,21 @@ class ServerVoteManager(
     }
 
     private fun onPlayerJoined(player: Player) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable {
             if (!player.isOnline || player.isDead) {
-                return@runTaskLaterAsynchronously
+                return@Runnable
             }
 
             if (playerRepo.hasNotVoted(player.uniqueId)) {
                 player.sendMessage(VOTE_PROMOTE_MESSAGES)
-                return@runTaskLaterAsynchronously
+                return@Runnable
             }
 
             val commandList = playerRepo.getPendingCommandList(player.uniqueId)
                 .formatCommand(player)
 
             if (commandList.isEmpty()) {
-                return@runTaskLaterAsynchronously
+                return@Runnable
             }
 
             Bukkit.getServer().apply {

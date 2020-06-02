@@ -39,7 +39,7 @@ abstract class BaseDao {
 
     protected fun PreparedStatement.setLocation(index: Int, location: Location?) {
         if (location != null) {
-            setString(index, "${location.world.name},${location.x},${location.y},${location.z}")
+            setString(index, "${location.world?.name},${location.x},${location.y},${location.z}")
         } else {
             setString(index, null)
         }

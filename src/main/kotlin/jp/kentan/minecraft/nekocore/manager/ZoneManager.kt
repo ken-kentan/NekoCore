@@ -1,7 +1,8 @@
 package jp.kentan.minecraft.nekocore.manager
 
-import com.sk89q.worldguard.bukkit.RegionContainer
+import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.protection.regions.ProtectedRegion
+import com.sk89q.worldguard.protection.regions.RegionContainer
 import jp.kentan.minecraft.nekocore.NekoCorePlugin
 import jp.kentan.minecraft.nekocore.data.ZoneRepository
 import jp.kentan.minecraft.nekocore.data.model.Area
@@ -32,7 +33,7 @@ class ZoneManager(
     }
 
     private val zoneRepo = ZoneRepository(plugin)
-    private val regionContainer = plugin.worldGuard.regionContainer
+    private val regionContainer = plugin.worldGuard.platform.regionContainer
     private val tradeTaskMap: MutableMap<Player, TradeTask> = ConcurrentHashMap()
 
     init {
@@ -159,7 +160,7 @@ class ZoneManager(
 
             tradeTaskMap[player] = TradeTask(TradeType.BUY, zone, area, price)
             Bukkit.getScheduler()
-                .runTaskLaterAsynchronously(plugin, { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
+                .runTaskLaterAsynchronously(plugin, Runnable { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
         }
     }
 
@@ -205,7 +206,7 @@ class ZoneManager(
 
             tradeTaskMap[player] = TradeTask(TradeType.RENTAL, zone, area, price)
             Bukkit.getScheduler()
-                .runTaskLaterAsynchronously(plugin, { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
+                .runTaskLaterAsynchronously(plugin, Runnable { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
         }
     }
 
@@ -236,7 +237,7 @@ class ZoneManager(
 
             tradeTaskMap[player] = TradeTask(TradeType.SELL, zone, area, price)
             Bukkit.getScheduler()
-                .runTaskLaterAsynchronously(plugin, { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
+                .runTaskLaterAsynchronously(plugin, Runnable { tradeTaskMap.remove(player) }, CONFIRM_DELAY_TICK)
         }
     }
 
@@ -315,7 +316,7 @@ class ZoneManager(
             }
 
             player.sendMessage("§7********** §6所有区画一覧§7 **********")
-            areaMap.forEach { zone, areaList ->
+            areaMap.forEach { (zone, areaList) ->
                 player.sendMessage("§7- §r${zone}§r: §e${areaList.joinToString()}")
             }
         }
@@ -332,9 +333,9 @@ class ZoneManager(
     }
 
     override fun onPlayerJoin(player: Player) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable {
             if (!player.isOnline) {
-                return@runTaskLaterAsynchronously
+                return@Runnable
             }
 
             val expireList = zoneRepo.getOwnedRentalExpireAreaList(player.uniqueId, 7)
@@ -388,9 +389,9 @@ class ZoneManager(
     }
 
     private fun scheduleExpiredAreaCheckTask() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
             zoneRepo.getExpiredAreaList().forEach { area ->
-                val region = regionContainer.get(area.world)?.getRegion(area.regionId) ?: let {
+                val region = regionContainer.get(BukkitAdapter.adapt(area.world))?.getRegion(area.regionId) ?: let {
                     plugin.logger.warning("failed to get a region(${area.regionId}")
                     return@forEach
                 }
@@ -440,7 +441,7 @@ class ZoneManager(
         }
 
     private fun RegionContainer.getRegionOrError(player: Player, regionId: String): ProtectedRegion? =
-        get(player.world)?.getRegion(regionId) ?: let {
+        get(BukkitAdapter.adapt(player.world))?.getRegion(regionId) ?: let {
             player.sendErrorMessage("保護リージョン($regionId)は存在しません.")
             return@let null
         }
@@ -501,7 +502,7 @@ class ZoneManager(
                 return
             }
 
-            regionContainer.get(area.world)?.getRegion(area.regionId)
+            regionContainer.get(BukkitAdapter.adapt(area.world))?.getRegion(area.regionId)
 
             val area = area.copy(state = Area.State.SOLD, owner = player, purchasedPrice = price, expiredDate = null)
 

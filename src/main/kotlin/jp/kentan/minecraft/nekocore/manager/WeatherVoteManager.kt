@@ -64,7 +64,7 @@ class WeatherVoteManager(
         }
 
         val task = VoteTask(player, state)
-        task.id = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, {
+        task.id = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
             if (task.timerSeconds.decrementAndGet() < 0) {
                 stopVoteTask()
             }

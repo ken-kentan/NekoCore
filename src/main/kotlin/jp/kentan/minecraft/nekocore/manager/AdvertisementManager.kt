@@ -63,8 +63,8 @@ class AdvertisementManager(
             return
         }
 
-        if (periodDays !in 1..30) {
-            player.sendMessage("${PREFIX}§e日数は 1～30 の範囲で入力してください.")
+        if (periodDays !in 1..15) {
+            player.sendMessage("${PREFIX}§e日数は 1～15 の範囲で入力してください.")
             return
         }
 
@@ -74,8 +74,8 @@ class AdvertisementManager(
             player.sendMessage("${PREFIX}§e広告の内容が短すぎます.")
             return
         }
-        if (content.length > 250) {
-            player.sendMessage("${PREFIX}§e250文字を超える広告は登録できません.")
+        if (content.length > 140) {
+            player.sendMessage("${PREFIX}§e140文字を超える広告は登録できません.")
             return
         }
 
@@ -95,7 +95,7 @@ class AdvertisementManager(
             player.sendMessage("${PREFIX}§7登録を確定するには §c/ad confirm§7 と入力して下さい.")
 
             confirmTaskMap[player] = ConfirmTask(Type.SET, content, periodDays)
-            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, { confirmTaskMap.remove(player) }, 20L * 30)
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable { confirmTaskMap.remove(player) }, 20L * 30)
         }
     }
 
@@ -115,7 +115,7 @@ class AdvertisementManager(
             player.sendMessage("${PREFIX}§7消去を確定するには §c/ad confirm§7 と入力して下さい.")
 
             confirmTaskMap[player] = ConfirmTask(Type.UNSET, "", 0)
-            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, { confirmTaskMap.remove(player) }, 20L * 30)
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, Runnable { confirmTaskMap.remove(player) }, 20L * 30)
         }
     }
 
@@ -179,11 +179,11 @@ class AdvertisementManager(
         var indexMiddle = 0
         var indexLow = 0
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
             val now = System.currentTimeMillis()
             advertisementList.removeIf { it.expiredDate.time <= now }
             if (advertisementList.isEmpty()) {
-                return@runTaskTimerAsynchronously
+                return@Runnable
             }
 
             if (advertisementList.size <= ++indexHigh) {
@@ -192,9 +192,9 @@ class AdvertisementManager(
             broadcast(AdvertiseFrequency.HIGH, indexHigh)
         }, BASE_INTERVAL_TICK, BASE_INTERVAL_TICK * AdvertiseFrequency.HIGH.intervalGain)
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
             if (advertisementList.isEmpty()) {
-                return@runTaskTimerAsynchronously
+                return@Runnable
             }
 
             if (advertisementList.size <= ++indexMiddle) {
@@ -203,9 +203,9 @@ class AdvertisementManager(
             broadcast(AdvertiseFrequency.MIDDLE, indexMiddle)
         }, BASE_INTERVAL_TICK, BASE_INTERVAL_TICK * AdvertiseFrequency.MIDDLE.intervalGain)
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, Runnable {
             if (advertisementList.isEmpty()) {
-                return@runTaskTimerAsynchronously
+                return@Runnable
             }
 
             if (advertisementList.size <= ++indexLow) {
@@ -220,7 +220,7 @@ class AdvertisementManager(
         val message = "$PREFIX${ad.content}"
 
         playerMap.filterValues { it == freq }
-            .forEach { player, _ -> player.sendMessage(message) }
+            .forEach { (player, _) -> player.sendMessage(message) }
     }
 
     private fun onPlayerJoined(player: Player) {

@@ -4,7 +4,6 @@ import jp.kentan.minecraft.nekocore.data.model.Area
 import jp.kentan.minecraft.nekocore.event.ZoneEvent
 import jp.kentan.minecraft.nekocore.util.Permissions
 import org.bukkit.GameMode
-import org.bukkit.Material
 import org.bukkit.block.CreatureSpawner
 import org.bukkit.block.Sign
 import org.bukkit.entity.Player
@@ -79,7 +78,7 @@ class BukkitEventListener : Listener {
         val to = event.to
         val from = event.from
 
-        if (to.blockX != from.blockX || to.blockY != from.blockY || to.blockZ != from.blockZ) {
+        if (to == null || to.blockX != from.blockX || to.blockY != from.blockY || to.blockZ != from.blockZ) {
             spawnCancelHandler?.invoke(event.player)
         }
     }
@@ -115,9 +114,7 @@ class BukkitEventListener : Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        val blockState = event.clickedBlock.state
-
-        when (blockState) {
+        when (val blockState = event.clickedBlock?.state) {
             is Sign -> {
                 if (blockState.isZoneSign()) {
                     if (event.action == Action.RIGHT_CLICK_BLOCK) {
@@ -128,7 +125,7 @@ class BukkitEventListener : Listener {
                 }
             }
             is CreatureSpawner -> {
-                if (event.material == Material.MONSTER_EGG && event.player.gameMode != GameMode.CREATIVE) {
+                if (event.player.gameMode != GameMode.CREATIVE && event.material.name.endsWith("_SPAWN_EGG")) {
                     event.isCancelled = true
                 }
             }
